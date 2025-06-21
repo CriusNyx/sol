@@ -1,5 +1,5 @@
 [workspace]
 resolver = "3"
-members = ["sol"]
+members = ["sol", "sol_helpers"]
 
 include = ["data/SampleProgram.txt"]

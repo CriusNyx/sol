@@ -2,21 +2,24 @@ use core::fmt;
 
 use logos::{Lexer, Logos, Span};
 use serde::Serialize;
+use ts_rs::TS;
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, TS)]
 pub struct TokenInfo<'token> {
   pub span: Span,
   pub source: &'token str,
+  pub index: i32,
 }
 
 fn create_token_info<'token>(lexer: &mut Lexer<'token, TypeToken<'token>>) -> TokenInfo<'token> {
   TokenInfo {
     span: lexer.span(),
     source: lexer.slice(),
+    index: -1,
   }
 }
 
-#[derive(Logos, Clone, Debug, PartialEq, Serialize)]
+#[derive(Logos, Clone, Debug, TS, PartialEq, Serialize)]
 pub enum TypeToken<'token> {
   // Keywords
   #[token("type", create_token_info)]
@@ -73,6 +76,35 @@ impl<'token> fmt::Display for TypeToken<'token> {
 }
 
 impl<'token> TypeToken<'token> {
+  pub fn get_info_mut(&mut self) -> &mut TokenInfo<'token> {
+    match self {
+      // Keywords
+      Self::TypeKeyword(info) => info,
+      Self::VoidKeyword(info) => info,
+
+      // Symbols
+      Self::Colon(info) => info,
+      Self::Semicolon(info) => info,
+      Self::Comma(info) => info,
+      Self::AddOpp(info) => info,
+      Self::Spread(info) => info,
+
+      // Brackets
+      Self::OpenCurly(info) => info,
+      Self::ClosedCurly(info) => info,
+      Self::OpenParen(info) => info,
+      Self::ClosedParen(info) => info,
+      Self::OpenAngle(info) => info,
+      Self::ClosedAngle(info) => info,
+      Self::OpenCaret(info) => info,
+      Self::ClosedCaret(info) => info,
+
+      Self::Symbol(info) => info,
+
+      _ => panic!(),
+    }
+  }
+
   pub fn get_info(&self) -> &TokenInfo {
     match self {
       // Keywords

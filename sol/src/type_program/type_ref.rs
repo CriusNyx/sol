@@ -2,13 +2,14 @@ use chumsky::prelude::*;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{PrintSource, TypeToken};
+use crate::type_program::{PrintSource, TokenSource, TypeToken};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct SymTypeRef<'token> {
-  pub name: &'token str,
+  pub name: TypeToken<'token>,
   pub params: Option<Vec<TypeRef<'token>>>,
+  pub tokens: TokenSource<'token>,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
@@ -16,6 +17,7 @@ pub struct SymTypeRef<'token> {
 pub struct ArrayTypeRef<'token> {
   pub arity: u16,
   pub array_type: TypeRef<'token>,
+  pub tokens: TokenSource<'token>,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
@@ -85,12 +87,13 @@ pub fn type_ref_parser<'a>()
       .map(|params| Some(params))
       .or(empty().to(None));
 
-    let sym_type_ref = select! {TypeToken::Symbol(name) => name}
+    let sym_type_ref = select! {TypeToken::Symbol(info) => TypeToken::Symbol(info)}
       .then(type_params)
-      .map(|(token, params)| {
+      .map_with(|(token, params), extra| {
         TypeRef::SymTypeRef(SymTypeRef {
-          name: token.source,
+          name: token,
           params,
+          tokens: TokenSource::from_extra(extra),
         })
       });
 
@@ -101,17 +104,18 @@ pub fn type_ref_parser<'a>()
           .collect::<Vec<_>>(),
       )
       .then_ignore(select_ref! {TypeToken::ClosedAngle(_)})
-      .map(|(_, body)| body.iter().count());
+      .map_with(|(_, body), extra| (body.iter().count() as u16, TokenSource::from_extra(extra)));
 
     let array_decl = sym_type_ref
       .clone()
       .then(array_arity_decl.repeated().collect::<Vec<_>>())
       .map(|(type_ref, arity)| {
-        let arr = arity as Vec<usize>;
-        arr.into_iter().fold(type_ref, |prev, curr| {
+        let arr = arity as Vec<(_, _)>;
+        arr.into_iter().fold(type_ref, |prev, (curr, tokens)| {
           TypeRef::ArrayTypeRef(Box::new(ArrayTypeRef {
-            arity: curr as u16,
+            arity: curr,
             array_type: prev,
+            tokens,
           }))
         })
       });

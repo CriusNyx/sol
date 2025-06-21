@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
 mod sample_programs;
 mod type_program;
 mod wasm;
@@ -14,6 +17,7 @@ fn main() {
 
   match ast {
     Ok(result) => {
+      dbg!(&result);
       println!("{}", result.print_source());
     }
     Err(e) => {

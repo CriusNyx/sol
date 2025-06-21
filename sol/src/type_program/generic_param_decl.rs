@@ -7,7 +7,7 @@ use crate::type_program::{PrintSource, TypeRef, TypeToken, type_ref_set_parser};
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct GenericParamDecl<'token> {
-  pub name: &'token str,
+  pub name: TypeToken<'token>,
   pub inherits: Option<Vec<TypeRef<'token>>>,
 }
 
@@ -47,16 +47,17 @@ impl<'token> PrintSource for Option<Vec<GenericParamDecl<'token>>> {
 pub fn generic_param_set_parser<'a>()
 -> impl Parser<'a, &'a [TypeToken<'a>], Vec<GenericParamDecl<'a>>, extra::Err<Rich<'a, TypeToken<'a>>>>
 {
-  let no_inherits_parser = select! {TypeToken::Symbol(sym) => sym}.map(|token| GenericParamDecl {
-    name: token.source,
-    inherits: None,
-  });
+  let no_inherits_parser =
+    select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)}.map(|token| GenericParamDecl {
+      name: token,
+      inherits: None,
+    });
 
-  let inherits_parser = select! {TypeToken::Symbol(sym) => sym}
+  let inherits_parser = select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)}
     .then_ignore(select! {TypeToken::Colon(_)})
     .then(type_ref_set_parser())
     .map(|(token, inherits)| GenericParamDecl {
-      name: token.source,
+      name: token,
       inherits: Some(inherits),
     });
 

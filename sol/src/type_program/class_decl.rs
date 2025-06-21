@@ -10,7 +10,7 @@ use crate::type_program::{
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct FieldDef<'token> {
-  pub field_name: &'token str,
+  pub field_name: TypeToken<'token>,
   pub type_ref: TypeRef<'token>,
 }
 
@@ -24,7 +24,7 @@ pub enum ClassBodyStatement<'token> {
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct ClassDecl<'token> {
-  pub name: &'token str,
+  pub name: TypeToken<'token>,
   pub generic_params: Option<Vec<GenericParamDecl<'token>>>,
   pub inherits: Option<Vec<TypeRef<'token>>>,
   pub body: Option<Vec<ClassBodyStatement<'token>>>,
@@ -88,11 +88,11 @@ pub fn class_decl_parser<'a>()
   let type_parser = type_ref_parser();
 
   let field_parser = type_parser
-    .then(select! { TypeToken::Symbol(sym) => sym })
+    .then(select! { TypeToken::Symbol(sym) => TypeToken::Symbol(sym)  })
     .then_ignore(select! {TypeToken::Semicolon(_)})
     .map(|(type_ref, token)| {
       ClassBodyStatement::FieldDecl(FieldDef {
-        field_name: token.source,
+        field_name: token,
         type_ref,
       })
     });
@@ -121,13 +121,13 @@ pub fn class_decl_parser<'a>()
     .or(empty().to(None));
 
   let class_parser = select! {TypeToken::TypeKeyword(_)}
-    .then(select! {TypeToken::Symbol(sym) => sym})
+    .then(select! { TypeToken::Symbol(sym) => TypeToken::Symbol(sym) })
     .then(generic_param_parser)
     .then(inherit_parser)
     .then(body_parser)
     .map(
       |((((_, token), generic_params), inherits), body)| ClassDecl {
-        name: token.source,
+        name: token,
         generic_params,
         inherits,
         body: body,

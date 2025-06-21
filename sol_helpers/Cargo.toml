@@ -1,0 +1,11 @@
+[package]
+name = "sol_helpers"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["proc-macro"]
+
+[dependencies]
+quote = "1.0.40"
+syn = "2.0.104"

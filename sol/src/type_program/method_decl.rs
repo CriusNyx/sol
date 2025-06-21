@@ -8,7 +8,7 @@ use crate::type_program::{
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct MethodArg<'token> {
+pub struct MethodParam<'token> {
   pub type_ref: TypeRef<'token>,
   pub variadic: bool,
 }
@@ -16,13 +16,13 @@ pub struct MethodArg<'token> {
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct MethodDecl<'token> {
-  pub name: &'token str,
+  pub name: TypeToken<'token>,
   pub generic_params: Option<Vec<GenericParamDecl<'token>>>,
   pub return_type: Option<TypeRef<'token>>,
-  pub param_types: Vec<MethodArg<'token>>,
+  pub param_types: Vec<MethodParam<'token>>,
 }
 
-impl<'token> PrintSource for MethodArg<'token> {
+impl<'token> PrintSource for MethodParam<'token> {
   fn print_source(&self) -> String {
     if self.variadic {
       format!("... {}", self.type_ref.print_source())
@@ -67,18 +67,18 @@ pub fn method_decl_parser<'a>()
 
   let generic_param_parser = generic_param_decl_parser.map(Some).or(empty().to(None));
 
-  let method_arg_parser = select! {TypeToken::Spread(_)}
+  let method_param_parser = select! {TypeToken::Spread(_)}
     .then(type_ref_parser.clone())
-    .map(|(_, type_ref)| MethodArg {
+    .map(|(_, type_ref)| MethodParam {
       type_ref,
       variadic: true,
     })
-    .or(type_ref_parser.map(|type_ref| MethodArg {
+    .or(type_ref_parser.map(|type_ref| MethodParam {
       type_ref,
       variadic: false,
     }));
 
-  let param_body_parser = method_arg_parser
+  let param_body_parser = method_param_parser
     .separated_by(select_ref! {TypeToken::Comma(_)})
     .collect::<Vec<_>>()
     .delimited_by(
@@ -87,13 +87,13 @@ pub fn method_decl_parser<'a>()
     );
 
   let method_parser = return_type_parser
-    .then(select! {TypeToken::Symbol(sym) => sym})
+    .then(select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)})
     .then(generic_param_parser)
     .then(param_body_parser)
     .then_ignore(select!(TypeToken::Semicolon(_)))
     .map(
       |(((return_type, token), generic_params), param_types)| MethodDecl {
-        name: token.source,
+        name: token,
         return_type,
         generic_params,
         param_types,
