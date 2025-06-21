@@ -19,7 +19,7 @@
   "activationEvents": [
     "onLanguage:plaintext"
   ],
-  "main": "./client/out/extension",
+  "main": "./client/out/main",
   "contributes": {
     "configuration": {
       "type": "object",
@@ -56,7 +56,7 @@
     "watch": "concurrently \"yarn esbuild-client\" \"yarn esbuild-server\"",
     "lint": "eslint",
     "postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
-    "install": "vsce package && code --install-extension sol-language-server-1.0.0.vsix",
+    "install-package": "yarn install && vsce package && code --install-extension sol-language-server-1.0.0.vsix",
     "test": "sh ./scripts/e2e.sh"
   },
   "devDependencies": {
