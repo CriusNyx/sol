@@ -48,7 +48,7 @@
   "scripts": {
     "vscode:prepublish": "yarn compile",
     "esbuild-client": "esbuild ./client/src/extension.ts --bundle --outfile=client/out/main.js --external:vscode --format=cjs --platform=node",
-    "esbuild-server": "esbuild ./server/src/server.ts --bundle --outfile=server/out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild-server": "cd server && ts-node build.ts",
     "compile": "yarn build-rust && concurrently \"yarn esbuild-client\" \"yarn esbuild-server\"",
     "preinstall": "yarn build-rust",
     "build-rust": "yarn rust:build-sol-wasm && yarn rust:build-sol-types",
@@ -67,6 +67,7 @@
     "@types/node": "^24.0.3",
     "concurrently": "^9.1.2",
     "esbuild": "0.25.5",
+    "esbuild-plugin-wasm": "^1.1.0",
     "eslint": "9.29.0",
     "mocha": "11.7.0",
     "typescript": "5.8.3",
