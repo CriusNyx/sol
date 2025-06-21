@@ -50,6 +50,7 @@
     "esbuild-client": "esbuild ./client/src/extension.ts --bundle --outfile=client/out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild-server": "esbuild ./server/src/server.ts --bundle --outfile=server/out/main.js --external:vscode --format=cjs --platform=node",
     "compile": "yarn build-rust && concurrently \"yarn esbuild-client\" \"yarn esbuild-server\"",
+    "preinstall": "yarn build-rust",
     "build-rust": "yarn rust:build-sol-wasm && yarn rust:build-sol-types",
     "rust:build-sol-types": "cd ../sol-js/sol-types && yarn build",
     "rust:build-sol-wasm": "cd ../sol && wasm-pack build --target nodejs --out-dir ../sol-js/node-wasm",
