@@ -31,7 +31,7 @@ pub fn analyze_program_semantics(src: String) -> JsValue {
 pub fn analyze_program_semantics_internal(src: String) -> Vec<SemanticToken> {
   let lex_result = lex_type_program(&src);
 
-  let ast_result = parse_type_program(&lex_result, &src);
+  let ast_result = parse_type_program(&lex_result);
 
   match ast_result {
     Ok(ast) => {

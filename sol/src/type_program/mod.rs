@@ -8,7 +8,6 @@ mod type_program;
 mod type_program_print;
 mod type_ref;
 
-use ariadne::{Color, Label, Report, ReportKind, Source};
 pub use ast_visitor::*;
 use chumsky::prelude::*;
 pub use class_decl::*;
@@ -21,7 +20,19 @@ pub use type_program::*;
 pub use type_program_print::*;
 pub use type_ref::*;
 
-pub fn lex_type_program<'a>(source: &'a str) -> Result<Vec<TypeToken<'a>>, Vec<&'a str>> {
+#[derive(Debug)]
+pub struct ParseError<'a> {
+  pub parse_errors: Vec<Rich<'a, TypeToken<'a>>>,
+  pub tokens: &'a Vec<TypeToken<'a>>,
+}
+
+#[derive(Debug)]
+pub enum CompileError<'a> {
+  LexError,
+  ParseError(ParseError<'a>),
+}
+
+pub fn lex_type_program<'a>(source: &'a str) -> Result<Vec<TypeToken<'a>>, CompileError<'a>> {
   let result = TypeToken::lexer(source).collect::<Result<Vec<TypeToken<'a>>, _>>();
   match result {
     Ok(mut vec) => {
@@ -30,43 +41,25 @@ pub fn lex_type_program<'a>(source: &'a str) -> Result<Vec<TypeToken<'a>>, Vec<&
       }
       Ok(vec)
     }
-    Err(_) => Err(vec![""]),
+    Err(_) => Err(CompileError::LexError),
   }
 }
 
 pub fn parse_type_program<'a>(
-  tokens: &'a Result<Vec<TypeToken<'a>>, Vec<&'a str>>,
-  source: &'a str,
-) -> Result<TypeProgram<'a>, Vec<&'a str>> {
+  tokens: &'a Result<Vec<TypeToken<'a>>, CompileError<'a>>,
+) -> Result<TypeProgram<'a>, CompileError<'a>> {
   match tokens {
     Ok(vec) => {
-      let parsed = type_parser::<'a>().parse(vec);
+      let parsed = type_parser().parse(&vec);
       match parsed.into_result() {
         Ok(program) => Ok(program),
-        Err(errs) => {
-          for err in errs {
-            let err_range = err.span().into_range();
-            let offending_tokens = &vec[err_range];
-            let start = offending_tokens.first().unwrap().get_info().span.start;
-            let end = offending_tokens.last().unwrap().get_info().span.end;
-
-            Report::build(ReportKind::Error, ("file.st", start..end))
-              .with_config(ariadne::Config::new().with_index_type(ariadne::IndexType::Byte))
-              .with_message(err.to_string())
-              .with_code(-1)
-              .with_label(
-                Label::new(("file.st", start..end))
-                  .with_message(err.reason().to_string())
-                  .with_color(Color::Red),
-              )
-              .finish()
-              .eprint(("file.st", Source::from(source)))
-              .unwrap();
-          }
-          Err(vec!["Parse Error"])
-        }
+        Err(errs) => Err(CompileError::ParseError(ParseError {
+          parse_errors: errs,
+          tokens: vec,
+        })),
       }
     }
-    Err(err) => Err(err.to_vec()),
+    Err(CompileError::LexError) => Err(CompileError::LexError),
+    _ => panic!(),
   }
 }

@@ -4,22 +4,22 @@ use crate::type_program::{
 };
 
 pub trait TypeProgramVisitor {
-  fn visit_program<'a>(&mut self, program: &TypeProgram<'a>) {}
-  fn visit_program_after<'a>(&mut self, program: &TypeProgram<'a>) {}
-  fn visit_class_decl<'a>(&mut self, class_decl: &ClassDecl<'a>) {}
-  fn visit_class_decl_after<'a>(&mut self, class_decl: &ClassDecl<'a>) {}
-  fn visit_generic_param_decl<'a>(&mut self, generic_param_decl: &GenericParamDecl<'a>) {}
-  fn visit_generic_param_decl_after<'a>(&mut self, generic_param_decl: &GenericParamDecl<'a>) {}
-  fn visit_type_ref<'a>(&mut self, type_ref: &TypeRef<'a>) {}
-  fn visit_type_ref_after<'a>(&mut self, type_ref: &TypeRef<'a>) {}
-  fn visit_class_statement<'a>(&mut self, class_statement: &ClassBodyStatement<'a>) {}
-  fn visit_class_statement_after<'a>(&mut self, class_statement: &ClassBodyStatement<'a>) {}
-  fn visit_field_decl<'a>(&mut self, field_decl: &FieldDef<'a>) {}
-  fn visit_field_decl_after<'a>(&mut self, field_decl: &FieldDef<'a>) {}
-  fn visit_method_decl<'a>(&mut self, method_decl: &MethodDecl<'a>) {}
-  fn visit_method_decl_after<'a>(&mut self, method_decl: &MethodDecl<'a>) {}
-  fn visit_method_param<'a>(&mut self, method_decl: &MethodParam<'a>) {}
-  fn visit_method_param_after<'a>(&mut self, method_decl: &MethodParam<'a>) {}
+  fn visit_program<'a>(&mut self, _program: &TypeProgram<'a>) {}
+  fn visit_program_after<'a>(&mut self, _program: &TypeProgram<'a>) {}
+  fn visit_class_decl<'a>(&mut self, _class_decl: &ClassDecl<'a>) {}
+  fn visit_class_decl_after<'a>(&mut self, _class_decl: &ClassDecl<'a>) {}
+  fn visit_generic_param_decl<'a>(&mut self, _generic_param_decl: &GenericParamDecl<'a>) {}
+  fn visit_generic_param_decl_after<'a>(&mut self, _generic_param_decl: &GenericParamDecl<'a>) {}
+  fn visit_type_ref<'a>(&mut self, _type_ref: &TypeRef<'a>) {}
+  fn visit_type_ref_after<'a>(&mut self, _type_ref: &TypeRef<'a>) {}
+  fn visit_class_statement<'a>(&mut self, _class_statement: &ClassBodyStatement<'a>) {}
+  fn visit_class_statement_after<'a>(&mut self, _class_statement: &ClassBodyStatement<'a>) {}
+  fn visit_field_decl<'a>(&mut self, _field_decl: &FieldDef<'a>) {}
+  fn visit_field_decl_after<'a>(&mut self, _field_decl: &FieldDef<'a>) {}
+  fn visit_method_decl<'a>(&mut self, _method_decl: &MethodDecl<'a>) {}
+  fn visit_method_decl_after<'a>(&mut self, _method_decl: &MethodDecl<'a>) {}
+  fn visit_method_param<'a>(&mut self, _method_decl: &MethodParam<'a>) {}
+  fn visit_method_param_after<'a>(&mut self, _method_decl: &MethodParam<'a>) {}
 }
 
 fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgramVisitor) {

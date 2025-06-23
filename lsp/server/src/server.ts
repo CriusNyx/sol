@@ -33,8 +33,6 @@ let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
-  console.log("AHHHH!!! Internal screaming2!!!!");
-
   const tokenModifiers: string[] = ["none"];
 
   const capabilities = params.capabilities;
@@ -318,8 +316,6 @@ function encodeToken(
   return [line, char, length, semanticTypes.indexOf(tokenType), tokenModifiers];
 }
 
-// Make the text document manager listen on the connection
-// for open, change and close text document events
 documents.listen(connection);
 
 // Listen on the connection

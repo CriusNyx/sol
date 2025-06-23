@@ -1,2 +1,2 @@
 [env]
-TS_RS_EXPORT_DIR = { value = "../sol-js/sol-types/generated", relative = true }
+TS_RS_EXPORT_DIR = { value = "../lsp/sol-types/generated", relative = true }

@@ -9,7 +9,7 @@ struct SemanticAnalysisVisitor<'visitor> {
 
 impl<'visitor> SemanticAnalysisVisitor<'visitor> {
   fn set_token_type(&mut self, type_token: &TypeToken, semantic_type: SemanticType) {
-    let semantic_token = self
+    self
       .semantic_tokens
       .get_mut(type_token.get_info().index as usize)
       .map(|semantic_token| {
@@ -48,39 +48,4 @@ pub fn update_semantic_token_info<'a>(
 ) {
   let mut visitor = SemanticAnalysisVisitor { semantic_tokens };
   program.visit(&mut visitor);
-}
-
-impl<'a> GenericParamDecl<'a> {
-  fn update_semantic_token_info(&self, semantic_tokens: &mut Vec<SemanticToken>) {
-    let name_token = semantic_tokens
-      .get_mut(self.name.get_info().index as usize)
-      .unwrap();
-    name_token.token_type = SemanticType::Type;
-    self.inherits.as_ref().map(|x| {
-      for ele in x {
-        ele.update_semantic_token_info(semantic_tokens);
-      }
-    });
-  }
-}
-
-impl<'a> TypeRef<'a> {
-  fn update_semantic_token_info(&self, semantic_tokens: &mut Vec<SemanticToken>) {
-    match self {
-      TypeRef::SymTypeRef(sym) => {
-        let current = semantic_tokens
-          .get_mut(sym.name.get_info().index as usize)
-          .unwrap();
-        current.token_type = SemanticType::Type;
-        sym.params.as_ref().map(|x| {
-          for ele in x {
-            ele.update_semantic_token_info(semantic_tokens);
-          }
-        });
-      }
-      TypeRef::ArrayTypeRef(arr) => {
-        arr.array_type.update_semantic_token_info(semantic_tokens);
-      }
-    }
-  }
 }
