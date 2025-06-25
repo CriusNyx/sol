@@ -6,12 +6,12 @@ use crate::type_program::{PrintSource, TypeRef, TypeToken, type_ref_parser};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct Identifier<'token> {
-  pub identifier_name: TypeToken<'token>,
-  pub type_ref: TypeRef<'token>,
+pub struct Identifier {
+  pub identifier_name: TypeToken,
+  pub type_ref: TypeRef,
 }
 
-impl<'token> PrintSource for Identifier<'token> {
+impl PrintSource for Identifier {
   fn print_source(&self) -> String {
     format!(
       "{}: {}",
@@ -22,7 +22,7 @@ impl<'token> PrintSource for Identifier<'token> {
 }
 
 pub fn parse_identifier<'a>()
--> impl Parser<'a, &'a [TypeToken<'a>], Identifier<'a>, extra::Err<Rich<'a, TypeToken<'a>>>> {
+-> impl Parser<'a, &'a [TypeToken], Identifier, extra::Err<Rich<'a, TypeToken>>> {
   return select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)}
     .then_ignore(select! {TypeToken::Colon(_)})
     .then(type_ref_parser())

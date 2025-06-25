@@ -4,32 +4,32 @@ use crate::type_program::{
 };
 
 pub trait TypeProgramVisitor {
-  fn visit_program<'a>(&mut self, _program: &TypeProgram<'a>) {}
-  fn visit_program_after<'a>(&mut self, _program: &TypeProgram<'a>) {}
-  fn visit_global_exp<'a>(&mut self, _global_exp: &GlobalExp<'a>) {}
-  fn visit_global_exp_after<'a>(&mut self, _global_exp: &GlobalExp<'a>) {}
-  fn visit_class_decl<'a>(&mut self, _class_decl: &ClassDecl<'a>) {}
-  fn visit_class_decl_after<'a>(&mut self, _class_decl: &ClassDecl<'a>) {}
-  fn visit_global_var<'a>(&mut self, _global_var: &GlobalVar<'a>) {}
-  fn visit_global_var_after<'a>(&mut self, _global_var: &GlobalVar<'a>) {}
-  fn visit_generic_param_decl<'a>(&mut self, _generic_param_decl: &GenericParamDecl<'a>) {}
-  fn visit_generic_param_decl_after<'a>(&mut self, _generic_param_decl: &GenericParamDecl<'a>) {}
-  fn visit_type_ref<'a>(&mut self, _type_ref: &TypeRef<'a>) {}
-  fn visit_type_ref_after<'a>(&mut self, _type_ref: &TypeRef<'a>) {}
-  fn visit_class_statement<'a>(&mut self, _class_statement: &ClassBodyStatement<'a>) {}
-  fn visit_class_statement_after<'a>(&mut self, _class_statement: &ClassBodyStatement<'a>) {}
-  fn visit_field_decl<'a>(&mut self, _field_decl: &FieldDef<'a>) {}
-  fn visit_field_decl_after<'a>(&mut self, _field_decl: &FieldDef<'a>) {}
-  fn visit_identifier<'a>(&mut self, _identifier: &Identifier<'a>) {}
-  fn visit_identifier_after<'a>(&mut self, _identifier: &Identifier<'a>) {}
-  fn visit_method_decl<'a>(&mut self, _method_decl: &MethodDecl<'a>) {}
-  fn visit_method_decl_after<'a>(&mut self, _method_decl: &MethodDecl<'a>) {}
-  fn visit_method_param<'a>(&mut self, _method_decl: &MethodParam<'a>) {}
-  fn visit_method_param_after<'a>(&mut self, _method_decl: &MethodParam<'a>) {}
+  fn visit_program(&mut self, _program: &TypeProgram) {}
+  fn visit_program_after(&mut self, _program: &TypeProgram) {}
+  fn visit_global_exp(&mut self, _global_exp: &GlobalExp) {}
+  fn visit_global_exp_after(&mut self, _global_exp: &GlobalExp) {}
+  fn visit_class_decl(&mut self, _class_decl: &ClassDecl) {}
+  fn visit_class_decl_after(&mut self, _class_decl: &ClassDecl) {}
+  fn visit_global_var(&mut self, _global_var: &GlobalVar) {}
+  fn visit_global_var_after(&mut self, _global_var: &GlobalVar) {}
+  fn visit_generic_param_decl(&mut self, _generic_param_decl: &GenericParamDecl) {}
+  fn visit_generic_param_decl_after(&mut self, _generic_param_decl: &GenericParamDecl) {}
+  fn visit_type_ref(&mut self, _type_ref: &TypeRef) {}
+  fn visit_type_ref_after(&mut self, _type_ref: &TypeRef) {}
+  fn visit_class_statement(&mut self, _class_statement: &ClassBodyStatement) {}
+  fn visit_class_statement_after(&mut self, _class_statement: &ClassBodyStatement) {}
+  fn visit_field_decl(&mut self, _field_decl: &FieldDef) {}
+  fn visit_field_decl_after(&mut self, _field_decl: &FieldDef) {}
+  fn visit_identifier(&mut self, _identifier: &Identifier) {}
+  fn visit_identifier_after(&mut self, _identifier: &Identifier) {}
+  fn visit_method_decl(&mut self, _method_decl: &MethodDecl) {}
+  fn visit_method_decl_after(&mut self, _method_decl: &MethodDecl) {}
+  fn visit_method_param(&mut self, _method_decl: &MethodParam) {}
+  fn visit_method_param_after(&mut self, _method_decl: &MethodParam) {}
 }
 
-fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgramVisitor) {
-  fn visit_type_ref<'a>(type_ref: &TypeRef<'a>, visitor: &mut impl TypeProgramVisitor) {
+fn visit_type_program(program: TypeProgram, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_type_ref(type_ref: &TypeRef, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_type_ref(type_ref);
 
     match type_ref {
@@ -46,8 +46,8 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_type_ref_after(type_ref);
   }
 
-  fn visit_generic_param_decl<'a>(
-    generic_param_decl: &GenericParamDecl<'a>,
+  fn visit_generic_param_decl(
+    generic_param_decl: &GenericParamDecl,
     visitor: &mut impl TypeProgramVisitor,
   ) {
     visitor.visit_generic_param_decl(generic_param_decl);
@@ -61,7 +61,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_generic_param_decl_after(generic_param_decl);
   }
 
-  fn visit_identifier<'a>(identifier: &Identifier<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_identifier(identifier: &Identifier, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_identifier(identifier);
 
     visit_type_ref(&identifier.type_ref, visitor);
@@ -69,7 +69,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_identifier_after(identifier);
   }
 
-  fn visit_field_decl<'a>(field_decl: &FieldDef<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_field_decl(field_decl: &FieldDef, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_field_decl(field_decl);
 
     visit_identifier(&field_decl.identifier, visitor);
@@ -77,7 +77,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_field_decl_after(field_decl);
   }
 
-  fn visit_method_param<'a>(param: &MethodParam<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_method_param(param: &MethodParam, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_method_param(param);
 
     visit_type_ref(&param.type_ref, visitor);
@@ -85,7 +85,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_method_param_after(param);
   }
 
-  fn visit_method_decl<'a>(method_decl: &MethodDecl<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_method_decl(method_decl: &MethodDecl, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_method_decl(method_decl);
 
     method_decl.generic_params.as_ref().map(|generic_params| {
@@ -106,8 +106,8 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_method_decl_after(method_decl);
   }
 
-  fn visit_class_statement<'a>(
-    class_statement: &ClassBodyStatement<'a>,
+  fn visit_class_statement(
+    class_statement: &ClassBodyStatement,
     visitor: &mut impl TypeProgramVisitor,
   ) {
     visitor.visit_class_statement(class_statement);
@@ -120,7 +120,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_class_statement_after(class_statement);
   }
 
-  fn visit_class_decl<'a>(class_decl: &ClassDecl<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_class_decl(class_decl: &ClassDecl, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_class_decl(class_decl);
 
     class_decl.generic_params.as_ref().map(|generic_params| {
@@ -144,7 +144,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_class_decl_after(class_decl);
   }
 
-  fn visit_global_var<'a>(global_var: &GlobalVar<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_global_var(global_var: &GlobalVar, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_global_var(global_var);
 
     visit_identifier(&global_var.identifier, visitor);
@@ -152,7 +152,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_global_var_after(global_var);
   }
 
-  fn visit_global_exp<'a>(global_exp: &GlobalExp<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_global_exp(global_exp: &GlobalExp, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_global_exp(global_exp);
 
     match global_exp {
@@ -163,7 +163,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_global_exp_after(global_exp);
   }
 
-  fn visit_program<'a>(program: &TypeProgram<'a>, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_program(program: &TypeProgram, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_program(&program);
 
     for global_exp in &program.expressions {
@@ -176,7 +176,7 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
   visit_program(&program, visitor);
 }
 
-impl<'a> TypeProgram<'a> {
+impl TypeProgram {
   pub fn visit(self, visitor: &mut impl TypeProgramVisitor) {
     visit_type_program(self, visitor);
   }

@@ -1,4 +1,4 @@
-type string: IEnumerable<char>;
+type string: IEnumerable<char> + Array<char>;
 
 static val: String;
 
@@ -12,5 +12,5 @@ type Test<T: IEnumerable<string> + IComparable> {
 type ThisIsAClass: IEnumerable<string>;
 
 type Test2<T: IDK>{
-  Foo(Arg1, Arg2<IEnumerable<String>>, ...string[]): T;
+  Foo(Arg1, Arg2<IEnumerable<string>>, ...string[]): T;
 }

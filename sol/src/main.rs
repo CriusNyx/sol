@@ -3,6 +3,7 @@
 
 mod lsp;
 mod sample_programs;
+mod type_context;
 mod type_program;
 mod wasm;
 

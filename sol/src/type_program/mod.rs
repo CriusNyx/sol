@@ -27,8 +27,8 @@ pub use type_ref::*;
 
 #[derive(Debug)]
 pub struct ParseError<'a> {
-  pub parse_errors: Vec<Rich<'a, TypeToken<'a>>>,
-  pub tokens: &'a Vec<TypeToken<'a>>,
+  pub parse_errors: Vec<Rich<'a, TypeToken>>,
+  pub tokens: &'a Vec<TypeToken>,
 }
 
 #[derive(Debug)]
@@ -37,8 +37,8 @@ pub enum CompileError<'a> {
   ParseError(ParseError<'a>),
 }
 
-pub fn lex_type_program<'a>(source: &'a str) -> Result<Vec<TypeToken<'a>>, CompileError<'a>> {
-  let result = TypeToken::lexer(source).collect::<Result<Vec<TypeToken<'a>>, _>>();
+pub fn lex_type_program<'a>(source: &'a str) -> Result<Vec<TypeToken>, CompileError<'a>> {
+  let result = TypeToken::lexer(&source).collect::<Result<Vec<TypeToken>, _>>();
   match result {
     Ok(mut vec) => {
       for (i, e) in vec.iter_mut().enumerate() {
@@ -51,8 +51,8 @@ pub fn lex_type_program<'a>(source: &'a str) -> Result<Vec<TypeToken<'a>>, Compi
 }
 
 pub fn parse_type_program<'a>(
-  tokens: &'a Result<Vec<TypeToken<'a>>, CompileError<'a>>,
-) -> Result<TypeProgram<'a>, CompileError<'a>> {
+  tokens: &'a Result<Vec<TypeToken>, CompileError<'a>>,
+) -> Result<TypeProgram, CompileError<'a>> {
   match tokens {
     Ok(vec) => {
       let parsed = type_parser().parse(&vec);

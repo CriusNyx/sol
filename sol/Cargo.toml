@@ -19,3 +19,5 @@ ariadne = "0.5.1"
 sol_helpers = { path = "../sol_helpers" }
 dotenv = "0.15.0"
 clap = "4.5.40"
+ouroboros = "0.18.5"
+derive-getters = "0.5.0"

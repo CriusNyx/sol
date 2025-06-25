@@ -30,7 +30,7 @@ impl fmt::Display for SemanticType {
   }
 }
 
-impl<'a> TypeToken<'a> {
+impl TypeToken {
   pub fn semantic_type(&self) -> SemanticType {
     if self.is_keyword() {
       SemanticType::Keyword

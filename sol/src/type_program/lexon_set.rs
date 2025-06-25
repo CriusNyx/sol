@@ -10,12 +10,12 @@ use crate::type_program::TypeToken;
 #[ts(export)]
 pub struct TokenSource<'token> {
   pub token_range: Range<usize>,
-  pub tokens: &'token [TypeToken<'token>],
+  pub tokens: &'token [TypeToken],
 }
 
 impl TokenSource<'_> {
-  pub fn from_extra<'token, 'a, E: ParserExtra<'token, &'token [TypeToken<'token>]>>(
-    extra: &mut MapExtra<'token, 'a, &'token [TypeToken<'token>], E>,
+  pub fn from_extra<'token, 'a, E: ParserExtra<'token, &'token [TypeToken]>>(
+    extra: &mut MapExtra<'token, 'a, &'token [TypeToken], E>,
   ) -> TokenSource<'token> {
     TokenSource {
       token_range: (extra.span() as SimpleSpan).into_range(),

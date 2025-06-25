@@ -9,25 +9,25 @@ use crate::type_program::{
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct FieldDef<'token> {
+pub struct FieldDef {
   pub is_static: bool,
-  pub identifier: Identifier<'token>,
+  pub identifier: Identifier,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub enum ClassBodyStatement<'token> {
-  FieldDecl(FieldDef<'token>),
-  MethodDecl(MethodDecl<'token>),
+pub enum ClassBodyStatement {
+  FieldDecl(FieldDef),
+  MethodDecl(MethodDecl),
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct ClassDecl<'token> {
-  pub name: TypeToken<'token>,
-  pub generic_params: Option<Vec<GenericParamDecl<'token>>>,
-  pub inherits: Option<Vec<TypeRef<'token>>>,
-  pub body: Option<Vec<ClassBodyStatement<'token>>>,
+pub struct ClassDecl {
+  pub name: TypeToken,
+  pub generic_params: Option<Vec<GenericParamDecl>>,
+  pub inherits: Option<Vec<TypeRef>>,
+  pub body: Option<Vec<ClassBodyStatement>>,
 }
 
 fn print_class_body(body: &Option<Vec<ClassBodyStatement>>) -> String {
@@ -58,7 +58,7 @@ fn print_inherits(inherits: &Option<Vec<TypeRef>>) -> String {
   }
 }
 
-impl<'token> PrintSource for ClassBodyStatement<'token> {
+impl PrintSource for ClassBodyStatement {
   fn print_source(&self) -> String {
     match self {
       ClassBodyStatement::FieldDecl(field_decl) => {
@@ -73,7 +73,7 @@ impl<'token> PrintSource for ClassBodyStatement<'token> {
   }
 }
 
-impl<'token> PrintSource for ClassDecl<'token> {
+impl PrintSource for ClassDecl {
   fn print_source(&self) -> String {
     format!(
       "type {}{}{}{}",
@@ -86,7 +86,7 @@ impl<'token> PrintSource for ClassDecl<'token> {
 }
 
 pub fn parse_class_decl<'a>()
--> impl Parser<'a, &'a [TypeToken<'a>], ClassDecl<'a>, extra::Err<Rich<'a, TypeToken<'a>>>> {
+-> impl Parser<'a, &'a [TypeToken], ClassDecl, extra::Err<Rich<'a, TypeToken>>> {
   let static_parser = select! {TypeToken::StaticKeyword(_) => true}.or(empty().to(false));
 
   let field_parser = static_parser

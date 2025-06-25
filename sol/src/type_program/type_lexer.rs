@@ -5,70 +5,70 @@ use serde::Serialize;
 use ts_rs::TS;
 
 #[derive(Clone, Debug, PartialEq, Serialize, TS)]
-pub struct TokenInfo<'token> {
+pub struct TokenInfo {
   pub span: Span,
-  pub source: &'token str,
+  pub source: Box<str>,
   pub index: i32,
 }
 
-fn create_token_info<'token>(lexer: &mut Lexer<'token, TypeToken<'token>>) -> TokenInfo<'token> {
+fn create_token_info<'lexer>(lexer: &mut Lexer<'lexer, TypeToken>) -> TokenInfo {
   TokenInfo {
     span: lexer.span(),
-    source: lexer.slice(),
+    source: lexer.slice().into(),
     index: -1,
   }
 }
 
 #[derive(Logos, Clone, Debug, TS, PartialEq, Serialize)]
-pub enum TypeToken<'token> {
+pub enum TypeToken {
   // Keywords
   #[token("type", create_token_info)]
-  TypeKeyword(TokenInfo<'token>),
+  TypeKeyword(TokenInfo),
   #[token("void", create_token_info)]
-  VoidKeyword(TokenInfo<'token>),
+  VoidKeyword(TokenInfo),
   #[token("static", create_token_info)]
-  StaticKeyword(TokenInfo<'token>),
+  StaticKeyword(TokenInfo),
 
   // Symbols
   #[token(":", create_token_info)]
-  Colon(TokenInfo<'token>),
+  Colon(TokenInfo),
   #[token(";", create_token_info)]
-  Semicolon(TokenInfo<'token>),
+  Semicolon(TokenInfo),
   #[token(",", create_token_info)]
-  Comma(TokenInfo<'token>),
+  Comma(TokenInfo),
   #[token("+", create_token_info)]
-  AddOpp(TokenInfo<'token>),
+  AddOpp(TokenInfo),
   #[token("...", create_token_info)]
-  Spread(TokenInfo<'token>),
+  Spread(TokenInfo),
 
   // Brackets
   #[token("{", create_token_info)]
-  OpenCurly(TokenInfo<'token>),
+  OpenCurly(TokenInfo),
   #[token("}", create_token_info)]
-  ClosedCurly(TokenInfo<'token>),
+  ClosedCurly(TokenInfo),
   #[token("(", create_token_info)]
-  OpenParen(TokenInfo<'token>),
+  OpenParen(TokenInfo),
   #[token(")", create_token_info)]
-  ClosedParen(TokenInfo<'token>),
+  ClosedParen(TokenInfo),
   #[token("[", create_token_info)]
-  OpenAngle(TokenInfo<'token>),
+  OpenAngle(TokenInfo),
   #[token("]", create_token_info)]
-  ClosedAngle(TokenInfo<'token>),
+  ClosedAngle(TokenInfo),
   #[token("<", create_token_info)]
-  OpenCaret(TokenInfo<'token>),
+  OpenCaret(TokenInfo),
   #[token(">", create_token_info)]
-  ClosedCaret(TokenInfo<'token>),
+  ClosedCaret(TokenInfo),
 
   // Symbol
   #[regex("[a-zA-Z][a-zA-Z0-9]*", create_token_info)]
-  Symbol(TokenInfo<'token>),
+  Symbol(TokenInfo),
 
   // Whitespace
   #[regex(r"[ \t\f\n]+", logos::skip)]
   Whitespace,
 }
 
-impl<'token> fmt::Display for TypeToken<'token> {
+impl fmt::Display for TypeToken {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match self {
       Self::Whitespace => write!(f, "<whitespace>"),
@@ -77,8 +77,8 @@ impl<'token> fmt::Display for TypeToken<'token> {
   }
 }
 
-impl<'token> TypeToken<'token> {
-  pub fn get_info_mut(&mut self) -> &mut TokenInfo<'token> {
+impl TypeToken {
+  pub fn get_info_mut(&mut self) -> &mut TokenInfo {
     match self {
       // Keywords
       Self::TypeKeyword(info) => info,

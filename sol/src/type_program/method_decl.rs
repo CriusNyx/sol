@@ -8,22 +8,22 @@ use crate::type_program::{
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct MethodParam<'token> {
-  pub type_ref: TypeRef<'token>,
+pub struct MethodParam {
+  pub type_ref: TypeRef,
   pub variadic: bool,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct MethodDecl<'token> {
+pub struct MethodDecl {
   pub is_static: bool,
-  pub name: TypeToken<'token>,
-  pub generic_params: Option<Vec<GenericParamDecl<'token>>>,
-  pub return_type: Option<TypeRef<'token>>,
-  pub param_types: Vec<MethodParam<'token>>,
+  pub name: TypeToken,
+  pub generic_params: Option<Vec<GenericParamDecl>>,
+  pub return_type: Option<TypeRef>,
+  pub param_types: Vec<MethodParam>,
 }
 
-impl<'token> PrintSource for MethodParam<'token> {
+impl PrintSource for MethodParam {
   fn print_source(&self) -> String {
     if self.variadic {
       format!("... {}", self.type_ref.print_source())
@@ -33,7 +33,7 @@ impl<'token> PrintSource for MethodParam<'token> {
   }
 }
 
-impl<'token> PrintSource for MethodDecl<'token> {
+impl PrintSource for MethodDecl {
   fn print_source(&self) -> String {
     let return_type_string = match &self.return_type {
       Some(val) => val.print_source(),
@@ -57,7 +57,7 @@ impl<'token> PrintSource for MethodDecl<'token> {
 }
 
 pub fn method_decl_parser<'a>()
--> impl Parser<'a, &'a [TypeToken<'a>], MethodDecl<'a>, extra::Err<Rich<'a, TypeToken<'a>>>> {
+-> impl Parser<'a, &'a [TypeToken], MethodDecl, extra::Err<Rich<'a, TypeToken>>> {
   let static_parser = select! {TypeToken::StaticKeyword(_) => true}.or(empty().to(false));
 
   let type_ref_parser = type_ref_parser();

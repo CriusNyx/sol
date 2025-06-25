@@ -2,32 +2,30 @@ use chumsky::prelude::*;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{PrintSource, TokenSource, TypeToken};
+use crate::type_program::{PrintSource, TypeToken};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct SymTypeRef<'token> {
-  pub name: TypeToken<'token>,
-  pub params: Option<Vec<TypeRef<'token>>>,
-  pub tokens: TokenSource<'token>,
+pub struct SymTypeRef {
+  pub name: TypeToken,
+  pub params: Option<Vec<TypeRef>>,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct ArrayTypeRef<'token> {
+pub struct ArrayTypeRef {
   pub arity: u16,
-  pub array_type: TypeRef<'token>,
-  pub tokens: TokenSource<'token>,
+  pub array_type: TypeRef,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub enum TypeRef<'token> {
-  ArrayTypeRef(Box<ArrayTypeRef<'token>>),
-  SymTypeRef(SymTypeRef<'token>),
+pub enum TypeRef {
+  ArrayTypeRef(Box<ArrayTypeRef>),
+  SymTypeRef(SymTypeRef),
 }
 
-impl<'a> PrintSource for SymTypeRef<'a> {
+impl PrintSource for SymTypeRef {
   fn print_source(&self) -> String {
     match &self.params {
       Some(params) => format!(
@@ -44,7 +42,7 @@ impl<'a> PrintSource for SymTypeRef<'a> {
   }
 }
 
-impl<'token> PrintSource for ArrayTypeRef<'token> {
+impl PrintSource for ArrayTypeRef {
   fn print_source(&self) -> String {
     format!(
       "{}[{}]",
@@ -54,7 +52,7 @@ impl<'token> PrintSource for ArrayTypeRef<'token> {
   }
 }
 
-impl<'token> PrintSource for TypeRef<'token> {
+impl PrintSource for TypeRef {
   fn print_source(&self) -> String {
     match self {
       TypeRef::ArrayTypeRef(arr) => arr.print_source(),
@@ -64,14 +62,14 @@ impl<'token> PrintSource for TypeRef<'token> {
 }
 
 pub fn type_ref_set_parser<'a>()
--> impl Parser<'a, &'a [TypeToken<'a>], Vec<TypeRef<'a>>, extra::Err<Rich<'a, TypeToken<'a>>>> {
+-> impl Parser<'a, &'a [TypeToken], Vec<TypeRef>, extra::Err<Rich<'a, TypeToken>>> {
   type_ref_parser()
     .separated_by(select_ref! { TypeToken::AddOpp(_) })
     .collect::<Vec<_>>()
 }
 
 pub fn type_ref_parser<'a>()
--> impl Parser<'a, &'a [TypeToken<'a>], TypeRef<'a>, extra::Err<Rich<'a, TypeToken<'a>>>> + Clone {
+-> impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone {
   recursive(|type_ref| {
     let params_set = type_ref
       .clone()
@@ -89,11 +87,10 @@ pub fn type_ref_parser<'a>()
 
     let sym_type_ref = select! {TypeToken::Symbol(info) => TypeToken::Symbol(info)}
       .then(type_params)
-      .map_with(|(token, params), extra| {
+      .map(|(token, params)| {
         TypeRef::SymTypeRef(SymTypeRef {
           name: token,
           params,
-          tokens: TokenSource::from_extra(extra),
         })
       });
 
@@ -104,18 +101,17 @@ pub fn type_ref_parser<'a>()
           .collect::<Vec<_>>(),
       )
       .then_ignore(select_ref! {TypeToken::ClosedAngle(_)})
-      .map_with(|(_, body), extra| (body.iter().count() as u16, TokenSource::from_extra(extra)));
+      .map(|(_, arr)| arr.len() as u16);
 
     let array_decl = sym_type_ref
       .clone()
       .then(array_arity_decl.repeated().collect::<Vec<_>>())
       .map(|(type_ref, arity)| {
-        let arr = arity as Vec<(_, _)>;
-        arr.into_iter().fold(type_ref, |prev, (curr, tokens)| {
+        let arr = arity as Vec<_>;
+        arr.into_iter().fold(type_ref, |prev, curr| {
           TypeRef::ArrayTypeRef(Box::new(ArrayTypeRef {
             arity: curr,
             array_type: prev,
-            tokens,
           }))
         })
       });
