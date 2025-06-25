@@ -32,11 +32,14 @@ impl fmt::Display for SemanticType {
 
 impl<'a> TypeToken<'a> {
   pub fn semantic_type(&self) -> SemanticType {
-    match self {
-      TypeToken::TypeKeyword(_) | TypeToken::VoidKeyword(_) => SemanticType::Keyword,
-      TypeToken::AddOpp(_) | TypeToken::Spread(_) => SemanticType::Operator,
-      TypeToken::Symbol(_) => SemanticType::Variable,
-      _ => SemanticType::None,
+    if self.is_keyword() {
+      SemanticType::Keyword
+    } else if self.is_op() {
+      SemanticType::Operator
+    } else if let TypeToken::Symbol(_) = self {
+      SemanticType::Variable
+    } else {
+      SemanticType::None
     }
   }
 

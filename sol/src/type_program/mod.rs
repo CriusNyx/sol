@@ -1,6 +1,10 @@
+use chumsky::prelude::*;
+
 mod ast_visitor;
 mod class_decl;
 mod generic_param_decl;
+mod global_val;
+mod identifier_decl;
 mod lexon_set;
 mod method_decl;
 mod type_lexer;
@@ -9,9 +13,10 @@ mod type_program_print;
 mod type_ref;
 
 pub use ast_visitor::*;
-use chumsky::prelude::*;
 pub use class_decl::*;
 pub use generic_param_decl::*;
+pub use global_val::*;
+pub use identifier_decl::*;
 pub use lexon_set::*;
 use logos::Logos;
 pub use method_decl::*;

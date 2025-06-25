@@ -26,6 +26,8 @@ pub enum TypeToken<'token> {
   TypeKeyword(TokenInfo<'token>),
   #[token("void", create_token_info)]
   VoidKeyword(TokenInfo<'token>),
+  #[token("static", create_token_info)]
+  StaticKeyword(TokenInfo<'token>),
 
   // Symbols
   #[token(":", create_token_info)]
@@ -81,6 +83,7 @@ impl<'token> TypeToken<'token> {
       // Keywords
       Self::TypeKeyword(info) => info,
       Self::VoidKeyword(info) => info,
+      Self::StaticKeyword(info) => info,
 
       // Symbols
       Self::Colon(info) => info,
@@ -100,8 +103,7 @@ impl<'token> TypeToken<'token> {
       Self::ClosedCaret(info) => info,
 
       Self::Symbol(info) => info,
-
-      _ => panic!(),
+      Self::Whitespace => panic!(),
     }
   }
 
@@ -110,6 +112,7 @@ impl<'token> TypeToken<'token> {
       // Keywords
       Self::TypeKeyword(info) => info,
       Self::VoidKeyword(info) => info,
+      Self::StaticKeyword(info) => info,
 
       // Symbols
       Self::Colon(info) => info,
@@ -130,7 +133,21 @@ impl<'token> TypeToken<'token> {
 
       Self::Symbol(info) => info,
 
-      _ => panic!(),
+      Self::Whitespace => panic!(),
+    }
+  }
+
+  pub fn is_keyword(&self) -> bool {
+    match self {
+      TypeToken::TypeKeyword(_) | TypeToken::VoidKeyword(_) | TypeToken::StaticKeyword(_) => true,
+      _ => false,
+    }
+  }
+
+  pub fn is_op(&self) -> bool {
+    match self {
+      TypeToken::AddOpp(_) | TypeToken::Spread(_) => true,
+      _ => false,
     }
   }
 }

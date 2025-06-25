@@ -34,10 +34,12 @@ export function activate(context: ExtensionContext) {
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for plain text documents
-    documentSelector: [{ scheme: "file", language: "plaintext" }],
+    documentSelector: [
+      { scheme: "file", language: "sol_type", pattern: "**/*.st" },
+    ],
     synchronize: {
       // Notify the server about file changes to '.st files contained in the workspace
-      fileEvents: workspace.createFileSystemWatcher("**/.st"),
+      fileEvents: workspace.createFileSystemWatcher("**/*.st"),
     },
   };
 

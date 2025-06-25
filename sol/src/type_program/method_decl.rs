@@ -16,6 +16,7 @@ pub struct MethodParam<'token> {
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct MethodDecl<'token> {
+  pub is_static: bool,
   pub name: TypeToken<'token>,
   pub generic_params: Option<Vec<GenericParamDecl<'token>>>,
   pub return_type: Option<TypeRef<'token>>,
@@ -40,8 +41,8 @@ impl<'token> PrintSource for MethodDecl<'token> {
     };
 
     format!(
-      "{} {}{}({});",
-      return_type_string,
+      "{}{}{}({}): {};",
+      if self.is_static { "static " } else { "" },
       self.name.to_string(),
       self.generic_params.print_source(),
       self
@@ -49,13 +50,16 @@ impl<'token> PrintSource for MethodDecl<'token> {
         .iter()
         .map(|x| x.print_source())
         .collect::<Vec<_>>()
-        .join(", ")
+        .join(", "),
+      return_type_string
     )
   }
 }
 
 pub fn method_decl_parser<'a>()
 -> impl Parser<'a, &'a [TypeToken<'a>], MethodDecl<'a>, extra::Err<Rich<'a, TypeToken<'a>>>> {
+  let static_parser = select! {TypeToken::StaticKeyword(_) => true}.or(empty().to(false));
+
   let type_ref_parser = type_ref_parser();
 
   let return_type_parser = type_ref_parser
@@ -86,13 +90,16 @@ pub fn method_decl_parser<'a>()
       select! {TypeToken::ClosedParen(_)},
     );
 
-  let method_parser = return_type_parser
+  let method_parser = static_parser
     .then(select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)})
     .then(generic_param_parser)
     .then(param_body_parser)
+    .then_ignore(select! {TypeToken::Colon(_)})
+    .then(return_type_parser)
     .then_ignore(select!(TypeToken::Semicolon(_)))
     .map(
-      |(((return_type, token), generic_params), param_types)| MethodDecl {
+      |((((is_static, token), generic_params), param_types), return_type)| MethodDecl {
+        is_static,
         name: token,
         return_type,
         generic_params,

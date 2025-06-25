@@ -1,13 +1,17 @@
 use crate::type_program::{
-  ClassBodyStatement, ClassDecl, FieldDef, GenericParamDecl, MethodDecl, MethodParam, TypeProgram,
-  TypeRef,
+  ClassBodyStatement, ClassDecl, FieldDef, GenericParamDecl, GlobalExp, GlobalVar, Identifier,
+  MethodDecl, MethodParam, TypeProgram, TypeRef,
 };
 
 pub trait TypeProgramVisitor {
   fn visit_program<'a>(&mut self, _program: &TypeProgram<'a>) {}
   fn visit_program_after<'a>(&mut self, _program: &TypeProgram<'a>) {}
+  fn visit_global_exp<'a>(&mut self, _global_exp: &GlobalExp<'a>) {}
+  fn visit_global_exp_after<'a>(&mut self, _global_exp: &GlobalExp<'a>) {}
   fn visit_class_decl<'a>(&mut self, _class_decl: &ClassDecl<'a>) {}
   fn visit_class_decl_after<'a>(&mut self, _class_decl: &ClassDecl<'a>) {}
+  fn visit_global_var<'a>(&mut self, _global_var: &GlobalVar<'a>) {}
+  fn visit_global_var_after<'a>(&mut self, _global_var: &GlobalVar<'a>) {}
   fn visit_generic_param_decl<'a>(&mut self, _generic_param_decl: &GenericParamDecl<'a>) {}
   fn visit_generic_param_decl_after<'a>(&mut self, _generic_param_decl: &GenericParamDecl<'a>) {}
   fn visit_type_ref<'a>(&mut self, _type_ref: &TypeRef<'a>) {}
@@ -16,6 +20,8 @@ pub trait TypeProgramVisitor {
   fn visit_class_statement_after<'a>(&mut self, _class_statement: &ClassBodyStatement<'a>) {}
   fn visit_field_decl<'a>(&mut self, _field_decl: &FieldDef<'a>) {}
   fn visit_field_decl_after<'a>(&mut self, _field_decl: &FieldDef<'a>) {}
+  fn visit_identifier<'a>(&mut self, _identifier: &Identifier<'a>) {}
+  fn visit_identifier_after<'a>(&mut self, _identifier: &Identifier<'a>) {}
   fn visit_method_decl<'a>(&mut self, _method_decl: &MethodDecl<'a>) {}
   fn visit_method_decl_after<'a>(&mut self, _method_decl: &MethodDecl<'a>) {}
   fn visit_method_param<'a>(&mut self, _method_decl: &MethodParam<'a>) {}
@@ -55,10 +61,18 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_generic_param_decl_after(generic_param_decl);
   }
 
+  fn visit_identifier<'a>(identifier: &Identifier<'a>, visitor: &mut impl TypeProgramVisitor) {
+    visitor.visit_identifier(identifier);
+
+    visit_type_ref(&identifier.type_ref, visitor);
+
+    visitor.visit_identifier_after(identifier);
+  }
+
   fn visit_field_decl<'a>(field_decl: &FieldDef<'a>, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_field_decl(field_decl);
 
-    visit_type_ref(&field_decl.type_ref, visitor);
+    visit_identifier(&field_decl.identifier, visitor);
 
     visitor.visit_field_decl_after(field_decl);
   }
@@ -130,11 +144,30 @@ fn visit_type_program<'a>(program: TypeProgram<'a>, visitor: &mut impl TypeProgr
     visitor.visit_class_decl_after(class_decl);
   }
 
+  fn visit_global_var<'a>(global_var: &GlobalVar<'a>, visitor: &mut impl TypeProgramVisitor) {
+    visitor.visit_global_var(global_var);
+
+    visit_identifier(&global_var.identifier, visitor);
+
+    visitor.visit_global_var_after(global_var);
+  }
+
+  fn visit_global_exp<'a>(global_exp: &GlobalExp<'a>, visitor: &mut impl TypeProgramVisitor) {
+    visitor.visit_global_exp(global_exp);
+
+    match global_exp {
+      GlobalExp::ClassDec(class_decl) => visit_class_decl(class_decl, visitor),
+      GlobalExp::GlobalVar(global_var) => visit_global_var(global_var, visitor),
+    }
+
+    visitor.visit_global_exp_after(global_exp);
+  }
+
   fn visit_program<'a>(program: &TypeProgram<'a>, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_program(&program);
 
-    for class_decl in &program.expressions {
-      visit_class_decl(class_decl, visitor);
+    for global_exp in &program.expressions {
+      visit_global_exp(global_exp, visitor);
     }
 
     visitor.visit_program_after(program);

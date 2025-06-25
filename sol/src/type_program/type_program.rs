@@ -7,8 +7,24 @@ use crate::type_program::*;
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
+pub enum GlobalExp<'token> {
+  ClassDec(ClassDecl<'token>),
+  GlobalVar(GlobalVar<'token>),
+}
+
+impl<'token> PrintSource for GlobalExp<'token> {
+  fn print_source(&self) -> String {
+    match self {
+      Self::ClassDec(class_decl) => class_decl.print_source(),
+      Self::GlobalVar(global_val) => global_val.print_source(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, TS)]
+#[ts(export)]
 pub struct TypeProgram<'token> {
-  pub expressions: Vec<ClassDecl<'token>>,
+  pub expressions: Vec<GlobalExp<'token>>,
 }
 
 impl<'token> PrintSource for TypeProgram<'token> {
@@ -24,9 +40,14 @@ impl<'token> PrintSource for TypeProgram<'token> {
 
 pub fn type_parser<'a>()
 -> impl Parser<'a, &'a [TypeToken<'a>], TypeProgram<'a>, extra::Err<Rich<'a, TypeToken<'a>>>> {
-  let class_parser = class_decl_parser();
+  let class_parser = parse_class_decl();
+  let global_val_parser = parse_global_var();
 
-  class_parser
+  let global_exp_parser = class_parser
+    .map(|class_decl| GlobalExp::ClassDec(class_decl))
+    .or(global_val_parser.map(|global_val| GlobalExp::GlobalVar(global_val)));
+
+  global_exp_parser
     .repeated()
     .collect::<Vec<_>>()
     .map(|f| TypeProgram { expressions: f })

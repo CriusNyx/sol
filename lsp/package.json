@@ -21,28 +21,21 @@
   ],
   "main": "./client/out/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "sol_type",
+        "aliases": [
+          "st"
+        ],
+        "extensions": [
+          ".st"
+        ]
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Sol Language Server",
-      "properties": {
-        "languageServerExample.maxNumberOfProblems": {
-          "scope": "resource",
-          "type": "number",
-          "default": 100,
-          "description": "Controls the maximum number of problems produced by the server."
-        },
-        "languageServerExample.trace.server": {
-          "scope": "window",
-          "type": "string",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ],
-          "default": "off",
-          "description": "Traces the communication between VS Code and the language server."
-        }
-      }
+      "properties": {}
     }
   },
   "devDependencies": {

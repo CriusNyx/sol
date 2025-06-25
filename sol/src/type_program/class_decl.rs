@@ -3,15 +3,15 @@ use serde::Serialize;
 use ts_rs::TS;
 
 use crate::type_program::{
-  GenericParamDecl, MethodDecl, PrintSource, TypeRef, TypeToken, generic_param_set_parser,
-  method_decl_parser, type_ref_parser, type_ref_set_parser,
+  GenericParamDecl, Identifier, MethodDecl, PrintSource, TypeRef, TypeToken,
+  generic_param_set_parser, method_decl_parser, parse_identifier, type_ref_set_parser,
 };
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct FieldDef<'token> {
-  pub field_name: TypeToken<'token>,
-  pub type_ref: TypeRef<'token>,
+  pub is_static: bool,
+  pub identifier: Identifier<'token>,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
@@ -61,11 +61,13 @@ fn print_inherits(inherits: &Option<Vec<TypeRef>>) -> String {
 impl<'token> PrintSource for ClassBodyStatement<'token> {
   fn print_source(&self) -> String {
     match self {
-      ClassBodyStatement::FieldDecl(field_decl) => format!(
-        "{} {};",
-        field_decl.type_ref.print_source(),
-        field_decl.field_name.to_string()
-      ),
+      ClassBodyStatement::FieldDecl(field_decl) => {
+        format!(
+          "{}{};",
+          if field_decl.is_static { "static " } else { "" },
+          field_decl.identifier.print_source()
+        )
+      }
       ClassBodyStatement::MethodDecl(method_decl) => method_decl.print_source(),
     }
   }
@@ -83,17 +85,17 @@ impl<'token> PrintSource for ClassDecl<'token> {
   }
 }
 
-pub fn class_decl_parser<'a>()
+pub fn parse_class_decl<'a>()
 -> impl Parser<'a, &'a [TypeToken<'a>], ClassDecl<'a>, extra::Err<Rich<'a, TypeToken<'a>>>> {
-  let type_parser = type_ref_parser();
+  let static_parser = select! {TypeToken::StaticKeyword(_) => true}.or(empty().to(false));
 
-  let field_parser = type_parser
-    .then(select! { TypeToken::Symbol(sym) => TypeToken::Symbol(sym)  })
+  let field_parser = static_parser
+    .then(parse_identifier())
     .then_ignore(select! {TypeToken::Semicolon(_)})
-    .map(|(type_ref, token)| {
+    .map(|(is_static, identifier)| {
       ClassBodyStatement::FieldDecl(FieldDef {
-        field_name: token,
-        type_ref,
+        is_static,
+        identifier,
       })
     });
 
