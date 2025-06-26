@@ -14,8 +14,8 @@ export default defineConfig({
     include: "./src/**",
   },
   plugins: [
-    resolve(),
     commonJS(),
+    resolve(),
     typescript({ allowImportingTsExtensions: true }),
   ],
 });

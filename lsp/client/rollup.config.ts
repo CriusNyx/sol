@@ -12,5 +12,5 @@ export default defineConfig({
   watch: {
     include: "./src/**",
   },
-  plugins: [resolve(), commonJS(), typescript()],
+  plugins: [commonJS(), resolve(), typescript()],
 });

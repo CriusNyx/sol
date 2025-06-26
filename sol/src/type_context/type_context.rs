@@ -10,25 +10,37 @@ pub struct TypeSystemContext {
   docs: HashMap<String, TypeDoc>,
 }
 
+#[wasm_bindgen]
 impl TypeSystemContext {
   pub fn new() -> TypeSystemContext {
     TypeSystemContext {
-      docs: HashMap::new(),
+      docs: HashMap::new().into(),
     }
   }
 
-  pub fn new_doc(&mut self, doc_ident: &String) -> &TypeDoc {
-    let output = TypeDoc::new(doc_ident.into());
-    self.docs.push((doc_ident.into(), output));
-    self.docs.get(doc_ident).unwrap()
+  #[wasm_bindgen]
+  pub fn new_doc(&mut self, doc_ident: String) {
+    let output = TypeDoc::new(doc_ident.to_string());
+    self.docs.push((doc_ident.to_string(), output.into()));
   }
 
-  pub fn get_doc_mut(&mut self, doc_ident: &String) -> Option<&mut TypeDoc> {
-    self.docs.get_mut(doc_ident)
+  #[wasm_bindgen]
+  pub fn remove_doc(&mut self, doc_ident: String) {
+    self.docs.remove(&doc_ident);
   }
 
-  pub fn remove_doc(&mut self, doc_ident: &String) {
-    self.docs.remove(doc_ident);
+  #[wasm_bindgen]
+  pub fn update_doc_text(&mut self, doc_ident: String, source: String) {
+    self.docs.get_mut(&doc_ident).unwrap().set_source(source);
+  }
+
+  pub fn get_doc_identifiers(self) -> Vec<String> {
+    self
+      .docs
+      .keys()
+      .into_iter()
+      .map(|x| x.clone())
+      .collect::<Vec<_>>()
   }
 }
 

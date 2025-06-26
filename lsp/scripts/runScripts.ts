@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { exec } from "child_process";
+import { stdout } from "process";
 
 interface ScriptOpts {
   verbose?: boolean;
@@ -24,6 +25,7 @@ export async function runScript(script: string, cwd?: string): Promise<void> {
         err(`process existed with code ${child.exitCode}`);
       }
     });
+    child.stdout.pipe(stdout);
   });
 }
 
