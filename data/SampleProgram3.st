@@ -1,0 +1,1 @@
+static val: (...String[])<T: IEnumerable> => void;

@@ -42,7 +42,7 @@ impl<'visitor> TypeProgramVisitor for SemanticAnalysisVisitor<'visitor> {
 }
 
 /// Traverse the abstract syntax tree and update semantic info for each AST node.
-pub fn update_semantic_token_info(program: TypeProgram, semantic_tokens: &mut Vec<SemanticToken>) {
+pub fn update_semantic_token_info(program: &TypeProgram, semantic_tokens: &mut Vec<SemanticToken>) {
   let mut visitor = SemanticAnalysisVisitor { semantic_tokens };
   program.visit(&mut visitor);
 }

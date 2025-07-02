@@ -42,7 +42,7 @@ pub fn analyze_program_semantics_internal(src: String) -> Vec<SemanticToken> {
         .map(|x| x.into_semantic_token())
         .collect::<Vec<_>>();
 
-      update_semantic_token_info(ast, &mut semantic_tokens);
+      update_semantic_token_info(&ast, &mut semantic_tokens);
 
       semantic_tokens
     }

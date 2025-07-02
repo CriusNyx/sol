@@ -2,7 +2,7 @@ use chumsky::prelude::*;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{PrintSource, TypeToken};
+use crate::type_program::{LambdaDecl, PrintSource, TypeToken, lambda_parser};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
@@ -23,6 +23,25 @@ pub struct ArrayTypeRef {
 pub enum TypeRef {
   ArrayTypeRef(Box<ArrayTypeRef>),
   SymTypeRef(SymTypeRef),
+  LambdaDecl(LambdaDecl),
+}
+
+impl Into<TypeRef> for ArrayTypeRef {
+  fn into(self) -> TypeRef {
+    TypeRef::ArrayTypeRef(Box::new(self))
+  }
+}
+
+impl Into<TypeRef> for SymTypeRef {
+  fn into(self) -> TypeRef {
+    TypeRef::SymTypeRef(self)
+  }
+}
+
+impl Into<TypeRef> for LambdaDecl {
+  fn into(self) -> TypeRef {
+    TypeRef::LambdaDecl(self)
+  }
 }
 
 impl PrintSource for SymTypeRef {
@@ -57,14 +76,16 @@ impl PrintSource for TypeRef {
     match self {
       TypeRef::ArrayTypeRef(arr) => arr.print_source(),
       TypeRef::SymTypeRef(sym) => sym.print_source(),
+      TypeRef::LambdaDecl(lambda) => lambda.print_source(),
     }
   }
 }
 
-pub fn type_ref_set_parser<'a>()
--> impl Parser<'a, &'a [TypeToken], Vec<TypeRef>, extra::Err<Rich<'a, TypeToken>>> {
-  type_ref_parser()
-    .separated_by(select_ref! { TypeToken::AddOpp(_) })
+pub fn type_ref_set_parser<'a>(
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+) -> impl Parser<'a, &'a [TypeToken], Vec<TypeRef>, extra::Err<Rich<'a, TypeToken>>> + Clone {
+  type_ref_parser
+    .separated_by(select_ref! { TypeToken::AddOp(_) })
     .collect::<Vec<_>>()
 }
 
@@ -116,6 +137,6 @@ pub fn type_ref_parser<'a>()
         })
       });
 
-    array_decl
+    array_decl.or(lambda_parser(type_ref).map(|x| x.into()))
   })
 }

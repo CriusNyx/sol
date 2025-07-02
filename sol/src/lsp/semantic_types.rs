@@ -15,7 +15,7 @@ pub enum SemanticType {
   Method,
 }
 
-#[derive(Debug, TS, Serialize)]
+#[derive(Debug, TS, Serialize, Clone)]
 #[ts(export)]
 pub struct SemanticToken {
   pub token_type: SemanticType,

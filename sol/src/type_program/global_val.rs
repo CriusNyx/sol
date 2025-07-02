@@ -17,7 +17,7 @@ impl PrintSource for GlobalVar {
 }
 
 pub fn parse_global_var<'a>()
--> impl Parser<'a, &'a [TypeToken], GlobalVar, extra::Err<Rich<'a, TypeToken>>> {
+-> impl Parser<'a, &'a [TypeToken], GlobalVar, extra::Err<Rich<'a, TypeToken>>> + Clone {
   select! {TypeToken::StaticKeyword(_)}
     .then(parse_identifier())
     .then_ignore(select! {TypeToken::Semicolon(_)})

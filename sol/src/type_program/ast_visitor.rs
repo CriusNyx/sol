@@ -1,34 +1,49 @@
+use std::convert::identity;
+
 use crate::type_program::{
   ClassBodyStatement, ClassDecl, FieldDef, GenericParamDecl, GlobalExp, GlobalVar, Identifier,
-  MethodDecl, MethodParam, TypeProgram, TypeRef,
+  LambdaDecl, MethodDecl, MethodParamDecl, TypeProgram, TypeRef,
 };
 
 pub trait TypeProgramVisitor {
   fn visit_program(&mut self, _program: &TypeProgram) {}
   fn visit_program_after(&mut self, _program: &TypeProgram) {}
+
   fn visit_global_exp(&mut self, _global_exp: &GlobalExp) {}
   fn visit_global_exp_after(&mut self, _global_exp: &GlobalExp) {}
+
   fn visit_class_decl(&mut self, _class_decl: &ClassDecl) {}
   fn visit_class_decl_after(&mut self, _class_decl: &ClassDecl) {}
+
   fn visit_global_var(&mut self, _global_var: &GlobalVar) {}
   fn visit_global_var_after(&mut self, _global_var: &GlobalVar) {}
+
   fn visit_generic_param_decl(&mut self, _generic_param_decl: &GenericParamDecl) {}
   fn visit_generic_param_decl_after(&mut self, _generic_param_decl: &GenericParamDecl) {}
+
   fn visit_type_ref(&mut self, _type_ref: &TypeRef) {}
-  fn visit_type_ref_after(&mut self, _type_ref: &TypeRef) {}
+  fn visit_type_ref_after(&mut self, _type_decl: &TypeRef) {}
+
+  fn visit_lambda(&mut self, _lambda: &LambdaDecl) {}
+  fn visit_lambda_after(&mut self, _lambda: &LambdaDecl) {}
+
   fn visit_class_statement(&mut self, _class_statement: &ClassBodyStatement) {}
   fn visit_class_statement_after(&mut self, _class_statement: &ClassBodyStatement) {}
+
   fn visit_field_decl(&mut self, _field_decl: &FieldDef) {}
   fn visit_field_decl_after(&mut self, _field_decl: &FieldDef) {}
+
   fn visit_identifier(&mut self, _identifier: &Identifier) {}
   fn visit_identifier_after(&mut self, _identifier: &Identifier) {}
+
   fn visit_method_decl(&mut self, _method_decl: &MethodDecl) {}
   fn visit_method_decl_after(&mut self, _method_decl: &MethodDecl) {}
-  fn visit_method_param(&mut self, _method_decl: &MethodParam) {}
-  fn visit_method_param_after(&mut self, _method_decl: &MethodParam) {}
+
+  fn visit_method_param(&mut self, _method_decl: &MethodParamDecl) {}
+  fn visit_method_param_after(&mut self, _method_decl: &MethodParamDecl) {}
 }
 
-fn visit_type_program(program: TypeProgram, visitor: &mut impl TypeProgramVisitor) {
+fn visit_type_program(program: &TypeProgram, visitor: &mut impl TypeProgramVisitor) {
   fn visit_type_ref(type_ref: &TypeRef, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_type_ref(type_ref);
 
@@ -41,9 +56,29 @@ fn visit_type_program(program: TypeProgram, visitor: &mut impl TypeProgramVisito
           }
         });
       }
+      TypeRef::LambdaDecl(lambda) => {
+        visit_lambda(lambda, visitor);
+      }
     };
 
     visitor.visit_type_ref_after(type_ref);
+  }
+
+  fn visit_lambda(lambda_decl: &LambdaDecl, visitor: &mut impl TypeProgramVisitor) {
+    visitor.visit_lambda(lambda_decl);
+    for generic_param in lambda_decl.generic_params.iter().flat_map(identity) {
+      visit_generic_param_decl(generic_param, visitor);
+    }
+
+    for param in &lambda_decl.param_types {
+      visit_method_param(param, visitor);
+    }
+
+    if let Some(ret) = &lambda_decl.return_type {
+      visit_type_ref(ret, visitor);
+    }
+
+    visitor.visit_lambda_after(lambda_decl);
   }
 
   fn visit_generic_param_decl(
@@ -64,7 +99,7 @@ fn visit_type_program(program: TypeProgram, visitor: &mut impl TypeProgramVisito
   fn visit_identifier(identifier: &Identifier, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_identifier(identifier);
 
-    visit_type_ref(&identifier.type_ref, visitor);
+    visit_type_ref(&identifier.type_decl, visitor);
 
     visitor.visit_identifier_after(identifier);
   }
@@ -77,7 +112,7 @@ fn visit_type_program(program: TypeProgram, visitor: &mut impl TypeProgramVisito
     visitor.visit_field_decl_after(field_decl);
   }
 
-  fn visit_method_param(param: &MethodParam, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_method_param(param: &MethodParamDecl, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_method_param(param);
 
     visit_type_ref(&param.type_ref, visitor);
@@ -177,7 +212,7 @@ fn visit_type_program(program: TypeProgram, visitor: &mut impl TypeProgramVisito
 }
 
 impl TypeProgram {
-  pub fn visit(self, visitor: &mut impl TypeProgramVisitor) {
+  pub fn visit(&self, visitor: &mut impl TypeProgramVisitor) {
     visit_type_program(self, visitor);
   }
 }

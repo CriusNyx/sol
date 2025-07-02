@@ -44,8 +44,10 @@ impl PrintSource for Option<Vec<GenericParamDecl>> {
   }
 }
 
-pub fn generic_param_set_parser<'a>()
--> impl Parser<'a, &'a [TypeToken], Vec<GenericParamDecl>, extra::Err<Rich<'a, TypeToken>>> {
+pub fn generic_param_set_parser<'a>(
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+) -> impl Parser<'a, &'a [TypeToken], Vec<GenericParamDecl>, extra::Err<Rich<'a, TypeToken>>> + Clone
+{
   let no_inherits_parser =
     select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)}.map(|token| GenericParamDecl {
       name: token,
@@ -54,7 +56,7 @@ pub fn generic_param_set_parser<'a>()
 
   let inherits_parser = select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)}
     .then_ignore(select! {TypeToken::Colon(_)})
-    .then(type_ref_set_parser())
+    .then(type_ref_set_parser(type_ref_parser))
     .map(|(token, inherits)| GenericParamDecl {
       name: token,
       inherits: Some(inherits),

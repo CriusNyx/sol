@@ -1,23 +1,11 @@
 use core::fmt;
+use std::fmt::Debug;
 
-use logos::{Lexer, Logos, Span};
+use logos::Logos;
 use serde::Serialize;
 use ts_rs::TS;
 
-#[derive(Clone, Debug, PartialEq, Serialize, TS)]
-pub struct TokenInfo {
-  pub span: Span,
-  pub source: Box<str>,
-  pub index: i32,
-}
-
-fn create_token_info<'lexer>(lexer: &mut Lexer<'lexer, TypeToken>) -> TokenInfo {
-  TokenInfo {
-    span: lexer.span(),
-    source: lexer.slice().into(),
-    index: -1,
-  }
-}
+use crate::helpers::lexer_helpers::{TokenInfo, create_token_info};
 
 #[derive(Logos, Clone, Debug, TS, PartialEq, Serialize)]
 pub enum TypeToken {
@@ -37,7 +25,9 @@ pub enum TypeToken {
   #[token(",", create_token_info)]
   Comma(TokenInfo),
   #[token("+", create_token_info)]
-  AddOpp(TokenInfo),
+  AddOp(TokenInfo),
+  #[token("=>", create_token_info)]
+  ArrowOp(TokenInfo),
   #[token("...", create_token_info)]
   Spread(TokenInfo),
 
@@ -89,7 +79,8 @@ impl TypeToken {
       Self::Colon(info) => info,
       Self::Semicolon(info) => info,
       Self::Comma(info) => info,
-      Self::AddOpp(info) => info,
+      Self::AddOp(info) => info,
+      Self::ArrowOp(info) => info,
       Self::Spread(info) => info,
 
       // Brackets
@@ -118,7 +109,8 @@ impl TypeToken {
       Self::Colon(info) => info,
       Self::Semicolon(info) => info,
       Self::Comma(info) => info,
-      Self::AddOpp(info) => info,
+      Self::AddOp(info) => info,
+      Self::ArrowOp(info) => info,
       Self::Spread(info) => info,
 
       // Brackets
@@ -146,7 +138,7 @@ impl TypeToken {
 
   pub fn is_op(&self) -> bool {
     match self {
-      TypeToken::AddOpp(_) | TypeToken::Spread(_) => true,
+      TypeToken::AddOp(_) | TypeToken::Spread(_) => true,
       _ => false,
     }
   }

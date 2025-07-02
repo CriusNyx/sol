@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from "path";
-import { workspace, ExtensionContext } from "vscode";
+import { workspace, ExtensionContext, Uri } from "vscode";
 
 import {
   LanguageClient,
@@ -40,6 +40,10 @@ export function activate(context: ExtensionContext) {
     synchronize: {
       // Notify the server about file changes to '.st files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher("**/*.st"),
+    },
+    uriConverters: {
+      code2Protocol: (uri) => uri.toString(true),
+      protocol2Code: (value) => Uri.parse(value),
     },
   };
 

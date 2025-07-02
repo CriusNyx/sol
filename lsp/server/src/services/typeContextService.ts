@@ -1,59 +1,100 @@
-import { Connection, TextDocuments } from "vscode-languageserver/node";
+import {
+  Connection,
+  FileChangeType,
+  TextDocuments,
+} from "vscode-languageserver/node";
 import { Service } from "./service";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { create_type_system_context } from "../../../sol-js/sol";
+import { create_type_context, TypeSystemContext } from "../../../sol-js/sol";
+import { createFuture } from "../util/future";
+import { using } from "../util/using";
 import * as fs from "fs/promises";
 import * as fsSync from "fs";
 import * as path from "path";
 import * as url from "url";
 
-const typeContext = create_type_system_context();
-
 export type TypeContextService = ReturnType<typeof createTypeContextService>;
 
-async function loadWorkspace(uris: string[]) {
+async function initializeTypeContext(uris: string[]) {
+  const typeContext = create_type_context();
+
   const folderPaths = uris.map((uri) => url.fileURLToPath(uri));
 
-  return await Promise.all(folderPaths.map(visitFolder));
+  await Promise.all(folderPaths.map((path) => visitFolder(path, typeContext)));
+
+  return typeContext;
 }
 
-async function visitFolder(dirPath: string) {
+async function visitFolder(dirPath: string, typeContext: TypeSystemContext) {
   const entries = await fs.readdir(dirPath);
 
   return await Promise.all(
     entries.map(async (entry) => {
       const entryPath = path.join(dirPath, entry);
-      try {
-        const stats = await fs.lstat(entryPath);
-        if (stats.isFile()) {
-          if (entryPath.endsWith(".st")) {
-            await visitSTFile(entryPath);
-          }
-        } else {
-          await visitFolder(entryPath);
+
+      const stats = await fs.lstat(entryPath);
+      if (stats.isFile()) {
+        if (entryPath.endsWith(".st")) {
+          await visitSTFile(entryPath, typeContext);
         }
-      } finally {
+      } else {
+        await visitFolder(entryPath, typeContext);
       }
     })
   );
 }
 
-async function visitSTFile(path: string) {
-  typeContext.new_doc(path);
-  const source = fsSync.readFileSync(path, "utf8");
-  typeContext.update_doc_text(path, source);
+function updateDocSource(
+  context: TypeSystemContext,
+  uri: string,
+  source: string
+) {
+  using(context.borrow(uri), (x) => x.set_source(source));
+}
+
+async function visitSTFile(filepath: string, typeContext: TypeSystemContext) {
+  const docIdent = url.pathToFileURL(filepath).toString();
+  typeContext.new_doc(docIdent);
+  const source = fsSync.readFileSync(filepath, "utf8");
+  updateDocSource(typeContext, docIdent, source);
 }
 
 export function createTypeContextService(
   connection: Connection,
   documents: TextDocuments<TextDocument>
 ) {
+  let [typeContext, setTypeContext] = createFuture<TypeSystemContext>();
+
+  connection.onDidChangeWatchedFiles(async (e) => {
+    const context = await typeContext;
+    for (const change of e.changes) {
+      const docText = documents.get(change.uri).getText();
+      switch (change.type) {
+        case FileChangeType.Created:
+          context.new_doc(change.uri);
+          updateDocSource(context, change.uri, docText);
+          break;
+        case FileChangeType.Changed:
+          updateDocSource(context, change.uri, docText);
+          break;
+        case FileChangeType.Deleted:
+          context.remove_doc(change.uri);
+          break;
+      }
+    }
+    const docs = context.get_doc_identifiers();
+
+    console.log(docs);
+  });
+
   return {
     onInitialize(params) {
-      loadWorkspace(params.workspaceFolders.map((x) => x.uri));
+      initializeTypeContext(params.workspaceFolders.map((x) => x.uri)).then(
+        setTypeContext
+      );
     },
     destroy() {
-      typeContext.free();
+      typeContext.then((x) => x.free);
     },
   } satisfies Service;
 }

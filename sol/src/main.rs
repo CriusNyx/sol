@@ -1,27 +1,56 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
+mod expression;
+mod helpers;
 mod lsp;
 mod sample_programs;
 mod type_context;
 mod type_program;
+mod type_system;
 mod wasm;
 
-use crate::sample_programs::SAMPLE_PROGRAM_1;
+use crate::{
+  expression::expression_parser::parse_expression,
+  sample_programs::{SAMPLE_PROGRAM_1, SAMPLE_PROGRAM_3},
+  type_system::TypeResolver,
+};
 use ariadne::{Color, Label, Report, ReportKind, Source};
 use type_program::*;
 
 fn main() {
   let tokens = lex_type_program(SAMPLE_PROGRAM_1);
   let ast = parse_type_program(&tokens);
+  let ast_result = ast.as_ref().ok().clone();
+  let type_system = evaluate_type_program(&ast);
+  let root = type_system.as_ref().unwrap();
+
+  let exp = parse_expression("value".to_string());
+  let resolved = exp.map(|x| x.resolve_type(root));
+
+  println!(
+    "resolved: {}",
+    resolved
+      .map(|x| x.resolved_type().print_source())
+      .unwrap_or("None".to_string())
+  );
 
   // Padding to make the program stick out.
   println!("");
 
-  match ast {
+  println!(
+    "{}",
+    ast_result
+      .map(|x| x.print_source())
+      .unwrap_or("".to_string())
+  );
+
+  // Padding to make the program stick out.
+  println!("");
+
+  match type_system {
     Ok(result) => {
-      dbg!(&result);
-      println!("{}", result.print_source());
+      // dbg!(&result);
     }
     Err(CompileError::LexError) => {
       println!("Failed to lex program");
@@ -43,10 +72,11 @@ fn main() {
               .with_color(Color::Red),
           )
           .finish()
-          .eprint(("file.st", Source::from(SAMPLE_PROGRAM_1)))
+          .eprint(("file.st", Source::from(SAMPLE_PROGRAM_3)))
           .unwrap();
       }
     }
+    _ => {}
   };
 
   // Padding to make the program stick out.

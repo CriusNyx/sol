@@ -4,7 +4,8 @@ use ts_rs::TS;
 
 use crate::type_program::{
   GenericParamDecl, Identifier, MethodDecl, PrintSource, TypeRef, TypeToken,
-  generic_param_set_parser, method_decl_parser, parse_identifier, type_ref_set_parser,
+  generic_param_set_parser, method_decl_parser, parse_identifier, type_ref_parser,
+  type_ref_set_parser,
 };
 
 #[derive(Debug, Clone, Serialize, TS)]
@@ -86,7 +87,7 @@ impl PrintSource for ClassDecl {
 }
 
 pub fn parse_class_decl<'a>()
--> impl Parser<'a, &'a [TypeToken], ClassDecl, extra::Err<Rich<'a, TypeToken>>> {
+-> impl Parser<'a, &'a [TypeToken], ClassDecl, extra::Err<Rich<'a, TypeToken>>> + Clone {
   let static_parser = select! {TypeToken::StaticKeyword(_) => true}.or(empty().to(false));
 
   let field_parser = static_parser
@@ -99,7 +100,8 @@ pub fn parse_class_decl<'a>()
       })
     });
 
-  let method_parser = method_decl_parser().map(|method| ClassBodyStatement::MethodDecl(method));
+  let method_parser =
+    method_decl_parser(type_ref_parser()).map(|method| ClassBodyStatement::MethodDecl(method));
 
   let statement_parser = field_parser.or(method_parser);
 
@@ -113,12 +115,12 @@ pub fn parse_class_decl<'a>()
     .map(|f| Some(f))
     .or(select! {TypeToken::Semicolon(_)}.to(None));
 
-  let generic_param_decl_parser = generic_param_set_parser();
+  let generic_param_decl_parser = generic_param_set_parser(type_ref_parser());
 
   let generic_param_parser = generic_param_decl_parser.map(Some).or(empty().to(None));
 
   let inherit_parser = select! {TypeToken::Colon(_)}
-    .then(type_ref_set_parser())
+    .then(type_ref_set_parser(type_ref_parser()))
     .map(|(_, set)| Some(set))
     .or(empty().to(None));
 

@@ -3,12 +3,12 @@ use serde::Serialize;
 use ts_rs::TS;
 
 use crate::type_program::{
-  GenericParamDecl, PrintSource, TypeRef, TypeToken, generic_param_set_parser, type_ref_parser,
+  GenericParamDecl, PrintSource, TypeRef, TypeToken, generic_param_set_parser,
 };
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct MethodParam {
+pub struct MethodParamDecl {
   pub type_ref: TypeRef,
   pub variadic: bool,
 }
@@ -20,10 +20,23 @@ pub struct MethodDecl {
   pub name: TypeToken,
   pub generic_params: Option<Vec<GenericParamDecl>>,
   pub return_type: Option<TypeRef>,
-  pub param_types: Vec<MethodParam>,
+  pub param_types: Vec<MethodParamDecl>,
 }
 
-impl PrintSource for MethodParam {
+impl PrintSource for Vec<MethodParamDecl> {
+  fn print_source(&self) -> String {
+    return format!(
+      "({})",
+      self
+        .iter()
+        .map(|x| x.print_source())
+        .collect::<Vec<_>>()
+        .join(", ")
+    );
+  }
+}
+
+impl PrintSource for MethodParamDecl {
   fn print_source(&self) -> String {
     if self.variadic {
       format!("... {}", self.type_ref.print_source())
@@ -41,61 +54,68 @@ impl PrintSource for MethodDecl {
     };
 
     format!(
-      "{}{}{}({}): {};",
+      "{}{}{}{}: {};",
       if self.is_static { "static " } else { "" },
       self.name.to_string(),
       self.generic_params.print_source(),
-      self
-        .param_types
-        .iter()
-        .map(|x| x.print_source())
-        .collect::<Vec<_>>()
-        .join(", "),
+      self.param_types.print_source(),
       return_type_string
     )
   }
 }
 
-pub fn method_decl_parser<'a>()
--> impl Parser<'a, &'a [TypeToken], MethodDecl, extra::Err<Rich<'a, TypeToken>>> {
-  let static_parser = select! {TypeToken::StaticKeyword(_) => true}.or(empty().to(false));
-
-  let type_ref_parser = type_ref_parser();
-
-  let return_type_parser = type_ref_parser
-    .clone()
-    .map(Some)
-    .or(select! {TypeToken::VoidKeyword(_)}.to(None));
-
-  let generic_param_decl_parser = generic_param_set_parser();
-
-  let generic_param_parser = generic_param_decl_parser.map(Some).or(empty().to(None));
-
+pub fn param_set_parser<'a>(
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+) -> impl Parser<'a, &'a [TypeToken], Vec<MethodParamDecl>, extra::Err<Rich<'a, TypeToken>>> + Clone
+{
   let method_param_parser = select! {TypeToken::Spread(_)}
     .then(type_ref_parser.clone())
-    .map(|(_, type_ref)| MethodParam {
+    .map(|(_, type_ref)| MethodParamDecl {
       type_ref,
       variadic: true,
     })
-    .or(type_ref_parser.map(|type_ref| MethodParam {
+    .or(type_ref_parser.map(|type_ref| MethodParamDecl {
       type_ref,
       variadic: false,
     }));
 
-  let param_body_parser = method_param_parser
+  method_param_parser
     .separated_by(select_ref! {TypeToken::Comma(_)})
     .collect::<Vec<_>>()
     .delimited_by(
       select! {TypeToken::OpenParen(_)},
       select! {TypeToken::ClosedParen(_)},
-    );
+    )
+}
+
+pub fn return_type_parser<'a>(
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+) -> impl Parser<'a, &'a [TypeToken], Option<TypeRef>, extra::Err<Rich<'a, TypeToken>>> + Clone {
+  type_ref_parser
+    .map(Some)
+    .or(select! {TypeToken::VoidKeyword(_)}.to(None))
+}
+
+pub fn method_decl_parser<
+  'a,
+  TypeRefParser: Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+>(
+  type_ref_parser: TypeRefParser,
+) -> impl Parser<'a, &'a [TypeToken], MethodDecl, extra::Err<Rich<'a, TypeToken>>> + Clone {
+  let static_parser = select! {TypeToken::StaticKeyword(_) => true}.or(empty().to(false));
+
+  let generic_param_decl_parser = generic_param_set_parser(type_ref_parser.clone());
+
+  let generic_param_parser = generic_param_decl_parser.map(Some).or(empty().to(None));
+
+  let param_body_parser = param_set_parser(type_ref_parser.clone());
 
   let method_parser = static_parser
     .then(select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)})
     .then(generic_param_parser)
     .then(param_body_parser)
     .then_ignore(select! {TypeToken::Colon(_)})
-    .then(return_type_parser)
+    .then(return_type_parser(type_ref_parser))
     .then_ignore(select!(TypeToken::Semicolon(_)))
     .map(
       |((((is_static, token), generic_params), param_types), return_type)| MethodDecl {

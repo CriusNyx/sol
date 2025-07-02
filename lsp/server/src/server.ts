@@ -10,7 +10,6 @@ import {
   DidChangeConfigurationNotification,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { TypeContext } from "./typeContext";
 import { ServiceManager } from "./services/service";
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -24,8 +23,6 @@ ServiceManager.registerServices(connection, documents);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
-
-TypeContext.registerEventHandlers(connection, documents);
 
 connection.onInitialize((params: InitializeParams) => {
   return ServiceManager.initializeServices(params);

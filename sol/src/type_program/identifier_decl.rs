@@ -8,7 +8,7 @@ use crate::type_program::{PrintSource, TypeRef, TypeToken, type_ref_parser};
 #[ts(export)]
 pub struct Identifier {
   pub identifier_name: TypeToken,
-  pub type_ref: TypeRef,
+  pub type_decl: TypeRef,
 }
 
 impl PrintSource for Identifier {
@@ -16,18 +16,18 @@ impl PrintSource for Identifier {
     format!(
       "{}: {}",
       self.identifier_name.to_string(),
-      self.type_ref.print_source()
+      self.type_decl.print_source()
     )
   }
 }
 
 pub fn parse_identifier<'a>()
--> impl Parser<'a, &'a [TypeToken], Identifier, extra::Err<Rich<'a, TypeToken>>> {
+-> impl Parser<'a, &'a [TypeToken], Identifier, extra::Err<Rich<'a, TypeToken>>> + Clone {
   return select! {TypeToken::Symbol(sym) => TypeToken::Symbol(sym)}
     .then_ignore(select! {TypeToken::Colon(_)})
     .then(type_ref_parser())
     .map(|(sym, type_ref)| Identifier {
       identifier_name: sym,
-      type_ref,
+      type_decl: type_ref,
     });
 }

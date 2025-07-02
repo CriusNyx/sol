@@ -1,27 +1,34 @@
-use chumsky::container::Container;
-use std::collections::HashMap;
-use wasm_bindgen::prelude::wasm_bindgen;
+use serde::Serialize;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use wasm_bindgen::{JsValue, prelude::wasm_bindgen};
 
-use crate::type_context::type_doc::TypeDoc;
+use crate::type_context::{type_doc::TypeDoc, type_doc_ref::TypeDocRef};
+
+#[derive(Debug, Serialize)]
+enum TypeContextError {
+  NoDocWithIdentifier,
+}
 
 #[derive(Debug)]
 #[wasm_bindgen]
 pub struct TypeSystemContext {
-  docs: HashMap<String, TypeDoc>,
+  docs: HashMap<String, Rc<RefCell<TypeDoc>>>,
 }
 
 #[wasm_bindgen]
 impl TypeSystemContext {
   pub fn new() -> TypeSystemContext {
     TypeSystemContext {
-      docs: HashMap::new().into(),
+      docs: HashMap::new(),
     }
   }
 
   #[wasm_bindgen]
   pub fn new_doc(&mut self, doc_ident: String) {
     let output = TypeDoc::new(doc_ident.to_string());
-    self.docs.push((doc_ident.to_string(), output.into()));
+    self
+      .docs
+      .insert(doc_ident.to_string(), Rc::new(RefCell::new(output)));
   }
 
   #[wasm_bindgen]
@@ -30,11 +37,16 @@ impl TypeSystemContext {
   }
 
   #[wasm_bindgen]
-  pub fn update_doc_text(&mut self, doc_ident: String, source: String) {
-    self.docs.get_mut(&doc_ident).unwrap().set_source(source);
+  pub fn borrow(&self, doc_ident: String) -> Result<TypeDocRef, JsValue> {
+    self
+      .docs
+      .get(&doc_ident)
+      .map(|doc| TypeDocRef::new(doc.clone()))
+      .ok_or(serde_wasm_bindgen::to_value(&TypeContextError::NoDocWithIdentifier).unwrap())
   }
 
-  pub fn get_doc_identifiers(self) -> Vec<String> {
+  #[wasm_bindgen]
+  pub fn get_doc_identifiers(&self) -> Vec<String> {
     self
       .docs
       .keys()
@@ -42,9 +54,4 @@ impl TypeSystemContext {
       .map(|x| x.clone())
       .collect::<Vec<_>>()
   }
-}
-
-#[wasm_bindgen]
-pub fn create_type_system_context() -> TypeSystemContext {
-  TypeSystemContext::new()
 }
