@@ -1,54 +1,50 @@
-use chumsky::Parser;
-use chumsky::prelude::*;
-use serde::Serialize;
-use ts_rs::TS;
+use chumsky::{Parser, error::Rich};
+use derive_getters::Getters;
+use derive_more::From;
+use logos::Logos;
 
-use crate::type_program::*;
+use crate::{
+  lsp::semantic_types::SemanticToken,
+  type_program::{nodes::ast_node::ASTNode, parser::type_program_parser},
+  type_program_old::TypeToken,
+};
 
-#[derive(Debug, Clone, Serialize, TS)]
-#[ts(export)]
-pub enum GlobalExp {
-  ClassDec(ClassDecl),
-  GlobalVar(GlobalVar),
+#[derive(Debug, From, Clone)]
+pub enum TypeProgramError {
+  FailedToLex,
+  ParseError(Vec<TypeToken>, Vec<Rich<'static, TypeToken>>),
 }
 
-impl PrintSource for GlobalExp {
-  fn print_source(&self) -> String {
-    match self {
-      Self::ClassDec(class_decl) => class_decl.print_source(),
-      Self::GlobalVar(global_val) => global_val.print_source(),
-    }
-  }
-}
-
-#[derive(Debug, Clone, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Getters)]
 pub struct TypeProgram {
-  pub expressions: Vec<GlobalExp>,
+  ast: ASTNode,
 }
 
-impl PrintSource for TypeProgram {
-  fn print_source(&self) -> String {
-    (*self.expressions)
-      .into_iter()
-      .map(|f| f.print_source())
-      .collect::<Vec<_>>()
-      .join("\n\n")
-      .clone()
+impl TypeProgram {
+  pub fn lex(source: &str) -> Result<Vec<TypeToken>, TypeProgramError> {
+    TypeToken::lexer(source)
+      .collect::<Result<Vec<_>, ()>>()
+      .map_err(|_| TypeProgramError::FailedToLex)
   }
-}
 
-pub fn type_parser<'a>()
--> impl Parser<'a, &'a [TypeToken], TypeProgram, extra::Err<Rich<'a, TypeToken>>> {
-  let class_parser = parse_class_decl();
-  let global_val_parser = parse_global_var();
+  pub fn parse(
+    lex_result: Result<Vec<TypeToken>, TypeProgramError>,
+  ) -> Result<TypeProgram, TypeProgramError> {
+    lex_result.and_then(|x| {
+      type_program_parser()
+        .parse(x.as_ref())
+        .into_result()
+        .map(|ast| TypeProgram { ast })
+        .map_err(|e| {
+          TypeProgramError::ParseError(
+            x.clone(),
+            e.iter().map(|y| y.clone().into_owned()).collect::<Vec<_>>(),
+          )
+        })
+    })
+  }
 
-  let global_exp_parser = class_parser
-    .map(|class_decl| GlobalExp::ClassDec(class_decl))
-    .or(global_val_parser.map(|global_val| GlobalExp::GlobalVar(global_val)));
-
-  global_exp_parser
-    .repeated()
-    .collect::<Vec<_>>()
-    .map(|f| TypeProgram { expressions: f })
+  pub fn update_semantics(&self, tokens: &mut Vec<SemanticToken>) {
+    ASTNode::update_semantics(&self.ast, tokens);
+  }
 }

@@ -2,13 +2,13 @@ use chumsky::prelude::*;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{PrintSource, TypeRef, TypeToken, type_ref_set_parser};
+use crate::type_program_old::{PrintSource, TypeRefAST, TypeToken, type_ref_set_parser};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct GenericParamDecl {
   pub name: TypeToken,
-  pub inherits: Option<Vec<TypeRef>>,
+  pub inherits: Option<Vec<TypeRefAST>>,
 }
 
 impl PrintSource for GenericParamDecl {
@@ -45,7 +45,7 @@ impl PrintSource for Option<Vec<GenericParamDecl>> {
 }
 
 pub fn generic_param_set_parser<'a>(
-  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRefAST, extra::Err<Rich<'a, TypeToken>>> + Clone,
 ) -> impl Parser<'a, &'a [TypeToken], Vec<GenericParamDecl>, extra::Err<Rich<'a, TypeToken>>> + Clone
 {
   let no_inherits_parser =

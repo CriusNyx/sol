@@ -2,7 +2,7 @@ use chumsky::{Parser, error::Rich, extra, select};
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{Identifier, PrintSource, TypeToken, parse_identifier};
+use crate::type_program_old::{Identifier, PrintSource, TypeToken, parse_identifier};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]

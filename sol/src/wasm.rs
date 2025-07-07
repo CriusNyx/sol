@@ -2,7 +2,7 @@ use chumsky::Parser;
 use logos::Logos;
 use wasm_bindgen::prelude::*;
 
-use crate::type_program::{TypeToken, type_parser};
+use crate::type_program_old::{TypeToken, type_parser};
 
 #[wasm_bindgen]
 pub fn compile_types(source: &str) -> JsValue {

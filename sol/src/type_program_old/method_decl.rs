@@ -2,14 +2,14 @@ use chumsky::prelude::*;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{
-  GenericParamDecl, PrintSource, TypeRef, TypeToken, generic_param_set_parser,
+use crate::type_program_old::{
+  GenericParamDecl, PrintSource, TypeRefAST, TypeToken, generic_param_set_parser,
 };
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct MethodParamDecl {
-  pub type_ref: TypeRef,
+  pub type_ref: TypeRefAST,
   pub variadic: bool,
 }
 
@@ -19,7 +19,7 @@ pub struct MethodDecl {
   pub is_static: bool,
   pub name: TypeToken,
   pub generic_params: Option<Vec<GenericParamDecl>>,
-  pub return_type: Option<TypeRef>,
+  pub return_type: Option<TypeRefAST>,
   pub param_types: Vec<MethodParamDecl>,
 }
 
@@ -65,7 +65,7 @@ impl PrintSource for MethodDecl {
 }
 
 pub fn param_set_parser<'a>(
-  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRefAST, extra::Err<Rich<'a, TypeToken>>> + Clone,
 ) -> impl Parser<'a, &'a [TypeToken], Vec<MethodParamDecl>, extra::Err<Rich<'a, TypeToken>>> + Clone
 {
   let method_param_parser = select! {TypeToken::Spread(_)}
@@ -89,8 +89,8 @@ pub fn param_set_parser<'a>(
 }
 
 pub fn return_type_parser<'a>(
-  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
-) -> impl Parser<'a, &'a [TypeToken], Option<TypeRef>, extra::Err<Rich<'a, TypeToken>>> + Clone {
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRefAST, extra::Err<Rich<'a, TypeToken>>> + Clone,
+) -> impl Parser<'a, &'a [TypeToken], Option<TypeRefAST>, extra::Err<Rich<'a, TypeToken>>> + Clone {
   type_ref_parser
     .map(Some)
     .or(select! {TypeToken::VoidKeyword(_)}.to(None))
@@ -98,7 +98,7 @@ pub fn return_type_parser<'a>(
 
 pub fn method_decl_parser<
   'a,
-  TypeRefParser: Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
+  TypeRefParser: Parser<'a, &'a [TypeToken], TypeRefAST, extra::Err<Rich<'a, TypeToken>>> + Clone,
 >(
   type_ref_parser: TypeRefParser,
 ) -> impl Parser<'a, &'a [TypeToken], MethodDecl, extra::Err<Rich<'a, TypeToken>>> + Clone {

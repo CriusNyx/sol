@@ -2,8 +2,8 @@ use derive_getters::Getters;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
-  lsp::{semantic_analysis::update_semantic_token_info, semantic_types::SemanticToken},
-  type_program::{TypeProgram, TypeToken, lex_type_program, parse_type_program},
+  lsp::semantic_types::SemanticToken,
+  type_program_old::{TypeProgram, TypeToken, lex_type_program, parse_type_program},
 };
 
 #[derive(Debug, Getters)]
@@ -40,7 +40,8 @@ impl TypeDoc {
 
     match (&parse_result, self.semantics.as_mut()) {
       (Ok(result), Some(semantics)) => {
-        update_semantic_token_info(&result, semantics);
+        todo!();
+        // update_semantic_token_info(&result, semantics);
       }
       _ => (),
     };

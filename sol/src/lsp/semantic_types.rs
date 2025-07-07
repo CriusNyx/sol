@@ -1,10 +1,12 @@
-use crate::type_program::TypeToken;
+use crate::type_program_old::TypeToken;
+use derive_getters::Getters;
+use derive_new::new;
 use serde::Serialize;
 use sol_helpers::AllVariants;
 use std::fmt;
 use ts_rs::{self, TS};
 
-#[derive(Debug, AllVariants, TS, Clone, Copy, Serialize)]
+#[derive(Debug, AllVariants, TS, Clone, Copy, Serialize, PartialEq)]
 #[ts(export)]
 pub enum SemanticType {
   None,
@@ -15,7 +17,7 @@ pub enum SemanticType {
   Method,
 }
 
-#[derive(Debug, TS, Serialize, Clone)]
+#[derive(new, Getters, Debug, TS, Serialize, Clone, PartialEq)]
 #[ts(export)]
 pub struct SemanticToken {
   pub token_type: SemanticType,

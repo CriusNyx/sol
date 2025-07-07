@@ -1,1 +1,1 @@
-static val: (...String[])<T: IEnumerable> => void;
+static val: <T: IEnumerable>(...String[]) => void;

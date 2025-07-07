@@ -6,10 +6,6 @@ import {
   TextDocumentSyncKind,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  createTypeContextService,
-  TypeContextService,
-} from "./typeContextService";
 import { semanticTypes } from "../semantics";
 import { createSemanticService, SemanticsService } from "./semanticsService";
 
@@ -27,7 +23,7 @@ export interface Service {
 }
 
 interface Services {
-  typeContextService: TypeContextService;
+  // typeContextService: TypeContextService;
   semanticsService: SemanticsService;
 }
 
@@ -37,7 +33,7 @@ type ServiceClasses = Record<
 >;
 
 const serviceInitializers: ServiceClasses = {
-  typeContextService: createTypeContextService,
+  // typeContextService: createTypeContextService,
   semanticsService: createSemanticService,
 };
 

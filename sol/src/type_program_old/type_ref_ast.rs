@@ -2,49 +2,49 @@ use chumsky::prelude::*;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{LambdaDecl, PrintSource, TypeToken, lambda_parser};
+use crate::type_program_old::{LambdaDeclAST, PrintSource, TypeToken, lambda_parser};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct SymTypeRef {
+pub struct SymTypeRefAST {
   pub name: TypeToken,
-  pub params: Option<Vec<TypeRef>>,
+  pub params: Option<Vec<TypeRefAST>>,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub struct ArrayTypeRef {
+pub struct ArrayTypeRefAST {
   pub arity: u16,
-  pub array_type: TypeRef,
+  pub array_type: Box<TypeRefAST>,
 }
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
-pub enum TypeRef {
-  ArrayTypeRef(Box<ArrayTypeRef>),
-  SymTypeRef(SymTypeRef),
-  LambdaDecl(LambdaDecl),
+pub enum TypeRefAST {
+  ArrayTypeRef(ArrayTypeRefAST),
+  SymTypeRef(SymTypeRefAST),
+  LambdaDecl(LambdaDeclAST),
 }
 
-impl Into<TypeRef> for ArrayTypeRef {
-  fn into(self) -> TypeRef {
-    TypeRef::ArrayTypeRef(Box::new(self))
+impl Into<TypeRefAST> for ArrayTypeRefAST {
+  fn into(self) -> TypeRefAST {
+    TypeRefAST::ArrayTypeRef(self)
   }
 }
 
-impl Into<TypeRef> for SymTypeRef {
-  fn into(self) -> TypeRef {
-    TypeRef::SymTypeRef(self)
+impl Into<TypeRefAST> for SymTypeRefAST {
+  fn into(self) -> TypeRefAST {
+    TypeRefAST::SymTypeRef(self)
   }
 }
 
-impl Into<TypeRef> for LambdaDecl {
-  fn into(self) -> TypeRef {
-    TypeRef::LambdaDecl(self)
+impl Into<TypeRefAST> for LambdaDeclAST {
+  fn into(self) -> TypeRefAST {
+    TypeRefAST::LambdaDecl(self)
   }
 }
 
-impl PrintSource for SymTypeRef {
+impl PrintSource for SymTypeRefAST {
   fn print_source(&self) -> String {
     match &self.params {
       Some(params) => format!(
@@ -61,7 +61,7 @@ impl PrintSource for SymTypeRef {
   }
 }
 
-impl PrintSource for ArrayTypeRef {
+impl PrintSource for ArrayTypeRefAST {
   fn print_source(&self) -> String {
     format!(
       "{}[{}]",
@@ -71,26 +71,26 @@ impl PrintSource for ArrayTypeRef {
   }
 }
 
-impl PrintSource for TypeRef {
+impl PrintSource for TypeRefAST {
   fn print_source(&self) -> String {
     match self {
-      TypeRef::ArrayTypeRef(arr) => arr.print_source(),
-      TypeRef::SymTypeRef(sym) => sym.print_source(),
-      TypeRef::LambdaDecl(lambda) => lambda.print_source(),
+      TypeRefAST::ArrayTypeRef(arr) => arr.print_source(),
+      TypeRefAST::SymTypeRef(sym) => sym.print_source(),
+      TypeRefAST::LambdaDecl(lambda) => lambda.print_source(),
     }
   }
 }
 
 pub fn type_ref_set_parser<'a>(
-  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone,
-) -> impl Parser<'a, &'a [TypeToken], Vec<TypeRef>, extra::Err<Rich<'a, TypeToken>>> + Clone {
+  type_ref_parser: impl Parser<'a, &'a [TypeToken], TypeRefAST, extra::Err<Rich<'a, TypeToken>>> + Clone,
+) -> impl Parser<'a, &'a [TypeToken], Vec<TypeRefAST>, extra::Err<Rich<'a, TypeToken>>> + Clone {
   type_ref_parser
     .separated_by(select_ref! { TypeToken::AddOp(_) })
     .collect::<Vec<_>>()
 }
 
 pub fn type_ref_parser<'a>()
--> impl Parser<'a, &'a [TypeToken], TypeRef, extra::Err<Rich<'a, TypeToken>>> + Clone {
+-> impl Parser<'a, &'a [TypeToken], TypeRefAST, extra::Err<Rich<'a, TypeToken>>> + Clone {
   recursive(|type_ref| {
     let params_set = type_ref
       .clone()
@@ -109,7 +109,7 @@ pub fn type_ref_parser<'a>()
     let sym_type_ref = select! {TypeToken::Symbol(info) => TypeToken::Symbol(info)}
       .then(type_params)
       .map(|(token, params)| {
-        TypeRef::SymTypeRef(SymTypeRef {
+        TypeRefAST::SymTypeRef(SymTypeRefAST {
           name: token,
           params,
         })
@@ -130,10 +130,10 @@ pub fn type_ref_parser<'a>()
       .map(|(type_ref, arity)| {
         let arr = arity as Vec<_>;
         arr.into_iter().fold(type_ref, |prev, curr| {
-          TypeRef::ArrayTypeRef(Box::new(ArrayTypeRef {
+          TypeRefAST::ArrayTypeRef(ArrayTypeRefAST {
             arity: curr,
-            array_type: prev,
-          }))
+            array_type: prev.into(),
+          })
         })
       });
 

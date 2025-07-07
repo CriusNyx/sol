@@ -2,8 +2,8 @@ use chumsky::prelude::*;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{
-  GenericParamDecl, Identifier, MethodDecl, PrintSource, TypeRef, TypeToken,
+use crate::type_program_old::{
+  GenericParamDecl, Identifier, MethodDecl, PrintSource, TypeRefAST, TypeToken,
   generic_param_set_parser, method_decl_parser, parse_identifier, type_ref_parser,
   type_ref_set_parser,
 };
@@ -27,7 +27,7 @@ pub enum ClassBodyStatement {
 pub struct ClassDecl {
   pub name: TypeToken,
   pub generic_params: Option<Vec<GenericParamDecl>>,
-  pub inherits: Option<Vec<TypeRef>>,
+  pub inherits: Option<Vec<TypeRefAST>>,
   pub body: Option<Vec<ClassBodyStatement>>,
 }
 
@@ -45,7 +45,7 @@ fn print_class_body(body: &Option<Vec<ClassBodyStatement>>) -> String {
   }
 }
 
-fn print_inherits(inherits: &Option<Vec<TypeRef>>) -> String {
+fn print_inherits(inherits: &Option<Vec<TypeRefAST>>) -> String {
   match inherits {
     Some(val) => format!(
       ": {}",

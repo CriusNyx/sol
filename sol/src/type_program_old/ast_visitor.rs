@@ -1,8 +1,8 @@
 use std::convert::identity;
 
-use crate::type_program::{
+use crate::type_program_old::{
   ClassBodyStatement, ClassDecl, FieldDef, GenericParamDecl, GlobalExp, GlobalVar, Identifier,
-  LambdaDecl, MethodDecl, MethodParamDecl, TypeProgram, TypeRef,
+  LambdaDeclAST, MethodDecl, MethodParamDecl, TypeProgram, TypeRefAST,
 };
 
 pub trait TypeProgramVisitor {
@@ -21,11 +21,11 @@ pub trait TypeProgramVisitor {
   fn visit_generic_param_decl(&mut self, _generic_param_decl: &GenericParamDecl) {}
   fn visit_generic_param_decl_after(&mut self, _generic_param_decl: &GenericParamDecl) {}
 
-  fn visit_type_ref(&mut self, _type_ref: &TypeRef) {}
-  fn visit_type_ref_after(&mut self, _type_decl: &TypeRef) {}
+  fn visit_type_ref(&mut self, _type_ref: &TypeRefAST) {}
+  fn visit_type_ref_after(&mut self, _type_decl: &TypeRefAST) {}
 
-  fn visit_lambda(&mut self, _lambda: &LambdaDecl) {}
-  fn visit_lambda_after(&mut self, _lambda: &LambdaDecl) {}
+  fn visit_lambda(&mut self, _lambda: &LambdaDeclAST) {}
+  fn visit_lambda_after(&mut self, _lambda: &LambdaDeclAST) {}
 
   fn visit_class_statement(&mut self, _class_statement: &ClassBodyStatement) {}
   fn visit_class_statement_after(&mut self, _class_statement: &ClassBodyStatement) {}
@@ -44,19 +44,19 @@ pub trait TypeProgramVisitor {
 }
 
 fn visit_type_program(program: &TypeProgram, visitor: &mut impl TypeProgramVisitor) {
-  fn visit_type_ref(type_ref: &TypeRef, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_type_ref(type_ref: &TypeRefAST, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_type_ref(type_ref);
 
     match type_ref {
-      TypeRef::ArrayTypeRef(arr) => visit_type_ref(&arr.array_type, visitor),
-      TypeRef::SymTypeRef(sym) => {
+      TypeRefAST::ArrayTypeRef(arr) => visit_type_ref(&arr.array_type, visitor),
+      TypeRefAST::SymTypeRef(sym) => {
         sym.params.as_ref().map(|param| {
           for type_ref_param in param {
             visit_type_ref(type_ref_param, visitor);
           }
         });
       }
-      TypeRef::LambdaDecl(lambda) => {
+      TypeRefAST::LambdaDecl(lambda) => {
         visit_lambda(lambda, visitor);
       }
     };
@@ -64,7 +64,7 @@ fn visit_type_program(program: &TypeProgram, visitor: &mut impl TypeProgramVisit
     visitor.visit_type_ref_after(type_ref);
   }
 
-  fn visit_lambda(lambda_decl: &LambdaDecl, visitor: &mut impl TypeProgramVisitor) {
+  fn visit_lambda(lambda_decl: &LambdaDeclAST, visitor: &mut impl TypeProgramVisitor) {
     visitor.visit_lambda(lambda_decl);
     for generic_param in lambda_decl.generic_params.iter().flat_map(identity) {
       visit_generic_param_decl(generic_param, visitor);

@@ -1,0 +1,65 @@
+use std::iter::once;
+
+use derive_getters::Getters;
+use derive_new::new;
+
+use crate::{
+  lsp::semantic_types::{SemanticToken, SemanticType},
+  type_program::{
+    nodes::ast_node::{ASTNode, ASTNodeData},
+    program_equivalent::ProgramEquivalent,
+    type_system::{RefType, Type},
+  },
+};
+
+#[derive(new, Getters, Debug, Clone)]
+pub struct TypeRefDecl {
+  name: Box<ASTNode>,
+  generic_decl: Option<Vec<ASTNode>>,
+}
+
+impl ProgramEquivalent for TypeRefDecl {
+  fn program_equivalent(&self, b: &Self) -> bool {
+    self.name().program_equivalent(b.name())
+      && self.generic_decl().program_equivalent(b.generic_decl())
+  }
+}
+
+impl ASTNodeData for TypeRefDecl {
+  fn format_source(&self) -> String {
+    format!(
+      "{}{}",
+      self.name().format_source(),
+      self
+        .generic_decl()
+        .as_ref()
+        .map(ASTNode::format_generic_param_set)
+        .unwrap_or("".to_string())
+    )
+  }
+
+  fn children(&self) -> Vec<&ASTNode> {
+    once(self.name().as_ref())
+      .chain(self.generic_decl().iter().flatten())
+      .collect()
+  }
+
+  fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
+    let name: String = self.name().sym_name().unwrap();
+
+    let generic_params = self
+      .generic_decl()
+      .as_ref()
+      .map(|x| x.iter().map(|y| y.calc_type(None).1).collect::<Vec<_>>());
+
+    let output_type: Type = RefType::new(name.to_string(), generic_params).into();
+
+    self.name().calc_type(Some(&output_type));
+
+    (None, output_type.into())
+  }
+
+  fn update_semantics(&self, tokens: &mut Vec<SemanticToken>) {
+    self.name().apply_semantics(tokens, &SemanticType::Type);
+  }
+}

@@ -2,13 +2,13 @@ use chumsky::{Parser, error::Rich, extra, select};
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::type_program::{PrintSource, TypeRef, TypeToken, type_ref_parser};
+use crate::type_program_old::{PrintSource, TypeRefAST, TypeToken, type_ref_parser};
 
 #[derive(Debug, Clone, Serialize, TS)]
 #[ts(export)]
 pub struct Identifier {
   pub identifier_name: TypeToken,
-  pub type_decl: TypeRef,
+  pub type_decl: TypeRefAST,
 }
 
 impl PrintSource for Identifier {
