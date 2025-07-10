@@ -5,8 +5,12 @@ use logos::Logos;
 
 use crate::{
   lsp::semantic_types::SemanticToken,
-  type_program::{nodes::ast_node::ASTNode, parser::type_program_parser},
-  type_program_old::TypeToken,
+  type_program::{
+    nodes::ast_node::{ASTNode, ASTNodeData},
+    parser::type_program_parser,
+    type_token::TypeToken,
+    types::scope::Scope,
+  },
 };
 
 #[derive(Debug, From, Clone)]
@@ -44,7 +48,22 @@ impl TypeProgram {
     })
   }
 
+  pub fn compile(source: &str) -> Result<TypeProgram, TypeProgramError> {
+    Self::parse(Self::lex(source)).map(|x| {
+      x.compute_types();
+      x
+    })
+  }
+
+  fn compute_types(&self) {
+    self.ast.calc_type(None);
+  }
+
   pub fn update_semantics(&self, tokens: &mut Vec<SemanticToken>) {
     ASTNode::update_semantics(&self.ast, tokens);
+  }
+
+  pub fn global_scope<'a>(&'a self) -> Scope {
+    todo!()
   }
 }

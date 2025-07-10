@@ -1,10 +1,11 @@
-use crate::type_program_old::TypeToken;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::Serialize;
 use sol_helpers::AllVariants;
 use std::fmt;
 use ts_rs::{self, TS};
+
+use crate::type_program::type_token::TypeToken;
 
 #[derive(Debug, AllVariants, TS, Clone, Copy, Serialize, PartialEq)]
 #[ts(export)]

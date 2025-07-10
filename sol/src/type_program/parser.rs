@@ -2,8 +2,8 @@ use std::ops::Range;
 
 use chumsky::{extra::ParserExtra, input::MapExtra, prelude::*};
 
-use crate::{
-  type_program::nodes::{
+use crate::type_program::{
+  nodes::{
     array_decl::ArrayDecl,
     ast_node::{ASTNode, ToAST},
     field_decl::FieldDecl,
@@ -19,7 +19,7 @@ use crate::{
     type_ref_decl::TypeRefDecl,
     unit_decl::UnitDecl,
   },
-  type_program_old::TypeToken,
+  type_token::TypeToken,
 };
 
 pub fn symbol_parser<'a>()

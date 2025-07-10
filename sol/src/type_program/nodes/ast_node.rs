@@ -14,7 +14,7 @@ use crate::{
       unit_decl::UnitDecl,
     },
     program_equivalent::ProgramEquivalent,
-    type_system::Type,
+    types::Type,
   },
 };
 

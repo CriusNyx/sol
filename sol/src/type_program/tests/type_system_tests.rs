@@ -2,18 +2,17 @@
 mod type_system_tests {
   use chumsky::Parser;
   use logos::Logos;
+
   use std::collections::HashMap;
 
-  use crate::{
-    type_program::{
-      nodes::ast_node::ASTNodeData,
-      parser::{
-        field_parser, identifier_decl_parser, method_parser, type_decl_parser, type_program_parser,
-        type_ref_decl_parser,
-      },
-      type_system::*,
+  use crate::type_program::{
+    nodes::ast_node::ASTNodeData,
+    parser::{
+      field_parser, identifier_decl_parser, method_parser, type_decl_parser, type_program_parser,
+      type_ref_decl_parser,
     },
-    type_program_old::TypeToken,
+    type_token::TypeToken,
+    types::*,
   };
 
   #[test]
@@ -592,29 +591,25 @@ mod type_system_tests {
           "Class".to_string(),
           None,
           None,
-          HashMap::<String, Box<Type>>::from([
+          Box::new(HashMap::<String, Type>::from([
             (
               "field".to_string(),
-              Box::new(
-                FieldType::new(
-                  Box::new(RefType::new("String".to_string(), None).into()),
-                  false
-                )
-                .into()
+              FieldType::new(
+                Box::new(RefType::new("String".to_string(), None).into()),
+                false
               )
+              .into()
             ),
             (
               "Method".to_string(),
-              Box::new(
-                MethodType::new(
-                  vec![],
-                  None,
-                  Some(Box::new(RefType::new("String".to_string(), None).into()))
-                )
-                .into()
+              MethodType::new(
+                vec![],
+                None,
+                Some(Box::new(RefType::new("String".to_string(), None).into()))
               )
+              .into()
             )
-          ])
+          ]))
         )
         .into()
       ),
@@ -649,29 +644,25 @@ mod type_system_tests {
                 "Class".to_string(),
                 None,
                 None,
-                HashMap::<String, Box<Type>>::from([
+                Box::new(HashMap::<String, Type>::from([
                   (
                     "field".to_string(),
-                    Box::new(
-                      FieldType::new(
-                        Box::new(RefType::new("String".to_string(), None).into()),
-                        false
-                      )
-                      .into()
+                    FieldType::new(
+                      Box::new(RefType::new("String".to_string(), None).into()),
+                      false
                     )
+                    .into()
                   ),
                   (
                     "Method".to_string(),
-                    Box::new(
-                      MethodType::new(
-                        vec![],
-                        None,
-                        Some(Box::new(RefType::new("String".to_string(), None).into()))
-                      )
-                      .into()
+                    MethodType::new(
+                      vec![],
+                      None,
+                      Some(Box::new(RefType::new("String".to_string(), None).into()))
                     )
+                    .into()
                   )
-                ])
+                ]))
               )
               .into()
             )

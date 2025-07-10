@@ -8,12 +8,10 @@ mod parser_tests {
   use std::cell::Cell;
   use strum::IntoDiscriminant;
 
-  use crate::{
-    type_program::{
-      nodes::ast_node::{NodeData, NodeDataDiscriminants},
-      parser::type_program_parser,
-    },
-    type_program_old::TypeToken,
+  use crate::type_program::{
+    nodes::ast_node::{NodeData, NodeDataDiscriminants},
+    parser::type_program_parser,
+    type_token::TypeToken,
   };
 
   #[test]

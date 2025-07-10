@@ -6,7 +6,7 @@ use derive_new::new;
 use crate::type_program::{
   nodes::ast_node::{ASTNode, ASTNodeData},
   program_equivalent::ProgramEquivalent,
-  type_system::Type,
+  types::Type,
 };
 
 #[derive(new, Getters, Debug, Clone)]

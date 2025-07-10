@@ -3,31 +3,29 @@ mod parser_tests {
   use chumsky::Parser;
   use logos::Logos;
 
-  use crate::{
-    type_program::{
-      nodes::{
-        array_decl::ArrayDecl,
-        ast_node::{ASTNode, ASTNodeData, ToAST},
-        field_decl::FieldDecl,
-        generic_param_decl::GenericParamDecl,
-        global_decl::GlobalDecl,
-        identifier::IdentifierDecl,
-        lambda_decl::LambdaDecl,
-        method_decl::MethodDecl,
-        method_param_decl::MethodParamDecl,
-        symbol_node::SymbolNode,
-        type_decl::TypeDecl,
-        type_program_node::TypeProgramNode,
-        type_ref_decl::TypeRefDecl,
-        unit_decl::UnitDecl,
-      },
-      parser::{
-        field_parser, generic_param_parser, global_decl_parser, identifier_decl_parser,
-        method_parser, type_decl_parser, type_program_parser, type_ref_decl_parser,
-      },
-      program_equivalent::ProgramEquivalent,
+  use crate::type_program::{
+    nodes::{
+      array_decl::ArrayDecl,
+      ast_node::{ASTNode, ASTNodeData, ToAST},
+      field_decl::FieldDecl,
+      generic_param_decl::GenericParamDecl,
+      global_decl::GlobalDecl,
+      identifier::IdentifierDecl,
+      lambda_decl::LambdaDecl,
+      method_decl::MethodDecl,
+      method_param_decl::MethodParamDecl,
+      symbol_node::SymbolNode,
+      type_decl::TypeDecl,
+      type_program_node::TypeProgramNode,
+      type_ref_decl::TypeRefDecl,
+      unit_decl::UnitDecl,
     },
-    type_program_old::TypeToken,
+    parser::{
+      field_parser, generic_param_parser, global_decl_parser, identifier_decl_parser,
+      method_parser, type_decl_parser, type_program_parser, type_ref_decl_parser,
+    },
+    program_equivalent::ProgramEquivalent,
+    type_token::TypeToken,
   };
 
   fn assert_program_equivalent(expected: &ASTNode, parsed: &ASTNode) {

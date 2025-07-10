@@ -7,7 +7,7 @@ use crate::{
   type_program::{
     nodes::ast_node::{ASTNode, ASTNodeData},
     program_equivalent::ProgramEquivalent,
-    type_system::{ObjectType, Type},
+    types::{ObjectType, Type},
   },
 };
 
@@ -69,14 +69,15 @@ impl ASTNodeData for TypeDecl {
       .as_ref()
       .map(|x| x.iter().map(|y| y.calc_type(None).1).collect::<Vec<_>>());
 
-    let mut body = HashMap::<String, Box<Type>>::new();
+    let mut body = HashMap::<String, Type>::new();
 
     for statement in self.body().iter().flatten() {
       let (name, t) = statement.calc_type(None);
-      body.insert(name.unwrap(), Box::new(t));
+      body.insert(name.unwrap(), t);
     }
 
-    let output: Type = ObjectType::new(name.to_string(), inherits, generic_params, body).into();
+    let output: Type =
+      ObjectType::new(name.to_string(), inherits, generic_params, Box::new(body)).into();
 
     self.name().calc_type(Some(&output));
 
