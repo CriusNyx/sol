@@ -5,14 +5,14 @@ use std::iter::once;
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{StAst, ASTNodeData},
     types::{MethodParamType, Type, TypeImpl},
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct MethodParamDecl {
-  type_ref: Box<ASTNode>,
+  type_ref: Box<StAst>,
   variadic: bool,
 }
 
@@ -31,7 +31,7 @@ impl ASTNodeData for MethodParamDecl {
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.type_ref().as_ref()).collect()
   }
 

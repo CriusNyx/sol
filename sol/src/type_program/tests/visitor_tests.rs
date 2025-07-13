@@ -9,9 +9,9 @@ mod parser_tests {
   use strum::IntoDiscriminant;
 
   use crate::type_program::{
-    nodes::ast_node::{NodeData, NodeDataDiscriminants},
-    parser::type_program_parser,
-    type_token::TypeToken,
+    nodes::st_ast::{NodeData, NodeDataDiscriminants},
+    st_parser::type_program_parser,
+    st_token::StToken,
   };
 
   #[test]
@@ -19,7 +19,7 @@ mod parser_tests {
   fn traverse_ast_works_correctly() {
     let sym_count = Cell::new(0);
 
-    let lexons = TypeToken::lexer(&TEST_PROGRAM)
+    let lexons = StToken::lexer(&TEST_PROGRAM)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let program = type_program_parser().parse(&lexons).unwrap();
@@ -36,7 +36,7 @@ mod parser_tests {
 
   #[test]
   fn collect_ast_works_correctly() {
-    let lexons = TypeToken::lexer(&TEST_PROGRAM)
+    let lexons = StToken::lexer(&TEST_PROGRAM)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let program = type_program_parser().parse(&lexons).unwrap();

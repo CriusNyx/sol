@@ -4,7 +4,7 @@ use serde::Serialize;
 use ts_rs::TS;
 
 #[derive(Clone, Debug, PartialEq, Serialize, TS)]
-pub struct TokenInfo {
+pub struct StTokenInfo {
   pub span: Span,
   pub source: Box<str>,
   pub index: i32,
@@ -12,19 +12,19 @@ pub struct TokenInfo {
 
 #[enum_dispatch]
 pub trait TokenInfoImpl {
-  fn get_token_info(&self) -> &TokenInfo;
+  fn get_token_info(&self) -> &StTokenInfo;
 }
 
-impl TokenInfoImpl for TokenInfo {
-  fn get_token_info(&self) -> &TokenInfo {
+impl TokenInfoImpl for StTokenInfo {
+  fn get_token_info(&self) -> &StTokenInfo {
     self
   }
 }
 
 pub fn create_token_info<'lexer, T: Logos<'lexer, Source = str>>(
   lexer: &mut Lexer<'lexer, T>,
-) -> TokenInfo {
-  TokenInfo {
+) -> StTokenInfo {
+  StTokenInfo {
     span: lexer.span(),
     source: lexer.slice().into(),
     index: -1,

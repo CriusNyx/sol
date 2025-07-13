@@ -1,9 +1,9 @@
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
-  type_program::nodes::ast_node::{ASTNode, NodeData},
+  type_program::nodes::st_ast::{NodeData, StAst},
 };
 
-impl ProgramEquivalent for ASTNode {
+impl ProgramEquivalent for StAst {
   fn program_equivalent(&self, b: &Self) -> bool {
     self.data().program_equivalent(b.data())
   }

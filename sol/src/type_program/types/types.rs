@@ -5,7 +5,7 @@ use serde::Serialize;
 use std::{collections::HashMap, rc::Rc};
 use strum_macros::EnumTryAs;
 
-use crate::type_program::nodes::ast_node::{ASTNode, ASTNodeData};
+use crate::type_program::nodes::st_ast::{StAst, ASTNodeData};
 
 #[derive(From, Debug, Clone, PartialEq, EnumTryAs)]
 pub enum Type {
@@ -21,9 +21,9 @@ pub enum Type {
 
 impl Type {
   pub fn from_method(
-    params: &Vec<ASTNode>,
-    generic_params: &Option<Vec<ASTNode>>,
-    return_type: &Option<Box<ASTNode>>,
+    params: &Vec<StAst>,
+    generic_params: &Option<Vec<StAst>>,
+    return_type: &Option<Box<StAst>>,
   ) -> Type {
     let param_types = params
       .iter()

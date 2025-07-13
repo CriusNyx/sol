@@ -6,17 +6,17 @@ use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{StAst, ASTNodeData},
     types::Type,
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct MethodDecl {
-  name: Box<ASTNode>,
-  generic_params: Option<Vec<ASTNode>>,
-  params: Vec<ASTNode>,
-  return_type: Option<Box<ASTNode>>,
+  name: Box<StAst>,
+  generic_params: Option<Vec<StAst>>,
+  params: Vec<StAst>,
+  return_type: Option<Box<StAst>>,
   is_static: bool,
 }
 
@@ -39,9 +39,9 @@ impl ASTNodeData for MethodDecl {
       self
         .generic_params()
         .as_ref()
-        .map(ASTNode::format_generic_param_set)
+        .map(StAst::format_generic_param_set)
         .unwrap_or("".to_string()),
-      ASTNode::format_param_set(self.params()),
+      StAst::format_param_set(self.params()),
       self
         .return_type()
         .as_ref()
@@ -50,7 +50,7 @@ impl ASTNodeData for MethodDecl {
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.name().as_ref())
       .chain(self.generic_params().iter().flatten())
       .chain(self.params().iter())

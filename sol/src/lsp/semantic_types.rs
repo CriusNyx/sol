@@ -5,7 +5,7 @@ use sol_helpers::AllVariants;
 use std::fmt;
 use ts_rs::{self, TS};
 
-use crate::type_program::type_token::TypeToken;
+use crate::type_program::st_token::StToken;
 
 #[derive(Debug, AllVariants, TS, Clone, Copy, Serialize, PartialEq)]
 #[ts(export)]
@@ -33,13 +33,13 @@ impl fmt::Display for SemanticType {
   }
 }
 
-impl TypeToken {
+impl StToken {
   pub fn semantic_type(&self) -> SemanticType {
     if self.is_keyword() {
       SemanticType::Keyword
     } else if self.is_op() {
       SemanticType::Operator
-    } else if let TypeToken::Symbol(_) = self {
+    } else if let StToken::Symbol(_) = self {
       SemanticType::Variable
     } else {
       SemanticType::None

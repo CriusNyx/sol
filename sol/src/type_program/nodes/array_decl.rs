@@ -5,7 +5,7 @@ use std::iter::once;
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{ASTNodeData, StAst},
     types::*,
   },
 };
@@ -13,7 +13,7 @@ use crate::{
 #[derive(new, Getters, Debug, Clone)]
 pub struct ArrayDecl {
   arity: usize,
-  type_decl: Box<ASTNode>,
+  type_decl: Box<StAst>,
 }
 
 impl ProgramEquivalent for ArrayDecl {
@@ -35,7 +35,7 @@ impl ASTNodeData for ArrayDecl {
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.type_decl().as_ref()).collect()
   }
 

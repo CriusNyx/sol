@@ -5,14 +5,14 @@ use std::iter::once;
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{ASTNodeData, StAst},
     types::{FieldType, Type, TypeImpl},
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct FieldDecl {
-  identifier: Box<ASTNode>,
+  identifier: Box<StAst>,
   is_static: bool,
 }
 
@@ -31,7 +31,7 @@ impl ASTNodeData for FieldDecl {
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.identifier().as_ref()).collect()
   }
 

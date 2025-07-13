@@ -8,7 +8,6 @@ mod parser_tests {
     type_program::{
       nodes::{
         array_decl::ArrayDecl,
-        ast_node::{ASTNode, ASTNodeData, ToAST},
         field_decl::FieldDecl,
         generic_param_decl::GenericParamDecl,
         global_decl::GlobalDecl,
@@ -16,35 +15,36 @@ mod parser_tests {
         lambda_decl::LambdaDecl,
         method_decl::MethodDecl,
         method_param_decl::MethodParamDecl,
+        st_ast::{ASTNodeData, StAst, ToAST},
         symbol_node::SymbolNode,
         type_decl::TypeDecl,
         type_program_node::TypeProgramNode,
         type_ref_decl::TypeRefDecl,
         unit_decl::UnitDecl,
       },
-      parser::{
+      st_parser::{
         field_parser, generic_param_parser, global_decl_parser, identifier_decl_parser,
         method_parser, type_decl_parser, type_program_parser, type_ref_decl_parser,
       },
-      type_token::TypeToken,
+      st_token::StToken,
     },
   };
 
-  fn assert_program_equivalent(expected: &ASTNode, parsed: &ASTNode) {
+  fn assert_program_equivalent(expected: &StAst, parsed: &StAst) {
     assert!(
       expected.program_equivalent(&parsed),
       "expected = {expected:#?},\n parsed = {parsed:#?}",
     );
   }
 
-  fn assert_program_format(expected: &str, parsed: &ASTNode) {
+  fn assert_program_format(expected: &str, parsed: &StAst) {
     assert_eq!(expected, parsed.format_source(),);
   }
 
   #[test]
   fn can_parse_type_unit() {
     let source = "(String)";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -66,7 +66,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_sym() {
     let source = "String";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -85,7 +85,7 @@ mod parser_tests {
   #[test]
   fn can_parse_array() {
     let source = "String[]";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -110,7 +110,7 @@ mod parser_tests {
   #[test]
   fn can_parse_array_with_arity() {
     let source = "String[,]";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -135,7 +135,7 @@ mod parser_tests {
   #[test]
   fn can_parse_nested_array() {
     let source = "String[][]";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -162,7 +162,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_ref_with_generic_param() {
     let source = "IEnumerable<String>";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -187,7 +187,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_ref_with_multi_generic_param() {
     let source = "IDictionary<String, String>";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -217,7 +217,7 @@ mod parser_tests {
   #[test]
   fn can_parse_identifier() {
     let source = "identifier: String";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -240,7 +240,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda() {
     let source = "() => void";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -255,7 +255,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_with_param() {
     let source = "(String) => void";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -287,7 +287,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_with_multi_param() {
     let source = "(String, String) => void";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -330,7 +330,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_with_variadic() {
     let source = "(...String[]) => void";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -364,7 +364,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_with_return() {
     let source = "() => String";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -390,7 +390,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_arr_return() {
     let source = "() => String[]";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -420,7 +420,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_arr() {
     let source = "(() => void)[]";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -439,7 +439,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_generic_param() {
     let source = "<T>() => void";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -462,7 +462,7 @@ mod parser_tests {
   #[test]
   fn can_parse_lambda_multi_generic_param() {
     let source = "<T, U>() => void";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -487,7 +487,7 @@ mod parser_tests {
   #[test]
   fn can_parse_generic_param() {
     let source = "String";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -508,7 +508,7 @@ mod parser_tests {
   #[test]
   fn can_parse_generic_param_inherits() {
     let source = "String: IEnumerable<char>";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -541,7 +541,7 @@ mod parser_tests {
   #[test]
   fn can_parse_generic_param_multi_inherits() {
     let source = "String: IEnumerable<char> + IDisposable";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -579,7 +579,7 @@ mod parser_tests {
   #[test]
   fn can_parse_field_decl() {
     let source = "name: String;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -606,7 +606,7 @@ mod parser_tests {
   #[test]
   fn can_parse_static_field_decl() {
     let source = "static name: String;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -633,7 +633,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type() {
     let source = "type String;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -654,7 +654,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_generic() {
     let source = "type String<T>;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -678,7 +678,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_inherits() {
     let source = "type String: IEnumerable;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -705,7 +705,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_body() {
     let source = "type String { length: int; }";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -740,7 +740,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_with_method() {
     let source = "type String { Method(); }";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -770,7 +770,7 @@ mod parser_tests {
   #[test]
   fn can_parse_method() {
     let source = "Method();";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -791,7 +791,7 @@ mod parser_tests {
   #[test]
   fn can_parse_method_with_params() {
     let source = "Method(String);";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -823,7 +823,7 @@ mod parser_tests {
   #[test]
   fn can_parse_method_with_variadic_params() {
     let source = "Method(...String);";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -855,7 +855,7 @@ mod parser_tests {
   #[test]
   fn can_parse_method_with_generic_param() {
     let source = "Method<T>();";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -880,7 +880,7 @@ mod parser_tests {
   #[test]
   fn can_parse_method_with_void_return() {
     let source = "Method(): void;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -902,7 +902,7 @@ mod parser_tests {
   #[test]
   fn can_parse_method_with_return() {
     let source = "Method(): String;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -930,7 +930,7 @@ mod parser_tests {
   #[test]
   fn can_parse_global_exp() {
     let source = "static name: String;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -956,7 +956,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_program() {
     let source = "";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -971,7 +971,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_program_with_global() {
     let source = "static name: String;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -1000,7 +1000,7 @@ mod parser_tests {
   #[test]
   fn can_parse_type_program_with_type() {
     let source = "type String;";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 

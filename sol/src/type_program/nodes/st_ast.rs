@@ -19,16 +19,16 @@ use crate::{
 };
 
 #[derive(Getters, Debug)]
-pub struct ASTNode {
+pub struct StAst {
   range: Range<usize>,
   data: NodeData,
   #[getter(skip)]
   cached_type: RefCell<Option<(Option<String>, Type)>>,
 }
 
-impl ASTNode {
+impl StAst {
   pub fn new(range: Range<usize>, data: NodeData) -> Self {
-    ASTNode {
+    StAst {
       range,
       data,
       cached_type: None.into(),
@@ -52,53 +52,53 @@ impl ASTNode {
     }
   }
 
-  pub fn traverse<Visitor: FnMut(&ASTNode)>(&self, visitor: &mut Visitor) {
+  pub fn traverse<Visitor: FnMut(&StAst)>(&self, visitor: &mut Visitor) {
     visitor(self);
     for child in self.children() {
       child.traverse(visitor);
     }
   }
 
-  pub fn collect(&self) -> Vec<&ASTNode> {
+  pub fn collect(&self) -> Vec<&StAst> {
     once(self)
       .chain(self.children().iter().map(|x| x.collect()).flatten())
       .collect::<Vec<_>>()
   }
 
-  pub fn format_param_set(params: &Vec<ASTNode>) -> String {
+  pub fn format_param_set(params: &Vec<StAst>) -> String {
     format_set("(", ")", ", ", params)
   }
 
-  pub fn format_generic_param_set(params: &Vec<ASTNode>) -> String {
+  pub fn format_generic_param_set(params: &Vec<StAst>) -> String {
     format_set("<", ">", ", ", params)
   }
 
-  pub fn format_body(params: &Vec<ASTNode>) -> String {
+  pub fn format_body(params: &Vec<StAst>) -> String {
     format_set("{\n", "\n}", "\n", params)
   }
 
-  pub fn format_inherits(params: &Vec<ASTNode>) -> String {
+  pub fn format_inherits(params: &Vec<StAst>) -> String {
     format_set(": ", "", " + ", params)
   }
 
-  pub fn update_semantics(ast_node: &ASTNode, tokens: &mut Vec<SemanticToken>) {
+  pub fn update_semantics(ast_node: &StAst, tokens: &mut Vec<SemanticToken>) {
     println!("Update node");
-    ASTNode::traverse(ast_node, &mut |x| x.update_semantics(tokens));
+    StAst::traverse(ast_node, &mut |x| x.update_semantics(tokens));
   }
 }
 
-impl Clone for ASTNode {
+impl Clone for StAst {
   fn clone(&self) -> Self {
-    ASTNode::new(self.range.clone(), self.data.clone())
+    StAst::new(self.range.clone(), self.data.clone())
   }
 }
 
-impl ASTNodeData for ASTNode {
+impl ASTNodeData for StAst {
   fn format_source(&self) -> String {
     self.data.format_source()
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     self.data.children()
   }
 
@@ -134,21 +134,21 @@ pub enum NodeData {
 }
 
 pub trait ToAST {
-  fn to_ast(self, range: Range<usize>) -> ASTNode;
-  fn to_ast_debug(self) -> ASTNode;
-  fn to_ast_boxed_debug(self) -> Box<ASTNode>;
+  fn to_ast(self, range: Range<usize>) -> StAst;
+  fn to_ast_debug(self) -> StAst;
+  fn to_ast_boxed_debug(self) -> Box<StAst>;
 }
 
 impl<T: Into<NodeData>> ToAST for T {
-  fn to_ast(self, range: Range<usize>) -> ASTNode {
-    ASTNode::new(range, self.into())
+  fn to_ast(self, range: Range<usize>) -> StAst {
+    StAst::new(range, self.into())
   }
 
-  fn to_ast_debug(self) -> ASTNode {
-    ASTNode::new(0..0, self.into())
+  fn to_ast_debug(self) -> StAst {
+    StAst::new(0..0, self.into())
   }
 
-  fn to_ast_boxed_debug(self) -> Box<ASTNode> {
+  fn to_ast_boxed_debug(self) -> Box<StAst> {
     Box::new(self.to_ast_debug())
   }
 }
@@ -158,12 +158,12 @@ pub trait CalcType {}
 #[enum_dispatch]
 pub trait ASTNodeData: ProgramEquivalent {
   fn format_source(&self) -> String;
-  fn children(&self) -> Vec<&ASTNode>;
+  fn children(&self) -> Vec<&StAst>;
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type);
   fn update_semantics(&self, _tokens: &mut Vec<SemanticToken>) {}
 }
 
-pub fn format_set(start: &str, end: &str, separator: &str, params: &Vec<ASTNode>) -> String {
+pub fn format_set(start: &str, end: &str, separator: &str, params: &Vec<StAst>) -> String {
   format!(
     "{}{}{}",
     start,

@@ -4,16 +4,16 @@ use derive_new::new;
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{ASTNodeData, StAst},
     types::Type,
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct LambdaDecl {
-  generic_params: Option<Vec<ASTNode>>,
-  params: Vec<ASTNode>,
-  return_type: Option<Box<ASTNode>>,
+  generic_params: Option<Vec<StAst>>,
+  params: Vec<StAst>,
+  return_type: Option<Box<StAst>>,
 }
 
 impl ProgramEquivalent for LambdaDecl {
@@ -30,9 +30,9 @@ impl ASTNodeData for LambdaDecl {
       self
         .generic_params()
         .as_ref()
-        .map(ASTNode::format_generic_param_set)
+        .map(StAst::format_generic_param_set)
         .unwrap_or("".to_string()),
-      ASTNode::format_param_set(self.params()),
+      StAst::format_param_set(self.params()),
       self
         .return_type()
         .as_ref()
@@ -41,7 +41,7 @@ impl ASTNodeData for LambdaDecl {
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     self
       .generic_params()
       .iter()

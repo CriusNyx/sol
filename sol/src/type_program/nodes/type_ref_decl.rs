@@ -6,15 +6,15 @@ use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{StAst, ASTNodeData},
     types::{RefType, Type, TypeImpl},
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct TypeRefDecl {
-  name: Box<ASTNode>,
-  generic_decl: Option<Vec<ASTNode>>,
+  name: Box<StAst>,
+  generic_decl: Option<Vec<StAst>>,
 }
 
 impl ProgramEquivalent for TypeRefDecl {
@@ -32,12 +32,12 @@ impl ASTNodeData for TypeRefDecl {
       self
         .generic_decl()
         .as_ref()
-        .map(ASTNode::format_generic_param_set)
+        .map(StAst::format_generic_param_set)
         .unwrap_or("".to_string())
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.name().as_ref())
       .chain(self.generic_decl().iter().flatten())
       .collect()

@@ -4,7 +4,7 @@ use derive_new::new;
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{StAst, ASTNodeData},
     types::Type,
   },
 };
@@ -25,7 +25,7 @@ impl ASTNodeData for SymbolNode {
     self.name().to_string()
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     vec![]
   }
 

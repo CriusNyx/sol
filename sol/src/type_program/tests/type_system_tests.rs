@@ -6,19 +6,19 @@ mod type_system_tests {
   use std::{collections::HashMap, rc::Rc};
 
   use crate::type_program::{
-    nodes::ast_node::ASTNodeData,
-    parser::{
+    nodes::st_ast::ASTNodeData,
+    st_parser::{
       field_parser, identifier_decl_parser, method_parser, type_decl_parser, type_program_parser,
       type_ref_decl_parser,
     },
-    type_token::TypeToken,
+    st_token::StToken,
     types::*,
   };
 
   #[test]
   fn can_calc_type_ref() {
     let source = "String";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
@@ -35,7 +35,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_type_ref_with_param() {
     let source = "IEnumerable<String>";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
@@ -61,7 +61,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_type_ref_with_multi_param() {
     let source = "IDictionary<Int, String>";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
@@ -88,7 +88,7 @@ mod type_system_tests {
   #[test]
   fn sym_name_resolves_correctly() {
     let source = "IDictionary<Int, String>";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
@@ -120,7 +120,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_arr_type() {
     let source = "String[]";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
@@ -138,7 +138,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_arr_type_with_arity() {
     let source = "String[,]";
-    let tokens = TypeToken::lexer(&source)
+    let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
@@ -156,7 +156,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_lambda_type() {
     let source = "() => void";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -170,7 +170,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_lambda_type_with_param() {
     let source = "(String) => void";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -201,7 +201,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_lambda_type_with_multi_param() {
     let source = "(String, String) => void";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -241,7 +241,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_lambda_type_with_generic_param() {
     let source = "<T>() => void";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -266,7 +266,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_lambda_type_with_multi_generic_param() {
     let source = "<T, U>() => void";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -294,7 +294,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_lambda_type_with_return() {
     let source = "() => String";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -319,7 +319,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_method_type() {
     let source = "Method();";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -339,7 +339,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_method_type_with_param() {
     let source = "Method(String);";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -370,7 +370,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_method_type_with_multi_param() {
     let source = "Method(String, String);";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -410,7 +410,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_method_type_with_generic_param() {
     let source = "Method<T>();";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -435,7 +435,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_method_type_with_multi_generic_param() {
     let source = "Method<T, U>();";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -463,7 +463,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_method_type_with_return() {
     let source = "Method(): String;";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -488,7 +488,7 @@ mod type_system_tests {
   #[test]
   fn method_name_resolves_correctly() {
     let source = "Method();";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -515,7 +515,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_identifier_type() {
     let source = "ident: String";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -535,7 +535,7 @@ mod type_system_tests {
   #[test]
   fn identifier_name_resolves_correctly() {
     let source = "ident: String";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -562,7 +562,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_field_decl_type() {
     let source = "ident: String;";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -586,7 +586,7 @@ mod type_system_tests {
   #[test]
   fn can_calc_type_decl_type() {
     let source = "type Class { field: String; Method(): String; }";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 
@@ -635,7 +635,7 @@ mod type_system_tests {
   fn can_calc_type_program_type() {
     let source = "static staticField: String;
     type Class { field: String; Method(): String; }";
-    let tokens = TypeToken::lexer(source)
+    let tokens = StToken::lexer(source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
 

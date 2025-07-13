@@ -5,14 +5,14 @@ use std::iter::once;
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{ASTNodeData, StAst},
     types::Type,
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct GlobalDecl {
-  identifier: Box<ASTNode>,
+  identifier: Box<StAst>,
 }
 
 impl ProgramEquivalent for GlobalDecl {
@@ -26,7 +26,7 @@ impl ASTNodeData for GlobalDecl {
     format!("static {};", self.identifier().format_source())
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.identifier.as_ref()).collect()
   }
 

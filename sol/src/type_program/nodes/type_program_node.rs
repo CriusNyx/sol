@@ -5,14 +5,14 @@ use std::{collections::HashMap, rc::Rc};
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{StAst, ASTNodeData},
     types::{ProgramType, Type, TypeImpl},
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct TypeProgramNode {
-  statements: Vec<ASTNode>,
+  statements: Vec<StAst>,
 }
 
 impl ProgramEquivalent for TypeProgramNode {
@@ -31,7 +31,7 @@ impl ASTNodeData for TypeProgramNode {
       .join("\n\n")
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     self.statements().iter().collect()
   }
 

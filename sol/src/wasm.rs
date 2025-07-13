@@ -1,11 +1,11 @@
 use logos::Logos;
 use wasm_bindgen::prelude::*;
 
-use crate::type_program::type_token::TypeToken;
+use crate::type_program::st_token::StToken;
 
 #[wasm_bindgen]
 pub fn compile_types(source: &str) -> JsValue {
-  let tokens: Vec<TypeToken> = TypeToken::lexer(source).collect::<Result<_, _>>().unwrap();
+  let tokens: Vec<StToken> = StToken::lexer(source).collect::<Result<_, _>>().unwrap();
 
   todo!();
 

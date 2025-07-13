@@ -5,14 +5,14 @@ use std::iter::once;
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{StAst, ASTNodeData},
     types::Type,
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct UnitDecl {
-  unit: Box<ASTNode>,
+  unit: Box<StAst>,
 }
 
 impl ProgramEquivalent for UnitDecl {
@@ -26,7 +26,7 @@ impl ASTNodeData for UnitDecl {
     format!("({})", self.unit().format_source())
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.unit().as_ref()).collect()
   }
 

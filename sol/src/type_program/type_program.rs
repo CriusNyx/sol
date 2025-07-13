@@ -8,9 +8,9 @@ use logos::Logos;
 use crate::{
   lsp::semantic_types::SemanticToken,
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
-    parser::type_program_parser,
-    type_token::TypeToken,
+    nodes::st_ast::{ASTNodeData, StAst},
+    st_parser::type_program_parser,
+    st_token::StToken,
     types::{Type, type_resolution::InstancedType},
   },
 };
@@ -18,24 +18,24 @@ use crate::{
 #[derive(Debug, From, Clone)]
 pub enum TypeProgramError {
   FailedToLex,
-  ParseError(Vec<TypeToken>, Vec<Rich<'static, TypeToken>>),
+  ParseError(Vec<StToken>, Vec<Rich<'static, StToken>>),
 }
 
 #[derive(Debug, Getters)]
 pub struct TypeProgram {
-  ast: ASTNode,
+  ast: StAst,
   program_type: RefCell<Option<Rc<Type>>>,
 }
 
 impl TypeProgram {
-  pub fn lex(source: &str) -> Result<Vec<TypeToken>, TypeProgramError> {
-    TypeToken::lexer(source)
+  pub fn lex(source: &str) -> Result<Vec<StToken>, TypeProgramError> {
+    StToken::lexer(source)
       .collect::<Result<Vec<_>, ()>>()
       .map_err(|_| TypeProgramError::FailedToLex)
   }
 
   pub fn parse(
-    lex_result: Result<Vec<TypeToken>, TypeProgramError>,
+    lex_result: Result<Vec<StToken>, TypeProgramError>,
   ) -> Result<TypeProgram, TypeProgramError> {
     lex_result.and_then(|x| {
       type_program_parser()
@@ -70,7 +70,7 @@ impl TypeProgram {
   }
 
   pub fn update_semantics(&self, tokens: &mut Vec<SemanticToken>) {
-    ASTNode::update_semantics(&self.ast, tokens);
+    StAst::update_semantics(&self.ast, tokens);
   }
 
   pub fn get_program_type(&self) -> Rc<Type> {

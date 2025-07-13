@@ -6,15 +6,15 @@ use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{ASTNodeData, StAst},
     types::{GenericType, Type},
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct GenericParamDecl {
-  name: Box<ASTNode>,
-  inherits: Option<Vec<ASTNode>>,
+  name: Box<StAst>,
+  inherits: Option<Vec<StAst>>,
 }
 
 impl ProgramEquivalent for GenericParamDecl {
@@ -41,7 +41,7 @@ impl ASTNodeData for GenericParamDecl {
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.name().as_ref())
       .chain(self.inherits().iter().flatten())
       .collect()

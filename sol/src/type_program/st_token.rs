@@ -5,60 +5,60 @@ use logos::Logos;
 use serde::Serialize;
 use ts_rs::TS;
 
-use crate::helpers::lexer_helpers::{TokenInfo, create_token_info};
+use crate::helpers::lexer_helpers::{StTokenInfo, create_token_info};
 
 #[derive(Logos, Clone, Debug, TS, PartialEq, Serialize)]
-pub enum TypeToken {
+pub enum StToken {
   // Keywords
   #[token("type", create_token_info)]
-  TypeKeyword(TokenInfo),
+  TypeKeyword(StTokenInfo),
   #[token("void", create_token_info)]
-  VoidKeyword(TokenInfo),
+  VoidKeyword(StTokenInfo),
   #[token("static", create_token_info)]
-  StaticKeyword(TokenInfo),
+  StaticKeyword(StTokenInfo),
 
   // Symbols
   #[token(":", create_token_info)]
-  Colon(TokenInfo),
+  Colon(StTokenInfo),
   #[token(";", create_token_info)]
-  Semicolon(TokenInfo),
+  Semicolon(StTokenInfo),
   #[token(",", create_token_info)]
-  Comma(TokenInfo),
+  Comma(StTokenInfo),
   #[token("+", create_token_info)]
-  AddOp(TokenInfo),
+  AddOp(StTokenInfo),
   #[token("=>", create_token_info)]
-  ArrowOp(TokenInfo),
+  ArrowOp(StTokenInfo),
   #[token("...", create_token_info)]
-  Spread(TokenInfo),
+  Spread(StTokenInfo),
 
   // Brackets
   #[token("{", create_token_info)]
-  OpenCurly(TokenInfo),
+  OpenCurly(StTokenInfo),
   #[token("}", create_token_info)]
-  ClosedCurly(TokenInfo),
+  ClosedCurly(StTokenInfo),
   #[token("(", create_token_info)]
-  OpenParen(TokenInfo),
+  OpenParen(StTokenInfo),
   #[token(")", create_token_info)]
-  ClosedParen(TokenInfo),
+  ClosedParen(StTokenInfo),
   #[token("[", create_token_info)]
-  OpenAngle(TokenInfo),
+  OpenAngle(StTokenInfo),
   #[token("]", create_token_info)]
-  ClosedAngle(TokenInfo),
+  ClosedAngle(StTokenInfo),
   #[token("<", create_token_info)]
-  OpenCaret(TokenInfo),
+  OpenCaret(StTokenInfo),
   #[token(">", create_token_info)]
-  ClosedCaret(TokenInfo),
+  ClosedCaret(StTokenInfo),
 
   // Symbol
   #[regex("[a-zA-Z][a-zA-Z0-9]*", create_token_info)]
-  Symbol(TokenInfo),
+  Symbol(StTokenInfo),
 
   // Whitespace
   #[regex(r"[ \t\f\n]+", logos::skip)]
   Whitespace,
 }
 
-impl fmt::Display for TypeToken {
+impl fmt::Display for StToken {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match self {
       Self::Whitespace => write!(f, "<whitespace>"),
@@ -67,8 +67,8 @@ impl fmt::Display for TypeToken {
   }
 }
 
-impl TypeToken {
-  pub fn get_info_mut(&mut self) -> &mut TokenInfo {
+impl StToken {
+  pub fn get_info_mut(&mut self) -> &mut StTokenInfo {
     match self {
       // Keywords
       Self::TypeKeyword(info) => info,
@@ -98,7 +98,7 @@ impl TypeToken {
     }
   }
 
-  pub fn get_info(&self) -> &TokenInfo {
+  pub fn get_info(&self) -> &StTokenInfo {
     match self {
       // Keywords
       Self::TypeKeyword(info) => info,
@@ -131,14 +131,14 @@ impl TypeToken {
 
   pub fn is_keyword(&self) -> bool {
     match self {
-      TypeToken::TypeKeyword(_) | TypeToken::VoidKeyword(_) | TypeToken::StaticKeyword(_) => true,
+      StToken::TypeKeyword(_) | StToken::VoidKeyword(_) | StToken::StaticKeyword(_) => true,
       _ => false,
     }
   }
 
   pub fn is_op(&self) -> bool {
     match self {
-      TypeToken::AddOp(_) | TypeToken::Spread(_) => true,
+      StToken::AddOp(_) | StToken::Spread(_) => true,
       _ => false,
     }
   }

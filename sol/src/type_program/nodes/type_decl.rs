@@ -6,17 +6,17 @@ use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
-    nodes::ast_node::{ASTNode, ASTNodeData},
+    nodes::st_ast::{StAst, ASTNodeData},
     types::{ObjectType, Type, TypeImpl},
   },
 };
 
 #[derive(new, Getters, Debug, Clone)]
 pub struct TypeDecl {
-  name: Box<ASTNode>,
-  generic_params: Option<Vec<ASTNode>>,
-  inherits: Option<Vec<ASTNode>>,
-  body: Option<Vec<ASTNode>>,
+  name: Box<StAst>,
+  generic_params: Option<Vec<StAst>>,
+  inherits: Option<Vec<StAst>>,
+  body: Option<Vec<StAst>>,
 }
 
 impl ProgramEquivalent for TypeDecl {
@@ -35,22 +35,22 @@ impl ASTNodeData for TypeDecl {
       self
         .generic_params()
         .as_ref()
-        .map(|x| ASTNode::format_generic_param_set(x))
+        .map(|x| StAst::format_generic_param_set(x))
         .unwrap_or("".to_string()),
       self
         .inherits()
         .as_ref()
-        .map(ASTNode::format_inherits)
+        .map(StAst::format_inherits)
         .unwrap_or("".to_string()),
       self
         .body()
         .as_ref()
-        .map(|x| " ".to_owned() + &ASTNode::format_body(x))
+        .map(|x| " ".to_owned() + &StAst::format_body(x))
         .unwrap_or(";".to_string())
     )
   }
 
-  fn children(&self) -> Vec<&ASTNode> {
+  fn children(&self) -> Vec<&StAst> {
     once(self.name().as_ref())
       .chain(self.generic_params().iter().flatten())
       .chain(self.inherits().iter().flatten())
