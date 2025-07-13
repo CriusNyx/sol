@@ -1,14 +1,13 @@
-use std::iter::once;
-
 use derive_getters::Getters;
 use derive_new::new;
+use std::iter::once;
 
 use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
     nodes::ast_node::{ASTNode, ASTNodeData},
-    program_equivalent::ProgramEquivalent,
-    types::{RefType, Type},
+    types::{RefType, Type, TypeImpl},
   },
 };
 
@@ -47,10 +46,11 @@ impl ASTNodeData for TypeRefDecl {
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
     let name: String = self.name().sym_name().unwrap();
 
-    let generic_params = self
-      .generic_decl()
-      .as_ref()
-      .map(|x| x.iter().map(|y| y.calc_type(None).1).collect::<Vec<_>>());
+    let generic_params = self.generic_decl().as_ref().map(|x| {
+      x.iter()
+        .map(|y| y.calc_type(None).1.to_rc())
+        .collect::<Vec<_>>()
+    });
 
     let output_type: Type = RefType::new(name.to_string(), generic_params).into();
 

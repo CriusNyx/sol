@@ -3,7 +3,7 @@ mod type_system_tests {
   use chumsky::Parser;
   use logos::Logos;
 
-  use std::collections::HashMap;
+  use std::{collections::HashMap, rc::Rc};
 
   use crate::type_program::{
     nodes::ast_node::ASTNodeData,
@@ -48,7 +48,9 @@ mod type_system_tests {
       None,
       RefType::new(
         "IEnumerable".to_string(),
-        Some(vec![RefType::new("String".to_string(), None).into()]),
+        Some(vec![Rc::new(
+          RefType::new("String".to_string(), None).into(),
+        )]),
       )
       .into(),
     );
@@ -73,8 +75,8 @@ mod type_system_tests {
       RefType::new(
         "IDictionary".to_string(),
         Some(vec![
-          RefType::new("Int".to_string(), None).into(),
-          RefType::new("String".to_string(), None).into(),
+          Rc::new(RefType::new("Int".to_string(), None).into()),
+          Rc::new(RefType::new("String".to_string(), None).into()),
         ]),
       )
       .into(),
@@ -105,8 +107,8 @@ mod type_system_tests {
       RefType::new(
         "IDictionary".to_string(),
         Some(vec![
-          RefType::new("Int".to_string(), None).into(),
-          RefType::new("String".to_string(), None).into(),
+          Rc::new(RefType::new("Int".to_string(), None).into()),
+          Rc::new(RefType::new("String".to_string(), None).into()),
         ]),
       )
       .into(),
@@ -127,7 +129,7 @@ mod type_system_tests {
 
     let expected: (Option<String>, Type) = (
       None,
-      ArrayType::new(1, Box::new(RefType::new("String".to_string(), None).into())).into(),
+      ArrayType::new(1, Rc::new(RefType::new("String".to_string(), None).into())).into(),
     );
 
     assert_eq!(expected, result);
@@ -145,7 +147,7 @@ mod type_system_tests {
 
     let expected: (Option<String>, Type) = (
       None,
-      ArrayType::new(2, Box::new(RefType::new("String".to_string(), None).into())).into(),
+      ArrayType::new(2, Rc::new(RefType::new("String".to_string(), None).into())).into(),
     );
 
     assert_eq!(expected, result);
@@ -180,13 +182,13 @@ mod type_system_tests {
       (
         None,
         MethodType::new(
-          vec![
+          vec![Rc::new(
             MethodParamType::new(
-              Box::new(RefType::new("String".to_string(), None).into()),
+              Rc::new(RefType::new("String".to_string(), None).into()),
               false
             )
             .into()
-          ],
+          )],
           None,
           None
         )
@@ -212,16 +214,20 @@ mod type_system_tests {
         None,
         MethodType::new(
           vec![
-            MethodParamType::new(
-              Box::new(RefType::new("String".to_string(), None).into()),
-              false
-            )
-            .into(),
-            MethodParamType::new(
-              Box::new(RefType::new("String".to_string(), None).into()),
-              false
-            )
-            .into(),
+            Rc::new(
+              MethodParamType::new(
+                Rc::new(RefType::new("String".to_string(), None).into()),
+                false
+              )
+              .into()
+            ),
+            Rc::new(
+              MethodParamType::new(
+                Rc::new(RefType::new("String".to_string(), None).into()),
+                false
+              )
+              .into()
+            ),
           ],
           None,
           None
@@ -248,7 +254,7 @@ mod type_system_tests {
         None,
         MethodType::new(
           vec![],
-          Some(vec![GenericType::new("T".to_string()).into()]),
+          Some(vec![Rc::new(GenericType::new("T".to_string()).into())]),
           None
         )
         .into()
@@ -274,8 +280,8 @@ mod type_system_tests {
         MethodType::new(
           vec![],
           Some(vec![
-            GenericType::new("T".to_string()).into(),
-            GenericType::new("U".to_string()).into()
+            Rc::new(GenericType::new("T".to_string()).into()),
+            Rc::new(GenericType::new("U".to_string()).into())
           ]),
           None
         )
@@ -302,7 +308,7 @@ mod type_system_tests {
         MethodType::new(
           vec![],
           None,
-          Some(Box::new(RefType::new("String".to_string(), None).into()))
+          Some(Rc::new(RefType::new("String".to_string(), None).into()))
         )
         .into()
       ),
@@ -345,13 +351,13 @@ mod type_system_tests {
       (
         Some("Method".to_string()),
         MethodType::new(
-          vec![
+          vec![Rc::new(
             MethodParamType::new(
-              Box::new(RefType::new("String".to_string(), None).into()),
+              Rc::new(RefType::new("String".to_string(), None).into()),
               false
             )
             .into()
-          ],
+          )],
           None,
           None
         )
@@ -377,16 +383,20 @@ mod type_system_tests {
         Some("Method".to_string()),
         MethodType::new(
           vec![
-            MethodParamType::new(
-              Box::new(RefType::new("String".to_string(), None).into()),
-              false
+            Rc::new(
+              MethodParamType::new(
+                Rc::new(RefType::new("String".to_string(), None).into()),
+                false
+              )
+              .into()
+            ),
+            Rc::new(
+              MethodParamType::new(
+                Rc::new(RefType::new("String".to_string(), None).into()),
+                false
+              )
+              .into()
             )
-            .into(),
-            MethodParamType::new(
-              Box::new(RefType::new("String".to_string(), None).into()),
-              false
-            )
-            .into()
           ],
           None,
           None
@@ -413,7 +423,7 @@ mod type_system_tests {
         Some("Method".to_string()),
         MethodType::new(
           vec![],
-          Some(vec![GenericType::new("T".to_string()).into()]),
+          Some(vec![Rc::new(GenericType::new("T".to_string()).into())]),
           None
         )
         .into()
@@ -439,8 +449,8 @@ mod type_system_tests {
         MethodType::new(
           vec![],
           Some(vec![
-            GenericType::new("T".to_string()).into(),
-            GenericType::new("U".to_string()).into()
+            Rc::new(GenericType::new("T".to_string()).into()),
+            Rc::new(GenericType::new("U".to_string()).into())
           ]),
           None
         )
@@ -467,7 +477,7 @@ mod type_system_tests {
         MethodType::new(
           vec![],
           None,
-          Some(Box::new(RefType::new("String".to_string(), None).into()))
+          Some(Rc::new(RefType::new("String".to_string(), None).into()))
         )
         .into()
       ),
@@ -564,7 +574,7 @@ mod type_system_tests {
       (
         Some("ident".to_string()),
         FieldType::new(
-          Box::new(RefType::new("String".to_string(), None).into()),
+          Rc::new(RefType::new("String".to_string(), None).into()),
           false
         )
         .into()
@@ -591,25 +601,29 @@ mod type_system_tests {
           "Class".to_string(),
           None,
           None,
-          Box::new(HashMap::<String, Type>::from([
+          HashMap::<String, Rc<Type>>::from([
             (
               "field".to_string(),
-              FieldType::new(
-                Box::new(RefType::new("String".to_string(), None).into()),
-                false
+              Rc::new(
+                FieldType::new(
+                  Rc::new(RefType::new("String".to_string(), None).into()),
+                  false
+                )
+                .into()
               )
-              .into()
             ),
             (
               "Method".to_string(),
-              MethodType::new(
-                vec![],
-                None,
-                Some(Box::new(RefType::new("String".to_string(), None).into()))
+              Rc::new(
+                MethodType::new(
+                  vec![],
+                  None,
+                  Some(Rc::new(RefType::new("String".to_string(), None).into()))
+                )
+                .into()
               )
-              .into()
             )
-          ]))
+          ])
         )
         .into()
       ),
@@ -632,42 +646,46 @@ mod type_system_tests {
     assert_eq!(
       (
         None,
-        ProgramType::new(HashMap::from([
+        ProgramType::new(Rc::new(HashMap::from([
           (
             "staticField".to_string(),
-            Box::new(RefType::new("String".to_string(), None).into())
+            Rc::new(RefType::new("String".to_string(), None).into())
           ),
           (
             "Class".to_string(),
-            Box::new(
+            Rc::new(
               ObjectType::new(
                 "Class".to_string(),
                 None,
                 None,
-                Box::new(HashMap::<String, Type>::from([
+                HashMap::<String, Rc<Type>>::from([
                   (
                     "field".to_string(),
-                    FieldType::new(
-                      Box::new(RefType::new("String".to_string(), None).into()),
-                      false
+                    Rc::new(
+                      FieldType::new(
+                        Rc::new(RefType::new("String".to_string(), None).into()),
+                        false
+                      )
+                      .into()
                     )
-                    .into()
                   ),
                   (
                     "Method".to_string(),
-                    MethodType::new(
-                      vec![],
-                      None,
-                      Some(Box::new(RefType::new("String".to_string(), None).into()))
+                    Rc::new(
+                      MethodType::new(
+                        vec![],
+                        None,
+                        Some(Rc::new(RefType::new("String".to_string(), None).into()))
+                      )
+                      .into()
                     )
-                    .into()
                   )
-                ]))
+                ])
               )
               .into()
             )
           )
-        ]))
+        ])))
         .into()
       ),
       actual

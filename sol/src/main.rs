@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-mod expression;
 mod helpers;
+mod lang;
 mod lsp;
 mod sample_programs;
 mod type_context;

@@ -1,8 +1,7 @@
-use crate::type_program::nodes::ast_node::{ASTNode, NodeData};
-
-pub trait ProgramEquivalent {
-  fn program_equivalent(&self, b: &Self) -> bool;
-}
+use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
+  type_program::nodes::ast_node::{ASTNode, NodeData},
+};
 
 impl ProgramEquivalent for ASTNode {
   fn program_equivalent(&self, b: &Self) -> bool {
@@ -28,30 +27,5 @@ impl ProgramEquivalent for NodeData {
       (Self::UnitDecl(a), Self::UnitDecl(b)) => a.program_equivalent(b),
       _ => false,
     }
-  }
-}
-
-impl<T: ProgramEquivalent> ProgramEquivalent for Box<T> {
-  fn program_equivalent(&self, b: &Self) -> bool {
-    self.as_ref().program_equivalent(b.as_ref())
-  }
-}
-
-impl<T: ProgramEquivalent> ProgramEquivalent for Option<T> {
-  fn program_equivalent(&self, b: &Self) -> bool {
-    match (self, b) {
-      (Some(a), Some(b)) => a.program_equivalent(b),
-      (None, None) => true,
-      _ => false,
-    }
-  }
-}
-
-impl<T: ProgramEquivalent> ProgramEquivalent for Vec<T> {
-  fn program_equivalent(&self, b: &Self) -> bool {
-    self
-      .iter()
-      .zip(b.iter())
-      .all(|(a, b)| a.program_equivalent(b))
   }
 }

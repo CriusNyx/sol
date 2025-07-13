@@ -4,6 +4,7 @@ use std::{cell::RefCell, iter::once, ops::Range};
 use strum_macros::{EnumDiscriminants, EnumTryAs};
 
 use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
     nodes::{
@@ -13,7 +14,6 @@ use crate::{
       type_decl::TypeDecl, type_program_node::TypeProgramNode, type_ref_decl::TypeRefDecl,
       unit_decl::UnitDecl,
     },
-    program_equivalent::ProgramEquivalent,
     types::Type,
   },
 };

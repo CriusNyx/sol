@@ -1,13 +1,12 @@
-use std::iter::once;
-
 use derive_getters::Getters;
 use derive_new::new;
+use std::iter::once;
 
 use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
     nodes::ast_node::{ASTNode, ASTNodeData},
-    program_equivalent::ProgramEquivalent,
     types::{GenericType, Type},
   },
 };

@@ -9,8 +9,8 @@ Goal is to create a language which uses types to infer parameter binding,
 allowing for the omission of a lot of the punctuation found in most block scoped
 languages. IE: eliminate as much as possible, commas, parens, and semicolons.
 
-- [x] Create parser for type system
-- [ ] Refactor parser to use shared references instead of cloning everything
-- [ ] Add lexons to parser using shared references
-- [ ] Create type system interpreter
-- [ ] Create lsp for st files.
+- [ ] Refactor AST to st_ast
+- [ ] Update type evaluation to support method overloading.
+- [ ] Add support for namespaces.
+- [ ] Work on st generator module for c#.
+- [ ] Create sol parser.

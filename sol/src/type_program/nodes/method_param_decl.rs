@@ -1,12 +1,13 @@
-use std::iter::once;
-
 use derive_getters::Getters;
 use derive_new::new;
+use std::iter::once;
 
-use crate::type_program::{
-  nodes::ast_node::{ASTNode, ASTNodeData},
-  program_equivalent::ProgramEquivalent,
-  types::{MethodParamType, Type},
+use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
+  type_program::{
+    nodes::ast_node::{ASTNode, ASTNodeData},
+    types::{MethodParamType, Type, TypeImpl},
+  },
 };
 
 #[derive(new, Getters, Debug, Clone)]
@@ -39,7 +40,7 @@ impl ASTNodeData for MethodParamDecl {
 
     (
       output.0,
-      MethodParamType::new(Box::new(output.1), *self.variadic()).into(),
+      MethodParamType::new(output.1.to_rc(), *self.variadic()).into(),
     )
   }
 }

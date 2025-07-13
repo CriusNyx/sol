@@ -1,6 +1,6 @@
 use crate::{
   lsp::semantic_types::{SemanticToken, SemanticType},
-  type_program::{nodes::ast_node::ASTNodeData, type_program::TypeProgram},
+  type_program::type_program::TypeProgram,
 };
 use serde_wasm_bindgen;
 use wasm_bindgen::prelude::*;

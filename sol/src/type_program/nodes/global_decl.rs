@@ -1,12 +1,13 @@
-use std::iter::once;
-
 use derive_getters::Getters;
 use derive_new::new;
+use std::iter::once;
 
-use crate::type_program::{
-  nodes::ast_node::{ASTNode, ASTNodeData},
-  program_equivalent::ProgramEquivalent,
-  types::Type,
+use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
+  type_program::{
+    nodes::ast_node::{ASTNode, ASTNodeData},
+    types::Type,
+  },
 };
 
 #[derive(new, Getters, Debug, Clone)]

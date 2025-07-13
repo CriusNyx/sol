@@ -1,13 +1,13 @@
 use derive_getters::Getters;
 use derive_new::new;
-use std::{collections::HashMap, iter::once};
+use std::{collections::HashMap, iter::once, rc::Rc};
 
 use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
     nodes::ast_node::{ASTNode, ASTNodeData},
-    program_equivalent::ProgramEquivalent,
-    types::{ObjectType, Type},
+    types::{ObjectType, Type, TypeImpl},
   },
 };
 
@@ -60,24 +60,25 @@ impl ASTNodeData for TypeDecl {
 
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
     let name = self.name().sym_name().unwrap();
-    let generic_params = self
-      .generic_params()
-      .as_ref()
-      .map(|x| x.iter().map(|y| y.calc_type(None).1).collect::<Vec<_>>());
-    let inherits = self
-      .inherits()
-      .as_ref()
-      .map(|x| x.iter().map(|y| y.calc_type(None).1).collect::<Vec<_>>());
+    let generic_params = self.generic_params().as_ref().map(|x| {
+      x.iter()
+        .map(|y| y.calc_type(None).1.to_rc())
+        .collect::<Vec<_>>()
+    });
+    let inherits = self.inherits().as_ref().map(|x| {
+      x.iter()
+        .map(|y| y.calc_type(None).1.to_rc())
+        .collect::<Vec<_>>()
+    });
 
-    let mut body = HashMap::<String, Type>::new();
+    let mut body = HashMap::<String, Rc<Type>>::new();
 
     for statement in self.body().iter().flatten() {
       let (name, t) = statement.calc_type(None);
-      body.insert(name.unwrap(), t);
+      body.insert(name.unwrap(), t.to_rc());
     }
 
-    let output: Type =
-      ObjectType::new(name.to_string(), inherits, generic_params, Box::new(body)).into();
+    let output: Type = ObjectType::new(name.to_string(), inherits, generic_params, body).into();
 
     self.name().calc_type(Some(&output));
 

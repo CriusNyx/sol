@@ -1,12 +1,13 @@
-use std::iter::once;
-
 use derive_getters::Getters;
 use derive_new::new;
+use std::iter::once;
 
-use crate::type_program::{
-  nodes::ast_node::{ASTNode, ASTNodeData},
-  program_equivalent::ProgramEquivalent,
-  types::*,
+use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
+  type_program::{
+    nodes::ast_node::{ASTNode, ASTNodeData},
+    types::*,
+  },
 };
 
 #[derive(new, Getters, Debug, Clone)]
@@ -41,7 +42,7 @@ impl ASTNodeData for ArrayDecl {
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
     (
       None,
-      ArrayType::new(*self.arity(), Box::new(self.type_decl().calc_type(None).1)).into(),
+      ArrayType::new(*self.arity(), self.type_decl().calc_type(None).1.to_rc()).into(),
     )
   }
 }

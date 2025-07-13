@@ -1,12 +1,13 @@
-use std::iter::once;
-
 use derive_getters::Getters;
 use derive_new::new;
+use std::iter::once;
 
-use crate::type_program::{
-  nodes::ast_node::{ASTNode, ASTNodeData},
-  program_equivalent::ProgramEquivalent,
-  types::{FieldType, Type},
+use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
+  type_program::{
+    nodes::ast_node::{ASTNode, ASTNodeData},
+    types::{FieldType, Type, TypeImpl},
+  },
 };
 
 #[derive(new, Getters, Debug, Clone)]
@@ -38,7 +39,7 @@ impl ASTNodeData for FieldDecl {
     let ident_type = self.identifier().calc_type(None);
     (
       ident_type.0,
-      FieldType::new(Box::new(ident_type.1), *self.is_static()).into(),
+      FieldType::new(ident_type.1.to_rc(), *self.is_static()).into(),
     )
   }
 }

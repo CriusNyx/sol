@@ -1,12 +1,13 @@
-use std::collections::HashMap;
-
 use derive_getters::Getters;
 use derive_new::new;
+use std::{collections::HashMap, rc::Rc};
 
-use crate::type_program::{
-  nodes::ast_node::{ASTNode, ASTNodeData},
-  program_equivalent::ProgramEquivalent,
-  types::{ProgramType, Type},
+use crate::{
+  helpers::program_equivalent::ProgramEquivalent,
+  type_program::{
+    nodes::ast_node::{ASTNode, ASTNodeData},
+    types::{ProgramType, Type, TypeImpl},
+  },
 };
 
 #[derive(new, Getters, Debug, Clone)]
@@ -35,13 +36,13 @@ impl ASTNodeData for TypeProgramNode {
   }
 
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
-    let mut hash_map = HashMap::<String, Box<Type>>::new();
+    let mut hash_map = HashMap::<String, Rc<Type>>::new();
 
     for statement in self.statements().iter() {
       let result = statement.calc_type(None);
-      hash_map.insert(result.0.unwrap().to_string(), Box::new(result.1));
+      hash_map.insert(result.0.unwrap().to_string(), result.1.to_rc());
     }
 
-    (None, ProgramType::new(hash_map).into())
+    (None, ProgramType::new(Rc::new(hash_map)).into())
   }
 }

@@ -1,3 +1,5 @@
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
+
 use chumsky::{Parser, error::Rich};
 use derive_getters::Getters;
 use derive_more::From;
@@ -9,7 +11,7 @@ use crate::{
     nodes::ast_node::{ASTNode, ASTNodeData},
     parser::type_program_parser,
     type_token::TypeToken,
-    types::scope::Scope,
+    types::{Type, type_resolution::InstancedType},
   },
 };
 
@@ -22,6 +24,7 @@ pub enum TypeProgramError {
 #[derive(Debug, Getters)]
 pub struct TypeProgram {
   ast: ASTNode,
+  program_type: RefCell<Option<Rc<Type>>>,
 }
 
 impl TypeProgram {
@@ -38,7 +41,10 @@ impl TypeProgram {
       type_program_parser()
         .parse(x.as_ref())
         .into_result()
-        .map(|ast| TypeProgram { ast })
+        .map(|ast| TypeProgram {
+          ast,
+          program_type: RefCell::new(None),
+        })
         .map_err(|e| {
           TypeProgramError::ParseError(
             x.clone(),
@@ -46,6 +52,10 @@ impl TypeProgram {
           )
         })
     })
+  }
+
+  pub fn parse_string(source: &str) -> Result<TypeProgram, TypeProgramError> {
+    Self::parse(Self::lex(source))
   }
 
   pub fn compile(source: &str) -> Result<TypeProgram, TypeProgramError> {
@@ -63,7 +73,25 @@ impl TypeProgram {
     ASTNode::update_semantics(&self.ast, tokens);
   }
 
-  pub fn global_scope<'a>(&'a self) -> Scope {
-    todo!()
+  pub fn get_program_type(&self) -> Rc<Type> {
+    let mut program_type = self.program_type().borrow_mut();
+    if let None = *program_type {
+      *program_type = Some(Rc::new(self.ast.calc_type(None).1));
+    }
+    drop(program_type);
+    self.program_type().borrow().as_ref().unwrap().clone()
+  }
+
+  pub fn get_global_types(&self) -> Rc<HashMap<String, Rc<Type>>> {
+    self
+      .get_program_type()
+      .try_as_program_type_ref()
+      .unwrap()
+      .types()
+      .clone()
+  }
+
+  pub fn get_global_instance(&self) -> InstancedType {
+    InstancedType::new(self.get_program_type().clone(), vec![])
   }
 }
