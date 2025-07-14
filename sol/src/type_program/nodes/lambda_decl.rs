@@ -54,7 +54,7 @@ impl ASTNodeData for LambdaDecl {
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
     (
       None,
-      Type::from_method(&self.params, &self.generic_params, &self.return_type),
+      Type::from_method_overload(&self.params, &self.generic_params, &self.return_type),
     )
   }
 }

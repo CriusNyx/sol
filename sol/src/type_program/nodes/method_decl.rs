@@ -6,7 +6,7 @@ use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
-    nodes::st_ast::{StAst, ASTNodeData},
+    nodes::st_ast::{ASTNodeData, StAst},
     types::Type,
   },
 };
@@ -59,7 +59,7 @@ impl ASTNodeData for MethodDecl {
   }
 
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
-    let output = Type::from_method(&self.params, &self.generic_params, &self.return_type);
+    let output = Type::from_method_overload(&self.params, &self.generic_params, &self.return_type);
 
     // Set name type
     self.name().calc_type(Some(&output));

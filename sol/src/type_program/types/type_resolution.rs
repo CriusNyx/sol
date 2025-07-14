@@ -3,7 +3,9 @@ use std::{collections::HashMap, rc::Rc};
 use derive_getters::Getters;
 use derive_new::new;
 
-use crate::type_program::types::{ArrayType, MethodParamType, MethodType, RefType, Type, TypeImpl};
+use crate::type_program::types::{
+  ArrayType, MethodOverloadType, MethodParamType, MethodType, RefType, Type, TypeImpl,
+};
 
 #[derive(new, Clone, Getters, PartialEq, Debug)]
 pub struct InstancedType {
@@ -51,6 +53,7 @@ impl InstancedType {
         )
       }
       Type::MethodType(_) => InstancedType::plain(source),
+      Type::MethodOverloadType(_) => InstancedType::plain(source),
       Type::MethodParamType(_) => panic!("Cannot instance a method param"),
       Type::GenericType(_) => panic!("Cannot instance a generic type"),
       Type::ObjectType(_) => InstancedType::plain(source),
@@ -70,7 +73,7 @@ impl InstancedType {
           .generic_params()
           .iter()
           .flatten()
-          .map(|x| x.try_as_generic_type_ref().unwrap().name())
+          .map(|generic_param| generic_param.try_as_generic_type_ref().unwrap().name())
           .cloned()
           .zip(self.generic_args().iter().cloned())
           .collect::<HashMap<_, _>>(),
@@ -117,15 +120,29 @@ impl InstancedType {
   ) -> Rc<Type> {
     MethodType::new(
       method_type
+        .overloads()
+        .iter()
+        .map(|overload| Self::apply_type_scope(overload, scope))
+        .collect(),
+    )
+    .to_rc()
+  }
+
+  fn method_overload_apply_scope(
+    overload_type: &MethodOverloadType,
+    scope: &HashMap<String, Rc<Type>>,
+  ) -> Rc<Type> {
+    MethodOverloadType::new(
+      overload_type
         .params()
         .iter()
         .map(|x| Self::apply_type_scope(x, scope))
         .collect(),
-      method_type
+      overload_type
         .generic_types()
         .as_ref()
         .map(|x| x.iter().map(|y| Self::apply_type_scope(y, scope)).collect()),
-      method_type
+      overload_type
         .return_type()
         .as_ref()
         .map(|x| Self::apply_type_scope(x, scope)),
@@ -149,6 +166,9 @@ impl InstancedType {
       Type::ArrayType(array_type) => Self::array_type_apply_scope(array_type, scope),
       Type::RefType(ref_type) => Self::type_ref_apply_scope(source, ref_type, scope),
       Type::MethodType(method_type) => Self::method_type_apply_scope(method_type, scope),
+      Type::MethodOverloadType(overload_type) => {
+        Self::method_overload_apply_scope(overload_type, scope)
+      }
       Type::MethodParamType(method_params_type) => {
         Self::method_param_type_apply_scope(method_params_type, scope)
       }
@@ -164,6 +184,7 @@ impl InstancedType {
       Type::ArrayType(_) => source,
       Type::RefType(_) => source,
       Type::MethodType(_) => source,
+      Type::MethodOverloadType(_) => panic!("Cannot unwrap a method overload"),
       Type::MethodParamType(_) => panic!("Cannot unwrap a method param type"),
       Type::GenericType(_) => panic!("Cannot unwrap a generic type"),
       Type::ObjectType(_) => source,

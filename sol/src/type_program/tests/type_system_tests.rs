@@ -164,7 +164,13 @@ mod type_system_tests {
 
     let result = parsed.calc_type(None);
 
-    assert_eq!((None, MethodType::new(vec![], None, None).into()), result);
+    assert_eq!(
+      (
+        None,
+        MethodType::new(vec![MethodOverloadType::new(vec![], None, None).to_rc()]).into()
+      ),
+      result
+    );
   }
 
   #[test]
@@ -181,17 +187,20 @@ mod type_system_tests {
     assert_eq!(
       (
         None,
-        MethodType::new(
-          vec![Rc::new(
-            MethodParamType::new(
-              Rc::new(RefType::new("String".to_string(), None).into()),
-              false
-            )
-            .into()
-          )],
-          None,
-          None
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![Rc::new(
+              MethodParamType::new(
+                Rc::new(RefType::new("String".to_string(), None).into()),
+                false
+              )
+              .into()
+            )],
+            None,
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -212,26 +221,29 @@ mod type_system_tests {
     assert_eq!(
       (
         None,
-        MethodType::new(
-          vec![
-            Rc::new(
-              MethodParamType::new(
-                Rc::new(RefType::new("String".to_string(), None).into()),
-                false
-              )
-              .into()
-            ),
-            Rc::new(
-              MethodParamType::new(
-                Rc::new(RefType::new("String".to_string(), None).into()),
-                false
-              )
-              .into()
-            ),
-          ],
-          None,
-          None
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![
+              Rc::new(
+                MethodParamType::new(
+                  Rc::new(RefType::new("String".to_string(), None).into()),
+                  false
+                )
+                .into()
+              ),
+              Rc::new(
+                MethodParamType::new(
+                  Rc::new(RefType::new("String".to_string(), None).into()),
+                  false
+                )
+                .into()
+              ),
+            ],
+            None,
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -252,11 +264,14 @@ mod type_system_tests {
     assert_eq!(
       (
         None,
-        MethodType::new(
-          vec![],
-          Some(vec![Rc::new(GenericType::new("T".to_string()).into())]),
-          None
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![],
+            Some(vec![Rc::new(GenericType::new("T".to_string()).into())]),
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -277,14 +292,17 @@ mod type_system_tests {
     assert_eq!(
       (
         None,
-        MethodType::new(
-          vec![],
-          Some(vec![
-            Rc::new(GenericType::new("T".to_string()).into()),
-            Rc::new(GenericType::new("U".to_string()).into())
-          ]),
-          None
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![],
+            Some(vec![
+              Rc::new(GenericType::new("T".to_string()).into()),
+              Rc::new(GenericType::new("U".to_string()).into())
+            ]),
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -305,11 +323,14 @@ mod type_system_tests {
     assert_eq!(
       (
         None,
-        MethodType::new(
-          vec![],
-          None,
-          Some(Rc::new(RefType::new("String".to_string(), None).into()))
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![],
+            None,
+            Some(Rc::new(RefType::new("String".to_string(), None).into()))
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -330,7 +351,7 @@ mod type_system_tests {
     assert_eq!(
       (
         Some("Method".to_string()),
-        MethodType::new(vec![], None, None).into()
+        MethodType::new(vec![MethodOverloadType::new(vec![], None, None).to_rc()]).into()
       ),
       result
     );
@@ -350,17 +371,20 @@ mod type_system_tests {
     assert_eq!(
       (
         Some("Method".to_string()),
-        MethodType::new(
-          vec![Rc::new(
-            MethodParamType::new(
-              Rc::new(RefType::new("String".to_string(), None).into()),
-              false
-            )
-            .into()
-          )],
-          None,
-          None
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![Rc::new(
+              MethodParamType::new(
+                Rc::new(RefType::new("String".to_string(), None).into()),
+                false
+              )
+              .into()
+            )],
+            None,
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -381,26 +405,29 @@ mod type_system_tests {
     assert_eq!(
       (
         Some("Method".to_string()),
-        MethodType::new(
-          vec![
-            Rc::new(
-              MethodParamType::new(
-                Rc::new(RefType::new("String".to_string(), None).into()),
-                false
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![
+              Rc::new(
+                MethodParamType::new(
+                  Rc::new(RefType::new("String".to_string(), None).into()),
+                  false
+                )
+                .into()
+              ),
+              Rc::new(
+                MethodParamType::new(
+                  Rc::new(RefType::new("String".to_string(), None).into()),
+                  false
+                )
+                .into()
               )
-              .into()
-            ),
-            Rc::new(
-              MethodParamType::new(
-                Rc::new(RefType::new("String".to_string(), None).into()),
-                false
-              )
-              .into()
-            )
-          ],
-          None,
-          None
-        )
+            ],
+            None,
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -421,11 +448,14 @@ mod type_system_tests {
     assert_eq!(
       (
         Some("Method".to_string()),
-        MethodType::new(
-          vec![],
-          Some(vec![Rc::new(GenericType::new("T".to_string()).into())]),
-          None
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![],
+            Some(vec![Rc::new(GenericType::new("T".to_string()).into())]),
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -446,14 +476,17 @@ mod type_system_tests {
     assert_eq!(
       (
         Some("Method".to_string()),
-        MethodType::new(
-          vec![],
-          Some(vec![
-            Rc::new(GenericType::new("T".to_string()).into()),
-            Rc::new(GenericType::new("U".to_string()).into())
-          ]),
-          None
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![],
+            Some(vec![
+              Rc::new(GenericType::new("T".to_string()).into()),
+              Rc::new(GenericType::new("U".to_string()).into())
+            ]),
+            None
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -474,11 +507,14 @@ mod type_system_tests {
     assert_eq!(
       (
         Some("Method".to_string()),
-        MethodType::new(
-          vec![],
-          None,
-          Some(Rc::new(RefType::new("String".to_string(), None).into()))
-        )
+        MethodType::new(vec![
+          MethodOverloadType::new(
+            vec![],
+            None,
+            Some(Rc::new(RefType::new("String".to_string(), None).into()))
+          )
+          .to_rc()
+        ])
         .into()
       ),
       result
@@ -506,7 +542,7 @@ mod type_system_tests {
     assert_eq!(
       (
         Some("Method".to_string()),
-        MethodType::new(vec![], None, None).into()
+        MethodType::new(vec![MethodOverloadType::new(vec![], None, None).to_rc()]).into()
       ),
       method_name_type
     );
@@ -615,11 +651,14 @@ mod type_system_tests {
             (
               "Method".to_string(),
               Rc::new(
-                MethodType::new(
-                  vec![],
-                  None,
-                  Some(Rc::new(RefType::new("String".to_string(), None).into()))
-                )
+                MethodType::new(vec![
+                  MethodOverloadType::new(
+                    vec![],
+                    None,
+                    Some(Rc::new(RefType::new("String".to_string(), None).into()))
+                  )
+                  .to_rc()
+                ])
                 .into()
               )
             )
@@ -672,11 +711,14 @@ mod type_system_tests {
                   (
                     "Method".to_string(),
                     Rc::new(
-                      MethodType::new(
-                        vec![],
-                        None,
-                        Some(Rc::new(RefType::new("String".to_string(), None).into()))
-                      )
+                      MethodType::new(vec![
+                        MethodOverloadType::new(
+                          vec![],
+                          None,
+                          Some(Rc::new(RefType::new("String".to_string(), None).into()))
+                        )
+                        .to_rc()
+                      ])
                       .into()
                     )
                   )

@@ -5,13 +5,14 @@ use serde::Serialize;
 use std::{collections::HashMap, rc::Rc};
 use strum_macros::EnumTryAs;
 
-use crate::type_program::nodes::st_ast::{StAst, ASTNodeData};
+use crate::type_program::nodes::st_ast::{ASTNodeData, StAst};
 
 #[derive(From, Debug, Clone, PartialEq, EnumTryAs)]
 pub enum Type {
   ArrayType(ArrayType),
   RefType(RefType),
   MethodType(MethodType),
+  MethodOverloadType(MethodOverloadType),
   MethodParamType(MethodParamType),
   GenericType(GenericType),
   ObjectType(ObjectType),
@@ -20,7 +21,7 @@ pub enum Type {
 }
 
 impl Type {
-  pub fn from_method(
+  pub fn from_method_overload(
     params: &Vec<StAst>,
     generic_params: &Option<Vec<StAst>>,
     return_type: &Option<Box<StAst>>,
@@ -38,7 +39,10 @@ impl Type {
     });
     let return_type = return_type.as_ref().map(|x| Rc::new(x.calc_type(None).1));
 
-    MethodType::new(param_types, generic_types, return_type).into()
+    MethodType::new(vec![
+      MethodOverloadType::new(param_types, generic_types, return_type).to_rc(),
+    ])
+    .into()
   }
 }
 
@@ -73,6 +77,18 @@ pub struct ArrayType {
 /// Type for methods
 #[derive(new, Getters, Debug, Clone, PartialEq)]
 pub struct MethodType {
+  overloads: Vec<Rc<Type>>,
+}
+
+impl MethodType {
+  pub fn overloads_mut(&mut self) -> &mut Vec<Rc<Type>> {
+    &mut self.overloads
+  }
+}
+
+/// Type for method overload
+#[derive(new, Getters, Debug, Clone, PartialEq)]
+pub struct MethodOverloadType {
   params: Vec<Rc<Type>>,
   generic_types: Option<Vec<Rc<Type>>>,
   return_type: Option<Rc<Type>>,

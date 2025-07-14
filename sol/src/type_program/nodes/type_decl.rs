@@ -1,13 +1,13 @@
 use derive_getters::Getters;
 use derive_new::new;
-use std::{collections::HashMap, iter::once, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, iter::once};
 
 use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
-    nodes::st_ast::{StAst, ASTNodeData},
-    types::{ObjectType, Type, TypeImpl},
+    nodes::st_ast::{ASTNodeData, StAst},
+    types::{MethodType, ObjectType, Type, TypeImpl},
   },
 };
 
@@ -71,14 +71,42 @@ impl ASTNodeData for TypeDecl {
         .collect::<Vec<_>>()
     });
 
-    let mut body = HashMap::<String, Rc<Type>>::new();
+    let mut body = HashMap::<String, RefCell<Type>>::new();
 
     for statement in self.body().iter().flatten() {
-      let (name, t) = statement.calc_type(None);
-      body.insert(name.unwrap(), t.to_rc());
+      let (name, statement_type) = statement.calc_type(None);
+      let name = name.unwrap();
+      match statement_type {
+        Type::MethodType(method_type) => {
+          let element = body
+            .entry(name.to_string())
+            .or_insert_with(|| RefCell::new(MethodType::new(vec![]).into()));
+
+          for overload in method_type.overloads() {
+            element
+              .borrow_mut()
+              .try_as_method_type_mut()
+              .unwrap()
+              .overloads_mut()
+              .push(overload.clone());
+          }
+        }
+        _ => {
+          body.insert(name, RefCell::new(statement_type));
+        }
+      }
     }
 
-    let output: Type = ObjectType::new(name.to_string(), inherits, generic_params, body).into();
+    let output: Type = ObjectType::new(
+      name.to_string(),
+      inherits,
+      generic_params,
+      body
+        .iter()
+        .map(|(key, value)| (key.to_string(), value.clone().into_inner().to_rc()))
+        .collect::<HashMap<_, _>>(),
+    )
+    .into();
 
     self.name().calc_type(Some(&output));
 
