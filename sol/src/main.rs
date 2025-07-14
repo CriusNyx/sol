@@ -6,7 +6,6 @@ mod lang;
 mod lsp;
 mod sample_programs;
 mod type_program;
-mod wasm;
 
 fn main() {
   todo!();

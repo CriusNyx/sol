@@ -64,7 +64,7 @@ impl ASTNodeData for MethodDecl {
     // Set name type
     self.name().calc_type(Some(&output));
 
-    (Some(self.name().sym_name().unwrap()), output)
+    (Some(self.name().type_name().unwrap()), output)
   }
 
   fn update_semantics(&self, tokens: &mut Vec<SemanticToken>) {

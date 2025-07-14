@@ -42,6 +42,6 @@ impl ASTNodeData for IdentifierDecl {
 
     self.name().calc_type(Some(&output));
 
-    (Some(self.name().sym_name().unwrap()), output)
+    (Some(self.name().type_name().unwrap()), output)
   }
 }

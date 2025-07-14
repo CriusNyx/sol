@@ -116,6 +116,7 @@ mod type_resolution_tests {
       "type String; type Generic<T>{ field: T; } static instance: Generic<String>;",
     )
     .unwrap();
+
     let global_types = parsed_program.get_global_types();
     let global_instance = parsed_program.get_global_instance();
 

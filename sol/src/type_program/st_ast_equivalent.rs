@@ -13,6 +13,7 @@ impl ProgramEquivalent for NodeData {
   fn program_equivalent(&self, b: &Self) -> bool {
     match (self, b) {
       (Self::SymbolNode(a), Self::SymbolNode(b)) => a.program_equivalent(b),
+      (Self::TypeName(a), Self::TypeName(b)) => a.program_equivalent(b),
       (Self::ArrayDecl(a), Self::ArrayDecl(b)) => a.program_equivalent(b),
       (Self::TypeRefDecl(a), Self::TypeRefDecl(b)) => a.program_equivalent(b),
       (Self::LambdaDecl(a), Self::LambdaDecl(b)) => a.program_equivalent(b),

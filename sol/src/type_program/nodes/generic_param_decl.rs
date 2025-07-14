@@ -48,11 +48,11 @@ impl ASTNodeData for GenericParamDecl {
   }
 
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
-    let output: Type = GenericType::new(self.name().sym_name().unwrap()).into();
+    let output: Type = GenericType::new(self.name().type_name().unwrap()).into();
 
     self.name().calc_type(Some(&output));
 
-    (self.name().sym_name(), output)
+    (self.name().type_name(), output)
   }
 
   fn update_semantics(&self, tokens: &mut Vec<SemanticToken>) {

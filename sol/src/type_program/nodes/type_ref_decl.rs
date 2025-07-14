@@ -6,7 +6,7 @@ use crate::{
   helpers::program_equivalent::ProgramEquivalent,
   lsp::semantic_types::{SemanticToken, SemanticType},
   type_program::{
-    nodes::st_ast::{StAst, ASTNodeData},
+    nodes::st_ast::{ASTNodeData, StAst},
     types::{RefType, Type, TypeImpl},
   },
 };
@@ -44,7 +44,7 @@ impl ASTNodeData for TypeRefDecl {
   }
 
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
-    let name: String = self.name().sym_name().unwrap();
+    let name: String = self.name().type_name().unwrap();
 
     let generic_params = self.generic_decl().as_ref().map(|x| {
       x.iter()

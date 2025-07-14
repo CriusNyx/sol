@@ -59,7 +59,7 @@ impl ASTNodeData for TypeDecl {
   }
 
   fn calc_type(&self, _parent_type: Option<&Type>) -> (Option<String>, Type) {
-    let name = self.name().sym_name().unwrap();
+    let name = self.name().type_name().unwrap();
     let generic_params = self.generic_params().as_ref().map(|x| {
       x.iter()
         .map(|y| y.calc_type(None).1.to_rc())

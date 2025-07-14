@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod parser_tests {
+  use std::fmt;
+
   use chumsky::Parser;
   use logos::Logos;
 
@@ -18,19 +20,21 @@ mod parser_tests {
         st_ast::{ASTNodeData, StAst, ToAST},
         symbol_node::SymbolNode,
         type_decl::TypeDecl,
+        type_name::TypeName,
         type_program_node::TypeProgramNode,
         type_ref_decl::TypeRefDecl,
         unit_decl::UnitDecl,
       },
       st_parser::{
         field_parser, generic_param_parser, global_decl_parser, identifier_decl_parser,
-        method_parser, type_decl_parser, type_program_parser, type_ref_decl_parser,
+        method_param_set_parser, method_parser, return_type_parser, type_decl_parser,
+        type_program_parser, type_ref_decl_parser,
       },
       st_token::StToken,
     },
   };
 
-  fn assert_program_equivalent(expected: &StAst, parsed: &StAst) {
+  fn assert_program_equivalent<T: ProgramEquivalent + fmt::Debug>(expected: &T, parsed: &T) {
     assert!(
       expected.program_equivalent(&parsed),
       "expected = {expected:#?},\n parsed = {parsed:#?}",
@@ -52,7 +56,9 @@ mod parser_tests {
 
     let expected = UnitDecl::new(
       TypeRefDecl::new(
-        SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+        SymbolNode::new("String".to_string())
+          .to_type_name_debug()
+          .to_ast_boxed_debug(),
         None,
       )
       .to_ast_boxed_debug(),
@@ -73,13 +79,38 @@ mod parser_tests {
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeRefDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("String".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       None,
     )
     .to_ast_debug();
 
     assert_program_equivalent(&expected, &parsed);
     assert_program_format("String", &parsed);
+  }
+
+  #[test]
+  fn can_parse_namespace() {
+    let source = "System::String";
+    let tokens = StToken::lexer(&source)
+      .map(|x| x.unwrap())
+      .collect::<Vec<_>>();
+
+    let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
+
+    let expected = TypeRefDecl::new(
+      TypeName::new(vec![
+        SymbolNode::new("System".to_string()).to_ast_debug(),
+        SymbolNode::new("String".to_string()).to_ast_debug(),
+      ])
+      .to_ast_boxed_debug(),
+      None,
+    )
+    .to_ast_debug();
+
+    assert_program_equivalent(&expected, &parsed);
+    assert_program_format("System::String", &parsed);
   }
 
   #[test]
@@ -96,7 +127,9 @@ mod parser_tests {
     let expected = ArrayDecl::new(
       1,
       TypeRefDecl::new(
-        SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+        SymbolNode::new("String".to_string())
+          .to_type_name_debug()
+          .to_ast_boxed_debug(),
         None,
       )
       .to_ast_boxed_debug(),
@@ -121,7 +154,9 @@ mod parser_tests {
     let expected = ArrayDecl::new(
       2,
       TypeRefDecl::new(
-        SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+        SymbolNode::new("String".to_string())
+          .to_type_name_debug()
+          .to_ast_boxed_debug(),
         None,
       )
       .to_ast_boxed_debug(),
@@ -146,7 +181,9 @@ mod parser_tests {
       ArrayDecl::new(
         1,
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_boxed_debug(),
@@ -169,10 +206,14 @@ mod parser_tests {
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeRefDecl::new(
-      SymbolNode::new("IEnumerable".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("IEnumerable".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       Some(vec![
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_debug(),
@@ -180,7 +221,7 @@ mod parser_tests {
     )
     .to_ast_boxed_debug();
 
-    assert_program_equivalent(&expected, &parsed);
+    assert_program_equivalent::<StAst>(&expected, &parsed);
     assert_program_format("IEnumerable<String>", &parsed);
   }
 
@@ -194,15 +235,21 @@ mod parser_tests {
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeRefDecl::new(
-      SymbolNode::new("IDictionary".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("IDictionary".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       Some(vec![
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_debug(),
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_debug(),
@@ -210,7 +257,7 @@ mod parser_tests {
     )
     .to_ast_boxed_debug();
 
-    assert_program_equivalent(&expected, &parsed);
+    assert_program_equivalent::<StAst>(&expected, &parsed);
     assert_program_format("IDictionary<String, String>", &parsed);
   }
 
@@ -226,7 +273,9 @@ mod parser_tests {
     let expected = IdentifierDecl::new(
       SymbolNode::new("identifier".to_string()).to_ast_boxed_debug(),
       TypeRefDecl::new(
-        SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+        SymbolNode::new("String".to_string())
+          .to_type_name_debug()
+          .to_ast_boxed_debug(),
         None,
       )
       .to_ast_boxed_debug(),
@@ -238,11 +287,44 @@ mod parser_tests {
   }
 
   #[test]
+  fn can_parse_empty_method_params() {
+    let source = "()";
+    let tokens = StToken::lexer(&source)
+      .map(|x| x.unwrap())
+      .collect::<Vec<_>>();
+    let parsed = method_param_set_parser(type_ref_decl_parser())
+      .parse(&tokens)
+      .unwrap();
+
+    let expected: Vec<StAst> = vec![];
+
+    assert_program_equivalent(&expected, &parsed);
+  }
+
+  #[test]
+  fn can_parse_void_return() {
+    let source = "void";
+    let tokens = StToken::lexer(&source)
+      .map(|x| x.unwrap())
+      .collect::<Vec<_>>();
+
+    let parsed = return_type_parser(type_ref_decl_parser())
+      .parse(&tokens)
+      .unwrap();
+
+    let expected: Option<StAst> = None;
+
+    assert_program_equivalent(&expected, &parsed);
+  }
+
+  #[test]
   fn can_parse_lambda() {
     let source = "() => void";
     let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
+
+    dbg!(&tokens);
 
     let parsed = type_ref_decl_parser().parse(&tokens).unwrap();
 
@@ -267,7 +349,9 @@ mod parser_tests {
         MethodParamDecl::new(
           Box::new(
             TypeRefDecl::new(
-              SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+              SymbolNode::new("String".to_string())
+                .to_type_name_debug()
+                .to_ast_boxed_debug(),
               None,
             )
             .to_ast_debug(),
@@ -299,7 +383,9 @@ mod parser_tests {
         MethodParamDecl::new(
           Box::new(
             TypeRefDecl::new(
-              SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+              SymbolNode::new("String".to_string())
+                .to_type_name_debug()
+                .to_ast_boxed_debug(),
               None,
             )
             .to_ast_debug(),
@@ -310,7 +396,9 @@ mod parser_tests {
         MethodParamDecl::new(
           Box::new(
             TypeRefDecl::new(
-              SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+              SymbolNode::new("String".to_string())
+                .to_type_name_debug()
+                .to_ast_boxed_debug(),
               None,
             )
             .to_ast_debug(),
@@ -343,7 +431,9 @@ mod parser_tests {
           ArrayDecl::new(
             1,
             TypeRefDecl::new(
-              SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+              SymbolNode::new("String".to_string())
+                .to_type_name_debug()
+                .to_ast_boxed_debug(),
               None,
             )
             .to_ast_boxed_debug(),
@@ -375,7 +465,9 @@ mod parser_tests {
       vec![],
       Some(
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_boxed_debug(),
@@ -403,7 +495,9 @@ mod parser_tests {
         ArrayDecl::new(
           1,
           TypeRefDecl::new(
-            SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+            SymbolNode::new("String".to_string())
+              .to_type_name_debug()
+              .to_ast_boxed_debug(),
             None,
           )
           .to_ast_boxed_debug(),
@@ -486,7 +580,7 @@ mod parser_tests {
 
   #[test]
   fn can_parse_generic_param() {
-    let source = "String";
+    let source = "T";
     let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
@@ -495,19 +589,17 @@ mod parser_tests {
       .parse(&tokens)
       .unwrap();
 
-    let expected = GenericParamDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
-      None,
-    )
-    .to_ast_debug();
+    let expected =
+      GenericParamDecl::new(SymbolNode::new("T".to_string()).to_ast_boxed_debug(), None)
+        .to_ast_debug();
 
     assert_program_equivalent(&expected, &parsed);
-    assert_program_format("String", &parsed);
+    assert_program_format("T", &parsed);
   }
 
   #[test]
   fn can_parse_generic_param_inherits() {
-    let source = "String: IEnumerable<char>";
+    let source = "T: IEnumerable<char>";
     let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
@@ -517,13 +609,17 @@ mod parser_tests {
       .unwrap();
 
     let expected = GenericParamDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("T".to_string()).to_ast_boxed_debug(),
       Some(vec![
         TypeRefDecl::new(
-          SymbolNode::new("IEnumerable".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("IEnumerable".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           Some(vec![
             TypeRefDecl::new(
-              SymbolNode::new("char".to_string()).to_ast_boxed_debug(),
+              SymbolNode::new("char".to_string())
+                .to_type_name_debug()
+                .to_ast_boxed_debug(),
               None,
             )
             .to_ast_debug(),
@@ -535,12 +631,12 @@ mod parser_tests {
     .to_ast_debug();
 
     assert_program_equivalent(&expected, &parsed);
-    assert_program_format("String: IEnumerable<char>", &parsed);
+    assert_program_format("T: IEnumerable<char>", &parsed);
   }
 
   #[test]
   fn can_parse_generic_param_multi_inherits() {
-    let source = "String: IEnumerable<char> + IDisposable";
+    let source = "T: IEnumerable<char> + IDisposable";
     let tokens = StToken::lexer(&source)
       .map(|x| x.unwrap())
       .collect::<Vec<_>>();
@@ -550,13 +646,17 @@ mod parser_tests {
       .unwrap();
 
     let expected = GenericParamDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("T".to_string()).to_ast_boxed_debug(),
       Some(vec![
         TypeRefDecl::new(
-          SymbolNode::new("IEnumerable".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("IEnumerable".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           Some(vec![
             TypeRefDecl::new(
-              SymbolNode::new("char".to_string()).to_ast_boxed_debug(),
+              SymbolNode::new("char".to_string())
+                .to_type_name_debug()
+                .to_ast_boxed_debug(),
               None,
             )
             .to_ast_debug(),
@@ -564,7 +664,9 @@ mod parser_tests {
         )
         .to_ast_debug(),
         TypeRefDecl::new(
-          SymbolNode::new("IDisposable".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("IDisposable".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_debug(),
@@ -573,7 +675,7 @@ mod parser_tests {
     .to_ast_debug();
 
     assert_program_equivalent(&expected, &parsed);
-    assert_program_format("String: IEnumerable<char> + IDisposable", &parsed);
+    assert_program_format("T: IEnumerable<char> + IDisposable", &parsed);
   }
 
   #[test]
@@ -589,7 +691,9 @@ mod parser_tests {
       IdentifierDecl::new(
         SymbolNode::new("name".to_string()).to_ast_boxed_debug(),
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_boxed_debug(),
@@ -616,7 +720,9 @@ mod parser_tests {
       IdentifierDecl::new(
         SymbolNode::new("name".to_string()).to_ast_boxed_debug(),
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_boxed_debug(),
@@ -640,7 +746,9 @@ mod parser_tests {
     let parsed = type_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("String".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       None,
       None,
       None,
@@ -661,10 +769,17 @@ mod parser_tests {
     let parsed = type_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("String".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       Some(vec![
-        GenericParamDecl::new(SymbolNode::new("T".to_string()).to_ast_boxed_debug(), None)
-          .to_ast_debug(),
+        GenericParamDecl::new(
+          SymbolNode::new("T".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
+          None,
+        )
+        .to_ast_debug(),
       ]),
       None,
       None,
@@ -685,11 +800,15 @@ mod parser_tests {
     let parsed = type_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("String".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       None,
       Some(vec![
         TypeRefDecl::new(
-          SymbolNode::new("IEnumerable".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("IEnumerable".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_debug(),
@@ -712,7 +831,9 @@ mod parser_tests {
     let parsed = type_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("String".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       None,
       None,
       Some(vec![
@@ -720,7 +841,9 @@ mod parser_tests {
           IdentifierDecl::new(
             SymbolNode::new("length".to_string()).to_ast_boxed_debug(),
             TypeRefDecl::new(
-              SymbolNode::new("int".to_string()).to_ast_boxed_debug(),
+              SymbolNode::new("int".to_string())
+                .to_type_name_debug()
+                .to_ast_boxed_debug(),
               None,
             )
             .to_ast_boxed_debug(),
@@ -747,7 +870,9 @@ mod parser_tests {
     let parsed = type_decl_parser().parse(&tokens).unwrap();
 
     let expected = TypeDecl::new(
-      SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+      SymbolNode::new("String".to_string())
+        .to_type_name_debug()
+        .to_ast_boxed_debug(),
       None,
       None,
       Some(vec![
@@ -803,7 +928,9 @@ mod parser_tests {
       vec![
         MethodParamDecl::new(
           TypeRefDecl::new(
-            SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+            SymbolNode::new("String".to_string())
+              .to_type_name_debug()
+              .to_ast_boxed_debug(),
             None,
           )
           .to_ast_boxed_debug(),
@@ -835,7 +962,9 @@ mod parser_tests {
       vec![
         MethodParamDecl::new(
           TypeRefDecl::new(
-            SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+            SymbolNode::new("String".to_string())
+              .to_type_name_debug()
+              .to_ast_boxed_debug(),
             None,
           )
           .to_ast_boxed_debug(),
@@ -914,7 +1043,9 @@ mod parser_tests {
       vec![],
       Some(
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_boxed_debug(),
@@ -940,7 +1071,9 @@ mod parser_tests {
       IdentifierDecl::new(
         SymbolNode::new("name".to_string()).to_ast_boxed_debug(),
         TypeRefDecl::new(
-          SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+          SymbolNode::new("String".to_string())
+            .to_type_name_debug()
+            .to_ast_boxed_debug(),
           None,
         )
         .to_ast_boxed_debug(),
@@ -982,7 +1115,9 @@ mod parser_tests {
         IdentifierDecl::new(
           SymbolNode::new("name".to_string()).to_ast_boxed_debug(),
           TypeRefDecl::new(
-            SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+            SymbolNode::new("String".to_string())
+              .to_type_name_debug()
+              .to_ast_boxed_debug(),
             None,
           )
           .to_ast_boxed_debug(),
@@ -1008,7 +1143,9 @@ mod parser_tests {
 
     let expected = TypeProgramNode::new(vec![
       TypeDecl::new(
-        SymbolNode::new("String".to_string()).to_ast_boxed_debug(),
+        SymbolNode::new("String".to_string())
+          .to_type_name_debug()
+          .to_ast_boxed_debug(),
         None,
         None,
         None,

@@ -51,15 +51,20 @@ mod parser_tests {
       vec![
         NodeDataDiscriminants::TypeProgramNode,
         NodeDataDiscriminants::TypeDecl,
+        NodeDataDiscriminants::TypeName,
         NodeDataDiscriminants::SymbolNode,
         NodeDataDiscriminants::TypeRefDecl,
+        NodeDataDiscriminants::TypeName,
         NodeDataDiscriminants::SymbolNode,
         NodeDataDiscriminants::TypeRefDecl,
+        NodeDataDiscriminants::TypeName,
         NodeDataDiscriminants::SymbolNode,
         NodeDataDiscriminants::ArrayDecl,
         NodeDataDiscriminants::TypeRefDecl,
+        NodeDataDiscriminants::TypeName,
         NodeDataDiscriminants::SymbolNode,
         NodeDataDiscriminants::TypeRefDecl,
+        NodeDataDiscriminants::TypeName,
         NodeDataDiscriminants::SymbolNode
       ] as Vec<NodeDataDiscriminants>,
       debug_tokens

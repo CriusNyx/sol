@@ -1,5 +1,6 @@
 use derive_getters::Getters;
 use enum_dispatch::enum_dispatch;
+use itertools::Itertools;
 use std::{cell::RefCell, iter::once, ops::Range};
 use strum_macros::{EnumDiscriminants, EnumTryAs};
 
@@ -11,8 +12,8 @@ use crate::{
       array_decl::ArrayDecl, field_decl::FieldDecl, generic_param_decl::GenericParamDecl,
       global_decl::GlobalDecl, identifier::IdentifierDecl, lambda_decl::LambdaDecl,
       method_decl::MethodDecl, method_param_decl::MethodParamDecl, symbol_node::SymbolNode,
-      type_decl::TypeDecl, type_program_node::TypeProgramNode, type_ref_decl::TypeRefDecl,
-      unit_decl::UnitDecl,
+      type_decl::TypeDecl, type_name::TypeName, type_program_node::TypeProgramNode,
+      type_ref_decl::TypeRefDecl, unit_decl::UnitDecl,
     },
     types::Type,
   },
@@ -39,11 +40,18 @@ impl StAst {
     self.cached_type.borrow().as_ref().unwrap().clone()
   }
 
-  pub fn sym_name(&self) -> Option<String> {
-    self
-      .data()
-      .try_as_symbol_node_ref()
-      .map(|x| x.name().to_string())
+  pub fn type_name(&self) -> Option<String> {
+    match self.data() {
+      NodeData::SymbolNode(sym) => Some(sym.name().to_string()),
+      NodeData::TypeName(type_name) => Some(
+        type_name
+          .path()
+          .iter()
+          .map(|x| x.type_name().unwrap_or("".to_string()))
+          .join("::"),
+      ),
+      _ => None,
+    }
   }
 
   pub fn apply_semantics(&self, tokens: &mut Vec<SemanticToken>, new_token: &SemanticType) {
@@ -119,6 +127,7 @@ impl ASTNodeData for StAst {
 #[enum_dispatch(ASTNodeData)]
 pub enum NodeData {
   SymbolNode(SymbolNode),
+  TypeName(TypeName),
   ArrayDecl(ArrayDecl),
   TypeRefDecl(TypeRefDecl),
   LambdaDecl(LambdaDecl),

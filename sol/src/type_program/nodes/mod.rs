@@ -9,6 +9,7 @@ pub mod method_param_decl;
 pub mod st_ast;
 pub mod symbol_node;
 pub mod type_decl;
+pub mod type_name;
 pub mod type_program_node;
 pub mod type_ref_decl;
 pub mod unit_decl;

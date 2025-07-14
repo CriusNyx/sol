@@ -18,6 +18,8 @@ pub enum StToken {
   StaticKeyword(StTokenInfo),
 
   // Symbols
+  #[token("::", create_token_info)]
+  ScopeOp(StTokenInfo),
   #[token(":", create_token_info)]
   Colon(StTokenInfo),
   #[token(";", create_token_info)]
@@ -76,6 +78,7 @@ impl StToken {
       Self::StaticKeyword(info) => info,
 
       // Symbols
+      Self::ScopeOp(info) => info,
       Self::Colon(info) => info,
       Self::Semicolon(info) => info,
       Self::Comma(info) => info,
@@ -106,6 +109,7 @@ impl StToken {
       Self::StaticKeyword(info) => info,
 
       // Symbols
+      Self::ScopeOp(info) => info,
       Self::Colon(info) => info,
       Self::Semicolon(info) => info,
       Self::Comma(info) => info,
