@@ -18,4 +18,4 @@ Sol intends to be a plugin that can be easily implemented into existing framewor
 
 ## Beyond MVP
 
-- [] Query syntax
+- [ ] Query syntax
