@@ -6,13 +6,13 @@ Sol is a small programming language that is intended to be a console for C# appl
 
 ## MVP
 
-[] Implement language skeliton
-[] Implement LSP interface
-[] Implement interactive command line
+- [] Implement language skeliton
+- [] Implement LSP interface
+- [] Implement interactive command line
   - Should have colors
-[] Implement Godot Editor
-[] Implement completion popup
+- [] Implement Godot Editor
+- [] Implement completion popup
 
 ## Beyond MVP
 
-[] Query syntax
+- [] Query syntax
