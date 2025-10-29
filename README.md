@@ -13,7 +13,7 @@ Sol intends to be a plugin that can be easily implemented into existing framewor
 - [ ] Implement LSP interface
 - [ ] Implement interactive command line
   - Should have colors
-- [ ] Implement Godot Editor
+- [ ] Implement Godot Editor plugin
 - [ ] Implement completion popup
 
 ## Beyond MVP
