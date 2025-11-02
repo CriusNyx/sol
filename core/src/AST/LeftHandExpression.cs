@@ -21,9 +21,10 @@ public class LeftHandExpression(Identifier identifier, LeftHandExpressionChain? 
     return [nameof(Identifier).With(Identifier), nameof(Chain).With(Chain)!];
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
-    var identifierType = context.typeScope.GetType(Identifier.Span.ToString()) ?? new NullType();
+    var identifierType = context.typeScope.GetType(Identifier.Source) ?? new NullType();
+    Identifier.SetType(identifierType);
     context.PushType(identifierType);
     var output = Chain == null ? identifierType : Chain.TypeCheck(context);
     context.PopType();
@@ -51,6 +52,20 @@ public class LeftHandExpression(Identifier identifier, LeftHandExpressionChain? 
       return new NumVal(d);
     }
     return underlying;
+  }
+
+  public override Span GetSpan()
+  {
+    return Span.SafeJoin(Identifier.GetSpan(), Chain?.GetSpan());
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    yield return Identifier;
+    if (Chain != null)
+    {
+      yield return Chain;
+    }
   }
 }
 
@@ -133,21 +148,42 @@ public class DerefExpression(Identifier identifier, LeftHandExpressionChain? cha
     throw new NotImplementedException();
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     var underlyingType = context.PeekType();
-    var result = underlyingType.DerefFieldType(Identifier.Source).NotNull("DereferencedType");
-    context.PushType(result);
-    var output = Chain == null ? result : Chain.TypeCheck(context);
+    var fieldType = underlyingType.DerefFieldType(Identifier.Source).NotNull("DereferencedType");
+    Identifier.SetType(fieldType);
+    context.PushType(fieldType);
+    var output = Chain == null ? fieldType : Chain.TypeCheck(context);
     context.PopType();
     return output;
   }
+
+  public override Span GetSpan()
+  {
+    return Span.SafeJoin(Identifier.GetSpan(), Chain?.GetSpan());
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    yield return Identifier;
+    if (Chain != null)
+    {
+      yield return Chain;
+    }
+  }
 }
 
-public class DeindexExpression(RightHandExpression index, LeftHandExpressionChain? chain)
-  : LeftHandExpressionChain
+public class DeindexExpression(
+  SourceSpan leftBracket,
+  RightHandExpression index,
+  SourceSpan rightBracket,
+  LeftHandExpressionChain? chain
+) : LeftHandExpressionChain
 {
+  public SourceSpan LeftBracket => leftBracket;
   public RightHandExpression Index => index;
+  public SourceSpan RightBracket => rightBracket;
   public LeftHandExpressionChain? Chain => chain;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -162,16 +198,44 @@ public class DeindexExpression(RightHandExpression index, LeftHandExpressionChai
     return dyn[index];
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     throw new NotImplementedException();
   }
+
+  public override Span GetSpan()
+  {
+    return Span.SafeJoin(
+      LeftBracket.GetSpan(),
+      index.GetSpan(),
+      RightBracket.GetSpan(),
+      Chain?.GetSpan()
+    );
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    yield return LeftBracket;
+    yield return Index;
+    yield return RightBracket;
+    if (Chain != null)
+    {
+      yield return Chain;
+    }
+  }
 }
 
-public class InvocationExpression(RightHandExpression[] arguments, LeftHandExpressionChain? chain)
-  : LeftHandExpressionChain
+public class InvocationExpression(
+  SourceSpan leftParen,
+  RightHandExpression[] arguments,
+  SourceSpan rightParen,
+  LeftHandExpressionChain? chain
+) : LeftHandExpressionChain
 {
+  public SourceSpan LeftParen => leftParen;
+
   public IEnumerable<RightHandExpression> Arguments => arguments;
+  public SourceSpan RightParen => rightParen;
 
   public LeftHandExpressionChain? Chain => chain;
 
@@ -180,7 +244,7 @@ public class InvocationExpression(RightHandExpression[] arguments, LeftHandExpre
     return [nameof(Arguments).With(Arguments), nameof(Chain).With(Chain)!];
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     List<SolType> args = new List<SolType>();
     foreach (var arg in Arguments)
@@ -204,5 +268,29 @@ public class InvocationExpression(RightHandExpression[] arguments, LeftHandExpre
       return func.Invoke(Arguments.Select(x => x.Evaluate(context)).ToArray()!)!;
     }
     throw new NotImplementedException();
+  }
+
+  public override Span GetSpan()
+  {
+    return Span.SafeJoin(
+      LeftParen.GetSpan(),
+      Span.Join(Arguments.Select(x => x.GetSpan()).ToArray()),
+      RightParen.GetSpan(),
+      Chain?.GetSpan()
+    );
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    yield return LeftParen;
+    foreach (var arg in Arguments)
+    {
+      yield return arg;
+    }
+    yield return RightParen;
+    if (Chain != null)
+    {
+      yield return Chain;
+    }
   }
 }

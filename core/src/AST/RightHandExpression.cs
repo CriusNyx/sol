@@ -5,9 +5,15 @@ namespace Sol.AST;
 
 public abstract class RightHandExpression : ASTNode { }
 
-public class ParenExpression(RightHandExpression rightHandExpression) : RightHandExpression
+public class ParenExpression(
+  SourceSpan leftParen,
+  RightHandExpression rightHandExpression,
+  SourceSpan rightParen
+) : RightHandExpression
 {
+  public SourceSpan LeftParen => leftParen;
   public RightHandExpression RightHandExpression => rightHandExpression;
+  public SourceSpan RightParen => rightParen;
 
   public override object? Evaluate(ExecutionContext context)
   {
@@ -19,9 +25,19 @@ public class ParenExpression(RightHandExpression rightHandExpression) : RightHan
     return [nameof(RightHandExpression).With(rightHandExpression)];
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     return RightHandExpression.TypeCheck(context);
+  }
+
+  public override Span GetSpan()
+  {
+    return Span.Join(LeftParen.GetSpan(), RightHandExpression.GetSpan(), RightParen.GetSpan());
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    return [LeftParen, RightHandExpression, RightParen];
   }
 }
 
@@ -31,9 +47,11 @@ public enum UnaryOpType
   RealNegate,
 }
 
-public class UnaryOp(UnaryOpType type, RightHandExpression rightHandExpression)
+public class UnaryOp(SourceSpan opSource, UnaryOpType type, RightHandExpression rightHandExpression)
   : RightHandExpression
 {
+  public SourceSpan OpSource => opSource;
+
   public UnaryOpType Type => type;
   public RightHandExpression RightHandExpression => rightHandExpression;
 
@@ -48,7 +66,7 @@ public class UnaryOp(UnaryOpType type, RightHandExpression rightHandExpression)
     return [nameof(Type).With(Type), nameof(RightHandExpression).With(RightHandExpression)];
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     var opMethodName = CSMethodNames[Type];
 
@@ -82,6 +100,16 @@ public class UnaryOp(UnaryOpType type, RightHandExpression rightHandExpression)
       }
     }
   }
+
+  public override Span GetSpan()
+  {
+    return Span.Join(OpSource.GetSpan(), RightHandExpression.GetSpan());
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    return [OpSource, RightHandExpression];
+  }
 }
 
 public enum BinaryOpType
@@ -93,9 +121,14 @@ public enum BinaryOpType
   Modulo,
 }
 
-public class BinaryOp(BinaryOpType type, RightHandExpression left, RightHandExpression right)
-  : RightHandExpression
+public class BinaryOp(
+  SourceSpan opSource,
+  BinaryOpType type,
+  RightHandExpression left,
+  RightHandExpression right
+) : RightHandExpression
 {
+  public SourceSpan OpSource => opSource;
   public BinaryOpType Type => type;
   public RightHandExpression Left => left;
   public RightHandExpression Right => right;
@@ -114,7 +147,7 @@ public class BinaryOp(BinaryOpType type, RightHandExpression left, RightHandExpr
     return [nameof(Type).With(Type), nameof(Left).With(Left), nameof(Right).With(Right)];
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     var opMethodName = CSMethodNames[Type];
 
@@ -147,5 +180,15 @@ public class BinaryOp(BinaryOpType type, RightHandExpression left, RightHandExpr
       default:
         throw new NotImplementedException();
     }
+  }
+
+  public override Span GetSpan()
+  {
+    return Span.Join(OpSource.GetSpan(), Left.GetSpan(), Right.GetSpan());
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    return [Left, OpSource, Right];
   }
 }

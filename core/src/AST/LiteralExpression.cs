@@ -1,9 +1,11 @@
 using System.Numerics;
 using CriusNyx.Util;
 using Sol.AST;
+using Superpower.Model;
 
-public class StringLiteralExpression(string value) : RightHandExpression
+public class StringLiteralExpression(SourceSpan source, string value) : RightHandExpression
 {
+  public SourceSpan Source => source;
   public string Value => value;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -16,9 +18,19 @@ public class StringLiteralExpression(string value) : RightHandExpression
     return Value;
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     return new CSType(typeof(string));
+  }
+
+  public override Span GetSpan()
+  {
+    return Source.GetSpan();
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    return [Source];
   }
 }
 
@@ -87,8 +99,9 @@ public class NumVal(decimal value) : DebugPrint
   }
 }
 
-public class NumberLiteralExpression(NumVal value) : RightHandExpression
+public class NumberLiteralExpression(SourceSpan source, NumVal value) : RightHandExpression
 {
+  public SourceSpan Source => source;
   public NumVal Value => value;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -101,8 +114,18 @@ public class NumberLiteralExpression(NumVal value) : RightHandExpression
     return Value;
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     return new CSType(typeof(NumVal));
+  }
+
+  public override Span GetSpan()
+  {
+    return Source.GetSpan();
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    return [Source];
   }
 }

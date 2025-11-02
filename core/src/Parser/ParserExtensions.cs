@@ -1,5 +1,6 @@
 using CriusNyx.Util;
 using Superpower;
+using Superpower.Model;
 
 namespace Sol.Parser.Extensions;
 
@@ -36,5 +37,16 @@ public static class ParserExtensions
         (_, l, r) => l.Touch(x => x.AddRange(r))
       )
       .Select(x => x.ToArray());
+  }
+
+  public static TextParser<(TextSpan span, T value)> WithSpan<T>(this TextParser<T> parser)
+  {
+    return delegate(TextSpan i)
+    {
+      Result<T> result = parser(i);
+      return (!result.HasValue)
+        ? Result.CastEmpty<T, (TextSpan, T)>(result)
+        : Result.Value(i.Until(result.Remainder).With(result.Value), i, result.Remainder);
+    };
   }
 }

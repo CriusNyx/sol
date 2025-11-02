@@ -1,36 +1,85 @@
-﻿using CriusNyx.Util;
-using Sol.Parser;
+﻿using System.Drawing;
+using CommandLine;
+using CriusNyx.Util;
+using Pastel;
+using Sol.CLI;
+using SColor = System.Drawing.Color;
 
-var context = new ExecutionContext();
+SColor keyword = Hex("#569cd6");
+SColor field = Hex("#9cdcfe");
+SColor className = Hex("#4ec9b0");
+SColor method = Hex("#dcdcaa");
+SColor stringLit = Hex("#ce9178");
+SColor numLit = Hex("#b5cea8");
 
-string[] sampleProgram = ["use System"];
+var options = Parser.Default.ParseArguments<CLIOptions>(args).Value;
 
-foreach (var line in sampleProgram)
+options = new CLIOptions { Pretty = true, Files = ["resources/Test.sol"] };
+
+if (options.Pretty)
 {
-  Interpret(line);
+  PrintPretty(options.Files);
+}
+if (options.Interactive)
+{
+  StartInteractive();
 }
 
-while (Console.ReadLine() is string line)
+SColor Hex(string hex)
 {
-  Interpret(line);
+  return ColorTranslator.FromHtml(hex);
 }
 
-void Interpret(string line)
+string Color(string source, SemanticToken token)
 {
-  var programLine = SolParser.Parse(line);
-  var result = programLine.Evaluate(context);
-  if (result != null)
+  switch (token.Type)
   {
-    Console.WriteLine(result.Debug());
+    case SemanticType.None:
+      return source;
+    case SemanticType.Keyword:
+      return source.Pastel(keyword);
+    case SemanticType.ClassReference:
+      return source.Pastel(className);
+    case SemanticType.MethodReference:
+      return source.Pastel(method);
+    case SemanticType.ObjectReference:
+      return source.Pastel(field);
+    case SemanticType.NumLit:
+      return source.Pastel(numLit);
+    case SemanticType.StringLit:
+      return source.Pastel(stringLit);
+
+    default:
+      throw new NotImplementedException();
   }
 }
 
-class TestClass
+void PrintPretty(IEnumerable<string> files)
 {
-  public string field { get; set; } = null!;
-
-  public string Foo(string value)
+  var filesWithSource = files.Select(file => file.With(File.ReadAllText(file)));
+  foreach (var (path, source) in filesWithSource)
   {
-    return $"value: {value}";
+    Console.WriteLine(path);
+    Console.WriteLine("");
+    var parsed = Compiler.TypeCheck(source);
+    if (parsed.IsSuccess)
+    {
+      var ast = parsed.Value.AST;
+      var semanticStream = ast.Semantics().Stream(source);
+      foreach (var (segment, token) in semanticStream)
+      {
+        Console.Write(Color(segment, token));
+      }
+    }
+    else
+    {
+      Console.WriteLine("Error");
+    }
+    Console.WriteLine("");
   }
+}
+
+void StartInteractive()
+{
+  new InteractiveInterface().Run();
 }

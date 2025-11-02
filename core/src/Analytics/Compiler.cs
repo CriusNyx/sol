@@ -1,0 +1,62 @@
+using Sol.AST;
+using Sol.DataStructures;
+using Sol.Parser;
+using static Sol.DataStructures.Result;
+
+public class CompilerError { }
+
+/// <summary>
+/// Error for when the source could not be compiled but could be compiled partially.
+/// </summary>
+public class PartialCompileError(ASTNode astNode) : CompilerError
+{
+  public ASTNode AST => astNode;
+}
+
+public class TypeCheckResult(string source, ASTNode astNode, TypeCheckerContext context)
+{
+  public string Source => source;
+  public ASTNode AST => astNode;
+  public TypeCheckerContext Context => context;
+}
+
+public class ParseResult(string source, ASTNode astNode)
+{
+  public string Source => source;
+  public ASTNode AST => astNode;
+}
+
+public static class Compiler
+{
+  public static Result<TypeCheckResult, CompilerError> TypeCheck(
+    string source,
+    TypeCheckerContext context = null!
+  )
+  {
+    return TypeCheck(Parse(source), context);
+  }
+
+  public static Result<TypeCheckResult, CompilerError> TypeCheck(
+    Result<ParseResult, CompilerError> compilation,
+    TypeCheckerContext context = null!
+  )
+  {
+    return compilation.Map(
+      (compile) =>
+      {
+        context = context ?? new TypeCheckerContext();
+        compile.AST.TypeCheck(context);
+        return Ok<TypeCheckResult, CompilerError>(new(compile.Source, compile.AST, context));
+      }
+    );
+  }
+
+  public static Result<ParseResult, CompilerError> Parse(string source)
+  {
+    if (SolParser.TryParse(source, out var ast))
+    {
+      return Ok<ParseResult, CompilerError>(new(source, ast));
+    }
+    return Err<ParseResult, CompilerError>(new());
+  }
+}

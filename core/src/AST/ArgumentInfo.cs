@@ -21,7 +21,17 @@ public class ArgumentInfo(Identifier? explicitParameterName, RightHandExpression
     throw new NotImplementedException();
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    throw new NotImplementedException();
+  }
+
+  public override Span GetSpan()
+  {
+    throw new NotImplementedException();
+  }
+
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     return Expression.TypeCheck(context);
   }

@@ -1,12 +1,11 @@
 using CriusNyx.Util;
-using Superpower.Model;
 
 namespace Sol.AST;
 
-public class Identifier(TextSpan textSpan) : ASTNode
+public class Identifier(SourceSpan textSpan) : ASTNode
 {
-  public TextSpan Span => textSpan;
-  public string Source => Span.ToString();
+  public SourceSpan Span => textSpan;
+  public string Source => Span.Source.ToString();
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
@@ -18,8 +17,23 @@ public class Identifier(TextSpan textSpan) : ASTNode
     throw new InvalidOperationException();
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     throw new NotImplementedException();
+  }
+
+  public override Span GetSpan()
+  {
+    return Span.GetSpan();
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    return [Span];
+  }
+
+  public void SetType(SolType solType)
+  {
+    this.cachedType = solType;
   }
 }

@@ -2,6 +2,7 @@ using CriusNyx.Util;
 using Sol.AST;
 using Sol.Parser.Extensions;
 using Superpower;
+using Superpower.Model;
 using SParse = Superpower.Parse;
 
 namespace Sol.Parser;
@@ -12,9 +13,11 @@ public static partial class SolParser
     TermOpParser.NotNull()
   );
 
-  public static TextParser<RightHandExpression> ParenParser = RightHandExpressionParser
-    .SurroundedBy(SolToken.LeftParen, SolToken.RightParen)
-    .Select(rhe => new ParenExpression(rhe) as RightHandExpression);
+  public static TextParser<RightHandExpression> ParenParser =
+    from leftParen in SolToken.LeftParen
+    from exp in RightHandExpressionParser
+    from rightParen in SolToken.RightParen
+    select new ParenExpression(new(leftParen), exp, new(rightParen)) as RightHandExpression;
 
   public static TextParser<RightHandExpression> UnitParser = SParse.OneOf(
     LeftHandExpressionParser.Select(x => x as RightHandExpression),
@@ -23,35 +26,36 @@ public static partial class SolParser
     NumberLiteralParser
   );
 
-  public static TextParser<UnaryOpType> UnaryOpTypeParser = SParse.OneOf(
-    SolToken.Exclimation.Select(_ => UnaryOpType.BooleanNegate),
-    SolToken.Minus.Select(_ => UnaryOpType.RealNegate)
+  public static TextParser<(TextSpan span, UnaryOpType value)> UnaryOpTypeParser = SParse.OneOf(
+    SolToken.Exclimation.Select((span) => span.With(UnaryOpType.BooleanNegate)),
+    SolToken.Minus.Select((span) => span.With(UnaryOpType.RealNegate))
   );
 
   public static TextParser<RightHandExpression> UnaryOpParser = UnaryOpTypeParser.Then(
-    (op) => UnitParser.Select((unit) => new UnaryOp(op, unit) as RightHandExpression)
+    (op) =>
+      UnitParser.Select((unit) => new UnaryOp(new(op.span), op.value, unit) as RightHandExpression)
   );
 
-  public static TextParser<BinaryOpType> FactorOpTypeParser = SParse.OneOf(
-    SolToken.Asterisk.Select(_ => BinaryOpType.Multiply),
-    SolToken.FSlash.Select(_ => BinaryOpType.Divide),
-    SolToken.Percent.Select(_ => BinaryOpType.Modulo)
+  public static TextParser<(TextSpan span, BinaryOpType value)> FactorOpTypeParser = SParse.OneOf(
+    SolToken.Asterisk.Select(span => span.With(BinaryOpType.Multiply)),
+    SolToken.FSlash.Select(span => span.With(BinaryOpType.Divide)),
+    SolToken.Percent.Select(span => span.With(BinaryOpType.Modulo))
   );
 
   public static TextParser<RightHandExpression> FactorOpParser = SParse.Chain(
     FactorOpTypeParser,
     UnaryOpParser.Or(UnitParser),
-    (op, left, right) => new BinaryOp(op, left, right)
+    (op, left, right) => new BinaryOp(new(op.span), op.value, left, right)
   );
 
-  public static TextParser<BinaryOpType> TermOpTypeParser = SParse.OneOf(
-    SolToken.Plus.Select(_ => BinaryOpType.Add),
-    SolToken.Minus.Select(_ => BinaryOpType.Subtract)
+  public static TextParser<(TextSpan span, BinaryOpType value)> TermOpTypeParser = SParse.OneOf(
+    SolToken.Plus.Select(span => span.With(BinaryOpType.Add)),
+    SolToken.Minus.Select(span => span.With(BinaryOpType.Subtract))
   );
 
   public static TextParser<RightHandExpression> TermOpParser = SParse.Chain(
     TermOpTypeParser,
     FactorOpParser,
-    (op, left, right) => new BinaryOp(op, left, right)
+    (op, left, right) => new BinaryOp(new(op.span), op.value, left, right)
   );
 }

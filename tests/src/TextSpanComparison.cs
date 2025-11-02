@@ -1,3 +1,4 @@
+using System.Net.NetworkInformation;
 using DeepEqual;
 using Superpower.Model;
 
@@ -22,6 +23,27 @@ public class TextSpanComparison : IComparison
       {
         return (ComparisonResult.Pass, context);
       }
+    }
+    return (ComparisonResult.Fail, context);
+  }
+}
+
+public class SpanComparison : IComparison
+{
+  public bool CanCompare(Type type1, Type type2)
+  {
+    return type1 == typeof(Span) || type2 == typeof(Span);
+  }
+
+  public (ComparisonResult result, IComparisonContext context) Compare(
+    IComparisonContext context,
+    object value1,
+    object value2
+  )
+  {
+    if (value1 is Span && value2 is Span)
+    {
+      return (ComparisonResult.Pass, context);
     }
     return (ComparisonResult.Fail, context);
   }

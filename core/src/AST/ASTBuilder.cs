@@ -8,7 +8,7 @@ public static class ASTBuilder
 {
   public static Identifier Ident(string ident)
   {
-    return new Identifier(new TextSpan(ident));
+    return new Identifier(new(new(ident)));
   }
 
   public static Func<LeftHandExpressionChain?, LeftHandExpressionChain> Deref(string ident)
@@ -20,14 +20,14 @@ public static class ASTBuilder
     RightHandExpression index
   )
   {
-    return (chain) => new DeindexExpression(index, chain);
+    return (chain) => new DeindexExpression(new(new("[")), index, new(new("]")), chain);
   }
 
   public static Func<LeftHandExpressionChain?, LeftHandExpressionChain> Invoke(
     params RightHandExpression[] args
   )
   {
-    return (chain) => new InvocationExpression(args, chain);
+    return (chain) => new InvocationExpression(new(new("(")), args, new(new(")")), chain);
   }
 
   public static LeftHandExpression LHE(
@@ -43,13 +43,21 @@ public static class ASTBuilder
 
   public static UnaryOp Unary(string op, RightHandExpression operand)
   {
-    return new UnaryOp(SolParser.UnaryOpTypeParser.Parse(op), operand);
+    return new UnaryOp(
+      new(new(op)),
+      SolParser.UnaryOpTypeParser.Select(x => x.value).Parse(op),
+      operand
+    );
   }
 
   public static BinaryOp Binary(string op, RightHandExpression left, RightHandExpression right)
   {
     return new BinaryOp(
-      Parse.OneOf(SolParser.TermOpTypeParser, SolParser.FactorOpTypeParser).Parse(op),
+      new(new(op)),
+      Parse
+        .OneOf(SolParser.TermOpTypeParser, SolParser.FactorOpTypeParser)
+        .Select(x => x.value)
+        .Parse(op),
       left,
       right
     );
@@ -57,16 +65,26 @@ public static class ASTBuilder
 
   public static Assign Assign(LeftHandExpression left, RightHandExpression right)
   {
-    return new Assign(left, right);
+    return new Assign(left, new(new("=")), right);
   }
 
-  public static NumberLiteralExpression NumLit(decimal value)
+  public static UseStatement Use(params Identifier[] identifiers)
   {
-    return new NumberLiteralExpression(new NumVal(value));
+    return new UseStatement(new(new("use")), identifiers);
+  }
+
+  public static NumberLiteralExpression NumLit(string source)
+  {
+    return new NumberLiteralExpression(new(new(source)), new NumVal(decimal.Parse(source)));
   }
 
   public static StringLiteralExpression StringLit(string value)
   {
-    return new StringLiteralExpression(value);
+    return new StringLiteralExpression(new(new(value)), value);
+  }
+
+  public static SolProgram Prog(params ASTNode[] nodes)
+  {
+    return new SolProgram(nodes);
   }
 }

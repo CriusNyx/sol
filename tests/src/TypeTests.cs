@@ -1,6 +1,10 @@
 using System.Reflection;
 using DeepEqual.Syntax;
+using Sol.AST;
 using Sol.Parser;
+using Superpower;
+
+#pragma warning disable 0649 // Suppresses warning CS0649
 
 namespace Sol.Tests;
 
@@ -33,12 +37,16 @@ class Vector
 
 public class TypeTests
 {
+  public static ASTNode TestParser(string source)
+  {
+    return SolParser.Parse(source);
+  }
+
   [Test]
   public void CanResolveStaticType()
   {
     var context = new TypeCheckerContext();
-    context.typeScope.UseNamespace("System");
-    var ast = SolParser.Parse("Console");
+    var ast = TestParser("use System\nConsole");
     var actual = ast.TypeCheck(context);
     var expected = new ClassReferenceType(typeof(Console));
     actual.ShouldDeepEqual(expected);
@@ -48,8 +56,7 @@ public class TypeTests
   public void CanResolveStaticMethodType()
   {
     var context = new TypeCheckerContext();
-    context.typeScope.UseNamespace("System");
-    var ast = SolParser.Parse("Console.WriteLine");
+    var ast = TestParser("use System\nConsole.WriteLine");
     var actual = ast.TypeCheck(context);
     var expected = new InvocationType(
       typeof(Console).GetMember("WriteLine").Select(x => x as MethodInfo).ToArray()!
@@ -61,7 +68,7 @@ public class TypeTests
   public void CanResolveField()
   {
     var context = new TypeCheckerContext();
-    var ast = SolParser.Parse("value.field");
+    var ast = TestParser("value.field");
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
@@ -72,7 +79,7 @@ public class TypeTests
   public void CanResolveProperty()
   {
     var context = new TypeCheckerContext();
-    var ast = SolParser.Parse("value.property");
+    var ast = TestParser("value.property");
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
@@ -83,8 +90,7 @@ public class TypeTests
   public void CanResolveStaticField()
   {
     var context = new TypeCheckerContext();
-    context.typeScope.UseNamespace("Sol.Tests");
-    var ast = SolParser.Parse("TestType.staticField");
+    var ast = TestParser("use Sol.Tests\nTestType.staticField");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);
@@ -95,7 +101,7 @@ public class TypeTests
   {
     var context = new TypeCheckerContext();
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
-    var ast = SolParser.Parse("value.Foo");
+    var ast = TestParser("value.Foo");
     var actual = ast.TypeCheck(context);
     var expected = new InvocationType(
       typeof(TestType).GetMember("Foo").Select(x => x as MethodInfo).ToArray()!
@@ -107,9 +113,8 @@ public class TypeTests
   public void CanResolveVoidMethod()
   {
     var context = new TypeCheckerContext();
-    context.typeScope.UseNamespace("System");
     context.typeScope.SetType("value", new CSType(typeof(string)));
-    var ast = SolParser.Parse("Console.WriteLine(value)");
+    var ast = TestParser("use System\nConsole.WriteLine(value)");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(void));
     actual.ShouldDeepEqual(expected);
@@ -120,7 +125,7 @@ public class TypeTests
   {
     var context = new TypeCheckerContext();
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
-    var ast = SolParser.Parse("value.MethodWithReturn()");
+    var ast = TestParser("value.MethodWithReturn()");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(string));
     actual.ShouldDeepEqual(expected);
@@ -131,7 +136,7 @@ public class TypeTests
   {
     var context = new TypeCheckerContext();
     context.typeScope.SetType("value", new CSType(typeof(bool)));
-    var ast = SolParser.Parse("!value");
+    var ast = TestParser("!value");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(bool));
     actual.ShouldDeepEqual(expected);
@@ -142,7 +147,7 @@ public class TypeTests
   {
     var context = new TypeCheckerContext();
     context.typeScope.SetType("value", new CSType(typeof(float)));
-    var ast = SolParser.Parse("-value");
+    var ast = TestParser("-value");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);
@@ -154,7 +159,7 @@ public class TypeTests
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
-    var ast = SolParser.Parse("a + b");
+    var ast = TestParser("a + b");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);
@@ -166,7 +171,7 @@ public class TypeTests
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
-    var ast = SolParser.Parse("a - b");
+    var ast = TestParser("a - b");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);
@@ -178,7 +183,7 @@ public class TypeTests
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
-    var ast = SolParser.Parse("a * b");
+    var ast = TestParser("a * b");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);
@@ -190,7 +195,7 @@ public class TypeTests
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
-    var ast = SolParser.Parse("a / b");
+    var ast = TestParser("a / b");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);
@@ -202,7 +207,7 @@ public class TypeTests
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
-    var ast = SolParser.Parse("a % b");
+    var ast = TestParser("a % b");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);
@@ -213,7 +218,7 @@ public class TypeTests
   {
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(Vector)));
-    var ast = SolParser.Parse("-a");
+    var ast = TestParser("-a");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(Vector));
     actual.ShouldDeepEqual(expected);
@@ -225,7 +230,7 @@ public class TypeTests
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(Vector)));
     context.typeScope.SetType("b", new CSType(typeof(Vector)));
-    var ast = SolParser.Parse("a - b");
+    var ast = TestParser("a - b");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(Vector));
     actual.ShouldDeepEqual(expected);
@@ -236,9 +241,11 @@ public class TypeTests
   {
     var context = new TypeCheckerContext();
     context.typeScope.SetType("a", new CSType(typeof(Vector)));
-    var ast = SolParser.Parse("(a)");
+    var ast = TestParser("(a)");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(Vector));
     actual.ShouldDeepEqual(expected);
   }
 }
+
+#pragma warning restore 0649

@@ -2,9 +2,10 @@ using CriusNyx.Util;
 
 namespace Sol.AST;
 
-public class Assign(LeftHandExpression left, RightHandExpression right) : ASTNode
+public class Assign(LeftHandExpression left, SourceSpan equal, RightHandExpression right) : ASTNode
 {
   public LeftHandExpression Left => left;
+  public SourceSpan Equal => equal;
   public RightHandExpression Right => right;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -12,7 +13,7 @@ public class Assign(LeftHandExpression left, RightHandExpression right) : ASTNod
     return [nameof(Left).With(Left), nameof(Right).With(Right)];
   }
 
-  public override SolType? TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     var rightType = right.TypeCheck(context).NotNull();
     if (left.GetLocalName() is string localName)
@@ -29,5 +30,15 @@ public class Assign(LeftHandExpression left, RightHandExpression right) : ASTNod
     var value = Right.Evaluate(context);
     reference.Set(value);
     return null;
+  }
+
+  public override Span GetSpan()
+  {
+    return Span.Join(Left.GetSpan(), Equal.GetSpan(), Right.GetSpan());
+  }
+
+  public override IEnumerable<ASTNode> GetChildren()
+  {
+    return [Left, Equal, Right];
   }
 }
