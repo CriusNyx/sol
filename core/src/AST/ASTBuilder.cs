@@ -1,6 +1,5 @@
 using Sol.Parser;
 using Superpower;
-using Superpower.Model;
 
 namespace Sol.AST;
 
@@ -8,12 +7,16 @@ public static class ASTBuilder
 {
   public static Identifier Ident(string ident)
   {
+    if (ident == null)
+    {
+      return null!;
+    }
     return new Identifier(new(new(ident)));
   }
 
   public static Func<LeftHandExpressionChain?, LeftHandExpressionChain> Deref(string ident)
   {
-    return (chain) => new DerefExpression(Ident(ident), chain);
+    return (chain) => new DerefExpression(new(new(".")), Ident(ident), chain);
   }
 
   public static Func<LeftHandExpressionChain?, LeftHandExpressionChain> Deindex(
@@ -69,6 +72,11 @@ public static class ASTBuilder
   }
 
   public static UseStatement Use(params Identifier[] identifiers)
+  {
+    return new UseStatement(new(new("use")), identifiers);
+  }
+
+  public static UseStatement UseExplicit(Identifier[] identifiers)
   {
     return new UseStatement(new(new("use")), identifiers);
   }

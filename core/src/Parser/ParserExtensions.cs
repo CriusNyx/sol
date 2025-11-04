@@ -1,3 +1,4 @@
+using System.Globalization;
 using CriusNyx.Util;
 using Superpower;
 using Superpower.Model;
@@ -48,5 +49,61 @@ public static class ParserExtensions
         ? Result.CastEmpty<T, (TextSpan, T)>(result)
         : Result.Value(i.Until(result.Remainder).With(result.Value), i, result.Remainder);
     };
+  }
+
+  public static TextParser<T> RecoverWith<T, R>(
+    this TextParser<T> original,
+    TextParser<R> recoveryParser,
+    Func<R, Result<T>, T> errorTransformer
+  )
+  {
+    return delegate(TextSpan i)
+    {
+      var result = original(i);
+      if (result.HasValue)
+      {
+        return result;
+      }
+      else
+      {
+        return recoveryParser.Select(recovery => errorTransformer(recovery, result))(i);
+      }
+    };
+  }
+
+  public static TextParser<(T, U)> ThenWith<T, U>(this TextParser<T> parser, TextParser<U> then)
+  {
+    return parser.Then((prev) => then.Select(next => prev.With(next)));
+  }
+
+  public static TextParser<(T, U, V)> AndThenWith<T, U, V>(
+    this TextParser<(T, U)> parser,
+    TextParser<V> then
+  )
+  {
+    return parser.Then((prev) => then.Select(next => prev.AndWith(next)));
+  }
+
+  public static TextParser<(T value, U context)> WithContext<T, U>(
+    this TextParser<T> parser,
+    U context
+  )
+  {
+    return parser.Select(result => result.With(context));
+  }
+
+  public static TextParser<T> ThenChain<T, U>(
+    this TextParser<T> first,
+    TextParser<U> op,
+    TextParser<T> rest,
+    Func<U, T, T, T> combine
+  )
+  {
+    return Parse.OneOf(
+      from f in first
+      from r in op.ThenWith(rest).Many()
+      select r.Aggregate(f, (a, b) => combine(b.Item1, a, b.Item2)),
+      first
+    );
   }
 }

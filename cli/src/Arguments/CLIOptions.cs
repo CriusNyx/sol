@@ -24,4 +24,18 @@ public class CLIOptions
     HelpText = "Print pretty to the command line."
   )]
   public bool Pretty { get; set; }
+
+  [Option("ast", Required = false, Default = false, HelpText = "Print program AST")]
+  public bool AST { get; set; }
+
+  [Option("types", Required = false, Default = false, HelpText = "Print program types")]
+  public bool Types { get; set; }
+
+  [Option(
+    "generate-test-files",
+    Required = false,
+    Default = false,
+    HelpText = "Generate test files"
+  )]
+  public bool GenerateTestfiles { get; set; }
 }

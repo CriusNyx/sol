@@ -36,4 +36,9 @@ public class Identifier(SourceSpan textSpan) : ASTNode
   {
     this.cachedType = solType;
   }
+
+  public override IEnumerable<SemanticToken> GetSemantics()
+  {
+    return [new(GetSpan(), NodeType.ToSemanticType())];
+  }
 }

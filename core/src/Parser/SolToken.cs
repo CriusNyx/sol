@@ -1,8 +1,6 @@
-using Sol.AST;
 using Sol.Parser.Extensions;
 using Superpower;
 using Superpower.Model;
-using Superpower.Parsers;
 using SIdentifier = Superpower.Parsers.Identifier;
 using SolIdent = Sol.AST.Identifier;
 using SSpan = Superpower.Parsers.Span;
@@ -76,4 +74,8 @@ public static class SolToken
   };
 
   public static TextParser<TextSpan> LineTerminator = Parse.OneOf(NewLine, EOF);
+
+  public static TextParser<TextSpan> RecoveryParser = Parse
+    .OneOf(SSpan.Except("\n"))
+    .OptionalOrDefault();
 }

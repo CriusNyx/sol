@@ -30,4 +30,9 @@ public class SourceSpan(TextSpan source) : ASTNode
   {
     throw new NotImplementedException();
   }
+
+  public override string ShortCode()
+  {
+    return Source.ToString();
+  }
 }

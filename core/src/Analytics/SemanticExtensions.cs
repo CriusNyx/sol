@@ -4,7 +4,11 @@ public static class SemanticExtensions
   {
     if (solType is ClassReferenceType)
     {
-      return SemanticType.ClassReference;
+      return SemanticType.ClassName;
+    }
+    else if (solType is NamespaceReference)
+    {
+      return SemanticType.ClassName;
     }
     else if (solType is CSType)
     {

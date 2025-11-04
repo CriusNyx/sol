@@ -1,0 +1,25 @@
+SolProgram                                 CSType(Void)               
+|-UseStatement                             VoidType                   
+| |-KeywordSpan             use            null                       
+| |-Identifier                             NamespaceReference         
+| | |-SourceSpan            System         null                       
+|-Assign                                   CSType(String)             
+| |-LeftHandExpression                     CSType(String)             
+| | |-Identifier                           CSType(String)             
+| | | |-SourceSpan          message        null                       
+| |-SourceSpan              =              null                       
+| |-StringLiteralExpression                CSType(String)             
+| | |-SourceSpan            "Hello World!" null                       
+|-LeftHandExpression                       CSType(Void)               
+| |-Identifier                             ClassReferenceType(Console)
+| | |-SourceSpan            Console        null                       
+| |-DerefExpression                        CSType(Void)               
+| | |-SourceSpan            .              null                       
+| | |-Identifier                           InvocationType             
+| | | |-SourceSpan          WriteLine      null                       
+| | |-InvocationExpression                 CSType(Void)               
+| | | |-SourceSpan          (              null                       
+| | | |-LeftHandExpression                 CSType(String)             
+| | | | |-Identifier                       CSType(String)             
+| | | | | |-SourceSpan      message        null                       
+| | | |-SourceSpan          )              null                       

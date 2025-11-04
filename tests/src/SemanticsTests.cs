@@ -54,8 +54,8 @@ public class SemanticsTests
   {
     var program = TestParse("use System");
 
-    var expected = TokenList(SemanticType.Keyword, SemanticType.ClassReference);
-    var actual = program.Semantics();
+    var expected = TokenList(SemanticType.Keyword, SemanticType.ClassName);
+    var actual = program.GetSemantics();
 
     SemanticTokenCompare(actual, expected);
   }
@@ -65,12 +65,8 @@ public class SemanticsTests
   {
     var program = TestParse("use System.Diagnostics");
 
-    var expected = TokenList(
-      SemanticType.Keyword,
-      SemanticType.ClassReference,
-      SemanticType.ClassReference
-    );
-    var actual = program.Semantics();
+    var expected = TokenList(SemanticType.Keyword, SemanticType.ClassName, SemanticType.ClassName);
+    var actual = program.GetSemantics();
 
     SemanticTokenCompare(actual, expected);
   }
@@ -82,8 +78,8 @@ public class SemanticsTests
       .FindNode((node) => node is LeftHandExpression)
       .NotNull();
 
-    var expected = TokenList(SemanticType.ClassReference);
-    var actual = lhe.Semantics();
+    var expected = TokenList(SemanticType.ClassName);
+    var actual = lhe.GetSemantics();
 
     SemanticTokenCompare(actual, expected);
   }
@@ -96,7 +92,7 @@ public class SemanticsTests
       .NotNull();
 
     var expected = TokenList(SemanticType.ObjectReference);
-    var actual = lhe.Semantics();
+    var actual = lhe.GetSemantics();
 
     SemanticTokenCompare(actual, expected);
   }
@@ -107,8 +103,8 @@ public class SemanticsTests
     string source = "use System\nConsole.WriteLine";
     var lhe = TestParse(source).FindNode((node) => node is LeftHandExpression).NotNull();
 
-    var expected = TokenList(SemanticType.ClassReference, SemanticType.MethodReference);
-    var actual = lhe.Semantics();
+    var expected = TokenList(SemanticType.ClassName, SemanticType.MethodReference);
+    var actual = lhe.GetSemantics();
 
     SemanticTokenCompare(actual, expected);
   }
@@ -119,9 +115,9 @@ public class SemanticsTests
     string source = "use Sol.Tests\nTestClass.StringMethod()";
     var lhe = TestParse(source).FindNode((node) => node is LeftHandExpression).NotNull();
 
-    var expected = TokenList(SemanticType.ClassReference, SemanticType.MethodReference);
+    var expected = TokenList(SemanticType.ClassName, SemanticType.MethodReference);
 
-    var actual = lhe.Semantics();
+    var actual = lhe.GetSemantics();
     SemanticTokenCompare(actual, expected);
   }
 
@@ -134,12 +130,12 @@ public class SemanticsTests
       .NotNull();
 
     var expected = TokenList(
-      SemanticType.ClassReference,
+      SemanticType.ClassName,
       SemanticType.MethodReference,
       SemanticType.ObjectReference
     );
 
-    var actual = lhe.Semantics();
+    var actual = lhe.GetSemantics();
     SemanticTokenCompare(actual, expected);
   }
 
@@ -150,7 +146,7 @@ public class SemanticsTests
     var result = TestParse(source);
 
     var expected = TokenList(SemanticType.NumLit);
-    var actual = result.Semantics();
+    var actual = result.GetSemantics();
 
     SemanticTokenCompare(actual, expected);
   }
@@ -162,7 +158,7 @@ public class SemanticsTests
     var result = TestParse(source);
 
     var expected = TokenList(SemanticType.StringLit);
-    var actual = result.Semantics();
+    var actual = result.GetSemantics();
 
     SemanticTokenCompare(actual, expected);
   }

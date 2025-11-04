@@ -1,0 +1,13 @@
+SolProgram {
+  Statements: [
+    UseStatement {
+      NamespaceSequence: [
+        Identifier {
+          Span: SourceSpan {
+            Source: System
+          }
+        }
+      ]
+    }
+  ]
+}

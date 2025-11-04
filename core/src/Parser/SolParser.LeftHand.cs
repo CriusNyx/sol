@@ -1,4 +1,5 @@
-using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
+using CriusNyx.Util;
 using Sol.AST;
 using Sol.Parser.Extensions;
 using Superpower;
@@ -8,42 +9,84 @@ namespace Sol.Parser;
 
 public static partial class SolParser
 {
-  public static TextParser<LeftHandExpressionChain> ChainExpressionParser = SParse.Ref(() =>
-    SParse.OneOf(DerefParser, InvocationParser, Deindex)
+  /// <summary>
+  /// Chain -> Deref | Invocation | Deindex
+  /// </summary>
+  public static TextParser<(
+    LeftHandExpressionChain value,
+    ParseContext context
+  )> ChainExpressionParser = SParse.Ref(() =>
+    SParse.OneOf(DerefParser.NotNull(), InvocationParser.NotNull(), Deindex.NotNull())
   );
 
-  public static TextParser<LeftHandExpressionChain> DerefParser =>
-    SolToken
-      .Dot.IgnoreThen(SolToken.Identifier)
-      .Then(
-        (ident) =>
-          ChainExpressionParser!
-            .OptionalOrDefault()
-            .Select(chain => new DerefExpression(ident, chain) as LeftHandExpressionChain)
+  /// <summary>
+  /// Deref -> dot identifier Chain?
+  /// </summary>
+  public static TextParser<(LeftHandExpressionChain value, ParseContext parseContext)> DerefParser =
+    from dot in SolToken.Dot
+    from ident in SolToken.Identifier.WithEmptyContext().RecoverNullWithContext()
+    from chain in ChainExpressionParser.OptionalOrDefault().RecoverNullWithContext()
+    select new DerefExpression(new(dot), ident.value, chain.value)
+      .AsNotNull<LeftHandExpressionChain>()
+      .With(ParseContext.Combine(ident.context, chain.context));
+
+  /// <summary>
+  /// Deindex -> leftBracket RightHandExpression rightBracket Chain?
+  /// </summary>
+  public static TextParser<(LeftHandExpressionChain value, ParseContext context)> Deindex =
+    from leftBracket in SolToken.LeftBracket
+    from index in RightHandExpressionParser.NotNull().RecoverNullWithContext()
+    from rightBracket in SolToken.RightBracket.WithEmptyContext().RecoverEmptyWithContext()
+    from chain in ChainExpressionParser.OptionalOrDefault()
+    select new DeindexExpression(
+      new(leftBracket),
+      index.value,
+      new(rightBracket.value),
+      chain.value
+    )
+      .AsNotNull<LeftHandExpressionChain>()
+      .With(ParseContext.Combine(index.context, rightBracket.context, chain.context));
+
+  public static TextParser<(
+    RightHandExpression[] value,
+    ParseContext context
+  )> InvocationArgParser =>
+    RightHandExpressionParser
+      .NotNull()
+      .SeparatedBy(SolToken.Comma)
+      .OptionalOrDefault([])
+      .Select(result =>
+        result
+          .Select(item => item.value)
+          .ToArray()
+          .With(ParseContext.Combine(result.Select(item => item.context)))
       );
 
-  public static TextParser<LeftHandExpressionChain> Deindex =>
-    from leftBracket in SolToken.LeftBracket
-    from index in RightHandExpressionParser
-    from rightBracket in SolToken.RightBracket
-    from chain in ChainExpressionParser!.OptionalOrDefault()
-    select new DeindexExpression(new(leftBracket), index, new(rightBracket), chain)
-      as LeftHandExpressionChain;
-
-  public static TextParser<LeftHandExpressionChain> InvocationParser =>
+  /// <summary>
+  /// Invocation -> leftParen ((Expression comma)* Expression)? rightParen Chain?
+  /// </summary>
+  public static TextParser<(LeftHandExpressionChain value, ParseContext context)> InvocationParser =
     from leftParen in SolToken.LeftParen
-    from args in RightHandExpressionParser.SeparatedBy(SolToken.Comma).OptionalOrDefault([])
-    from rightParen in SolToken.RightParen
-    from chain in ChainExpressionParser!.OptionalOrDefault()
-    select new InvocationExpression(new(leftParen), args, new(rightParen), chain)
-      as LeftHandExpressionChain;
-
-  public static TextParser<LeftHandExpression> LeftHandExpressionParser = SParse.Ref(() =>
-    SolToken.Identifier.Then(
-      (ident) =>
-        ChainExpressionParser!
-          .OptionalOrDefault()
-          .Select(chain => new LeftHandExpression(ident, chain))
+    from args in InvocationArgParser.RecoverWithContext(
+      RecoverUntil(SolToken.RightParen).Select(x => new RightHandExpression[] { })
     )
+    from rightParen in SolToken.RightParen.WithEmptyContext().RecoverEmptyWithContext()
+    from chain in ChainExpressionParser!.OptionalOrDefault()
+    select new InvocationExpression(new(leftParen), args.value, new(rightParen.value), chain.value)
+      .AsNotNull<LeftHandExpressionChain>()
+      .With(ParseContext.Combine(args.context, rightParen.context, chain.context));
+
+  /// <summary>
+  /// LeftHandExpression -> ident Chain?
+  /// </summary>
+  public static TextParser<(
+    LeftHandExpression value,
+    ParseContext context
+  )> LeftHandExpressionParser = SParse.Ref(() =>
+    from ident in SolToken.Identifier
+    from chain in ChainExpressionParser!.OptionalOrDefault()
+    select new LeftHandExpression(ident, chain.value)
+      .AsNotNull<LeftHandExpression>()
+      .With(chain.context)
   );
 }

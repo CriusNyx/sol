@@ -1,0 +1,17 @@
+SolProgram {
+  Statements: [
+    Assign {
+      Left: LeftHandExpression {
+        Identifier: Identifier {
+          Span: SourceSpan {
+            Source: a
+          }
+        },
+        Chain: null
+      },
+      Right: StringLiteralExpression {
+        Value: "Hello World"
+      }
+    }
+  ]
+}

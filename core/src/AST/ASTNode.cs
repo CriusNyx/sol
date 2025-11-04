@@ -6,6 +6,7 @@ public abstract partial class ASTNode : DebugPrint
 {
   protected SolType? cachedType;
   public SolType NodeType => cachedType.NotNull();
+  public SolType? NodeTypeSafe => cachedType;
   public abstract IEnumerable<(string, object)> EnumerateFields();
 
   public SolType? TypeCheck(TypeCheckerContext context)
@@ -21,4 +22,14 @@ public abstract partial class ASTNode : DebugPrint
   public abstract Span GetSpan();
 
   public abstract IEnumerable<ASTNode> GetChildren();
+
+  public virtual IEnumerable<SemanticToken> GetSemantics()
+  {
+    return GetChildren().WhereAs<ASTNode>().SelectMany(x => x?.GetSemantics() ?? []);
+  }
+
+  public virtual string ShortCode()
+  {
+    return "";
+  }
 }

@@ -32,6 +32,11 @@ public class StringLiteralExpression(SourceSpan source, string value) : RightHan
   {
     return [Source];
   }
+
+  public override IEnumerable<SemanticToken> GetSemantics()
+  {
+    return [new(GetSpan(), SemanticType.StringLit)];
+  }
 }
 
 public class NumVal(decimal value) : DebugPrint
@@ -127,5 +132,10 @@ public class NumberLiteralExpression(SourceSpan source, NumVal value) : RightHan
   public override IEnumerable<ASTNode> GetChildren()
   {
     return [Source];
+  }
+
+  public override IEnumerable<SemanticToken> GetSemantics()
+  {
+    return [new(GetSpan(), SemanticType.NumLit)];
   }
 }

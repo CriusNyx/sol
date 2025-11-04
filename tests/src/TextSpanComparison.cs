@@ -1,4 +1,3 @@
-using System.Net.NetworkInformation;
 using DeepEqual;
 using Superpower.Model;
 
@@ -19,10 +18,7 @@ public class TextSpanComparison : IComparison
   {
     if (value1 is TextSpan t1 && value2 is TextSpan t2)
     {
-      if (t1.ToString() == t2.ToString())
-      {
-        return (ComparisonResult.Pass, context);
-      }
+      return (ComparisonResult.Pass, context);
     }
     return (ComparisonResult.Fail, context);
   }

@@ -1,0 +1,12 @@
+SolProgram                     InvocationType             
+|-UseStatement                 VoidType                   
+| |-KeywordSpan      use       null                       
+| |-Identifier                 NamespaceReference         
+| | |-SourceSpan     System    null                       
+|-LeftHandExpression           InvocationType             
+| |-Identifier                 ClassReferenceType(Console)
+| | |-SourceSpan     Console   null                       
+| |-DerefExpression            InvocationType             
+| | |-SourceSpan     .         null                       
+| | |-Identifier               InvocationType             
+| | | |-SourceSpan   WriteLine null                       

@@ -1,0 +1,7 @@
+SolProgram {
+  Statements: [
+    StringLiteralExpression {
+      Value: "Hello World!"
+    }
+  ]
+}

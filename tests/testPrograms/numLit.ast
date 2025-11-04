@@ -1,0 +1,9 @@
+SolProgram {
+  Statements: [
+    NumberLiteralExpression {
+      Value: NumVal {
+        Value: 1
+      }
+    }
+  ]
+}

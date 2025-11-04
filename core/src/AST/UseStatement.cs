@@ -1,12 +1,12 @@
 using CriusNyx.Util;
 using Sol.AST;
-using Superpower.Model;
 
-public class UseStatement(SourceSpan useKeyword, Identifier[] namespaceSequence) : ASTNode
+public class UseStatement(KeywordSpan useKeyword, Identifier[] namespaceSequence) : ASTNode
 {
-  public SourceSpan UseKeyword => useKeyword;
+  public KeywordSpan UseKeyword => useKeyword;
   public Identifier[] NamespaceSequence => namespaceSequence;
-  public string NamespaceIdentifier => NamespaceSequence.Select(x => x.Source).StringJoin(".");
+  public string NamespaceIdentifier =>
+    NamespaceSequence?.Select(x => x.Source).StringJoin(".") ?? "";
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
@@ -22,6 +22,10 @@ public class UseStatement(SourceSpan useKeyword, Identifier[] namespaceSequence)
   protected override SolType? _TypeCheck(TypeCheckerContext context)
   {
     context.typeScope.UseNamespace(NamespaceIdentifier);
+    foreach (var ns in NamespaceSequence)
+    {
+      ns.SetType(new NamespaceReference());
+    }
     return new VoidType();
   }
 

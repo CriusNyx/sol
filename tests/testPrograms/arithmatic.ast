@@ -1,0 +1,43 @@
+SolProgram {
+  Statements: [
+    BinaryOp {
+      Type: Add,
+      Left: NumberLiteralExpression {
+        Value: NumVal {
+          Value: 1
+        }
+      },
+      Right: BinaryOp {
+        Type: Modulo,
+        Left: BinaryOp {
+          Type: Multiply,
+          Left: NumberLiteralExpression {
+            Value: NumVal {
+              Value: 2
+            }
+          },
+          Right: ParenExpression {
+            RightHandExpression: BinaryOp {
+              Type: Add,
+              Left: NumberLiteralExpression {
+                Value: NumVal {
+                  Value: 3
+                }
+              },
+              Right: NumberLiteralExpression {
+                Value: NumVal {
+                  Value: 4
+                }
+              }
+            }
+          }
+        },
+        Right: NumberLiteralExpression {
+          Value: NumVal {
+            Value: 5
+          }
+        }
+      }
+    }
+  ]
+}

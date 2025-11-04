@@ -1,0 +1,8 @@
+SolProgram                                CSType(String)
+|-Assign                                  CSType(String)
+| |-LeftHandExpression                    CSType(String)
+| | |-Identifier                          CSType(String)
+| | | |-SourceSpan          a             null          
+| |-SourceSpan              =             null          
+| |-StringLiteralExpression               CSType(String)
+| | |-SourceSpan            "Hello World" null          

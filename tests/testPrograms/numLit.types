@@ -1,0 +1,3 @@
+SolProgram                  CSType(NumVal)
+|-NumberLiteralExpression   CSType(NumVal)
+| |-SourceSpan            1 null          

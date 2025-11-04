@@ -1,3 +1,4 @@
+using CriusNyx.Util;
 using Sol.AST;
 using Sol.DataStructures;
 using Sol.Parser;
@@ -26,6 +27,19 @@ public class ParseResult(string source, ASTNode astNode)
   public ASTNode AST => astNode;
 }
 
+public class ExecutionResult(
+  string source,
+  ASTNode astNode,
+  ExecutionContext executionContext,
+  object? result
+)
+{
+  public string source = source;
+  public ASTNode AST => astNode;
+  public ExecutionContext ExecutionContext => executionContext;
+  public object? Result => result;
+}
+
 public static class Compiler
 {
   public static Result<TypeCheckResult, CompilerError> TypeCheck(
@@ -41,7 +55,7 @@ public static class Compiler
     TypeCheckerContext context = null!
   )
   {
-    return compilation.Map(
+    return compilation.AndThen(
       (compile) =>
       {
         context = context ?? new TypeCheckerContext();
@@ -58,5 +72,16 @@ public static class Compiler
       return Ok<ParseResult, CompilerError>(new(source, ast));
     }
     return Err<ParseResult, CompilerError>(new());
+  }
+
+  public static Result<ExecutionResult, CompilerError> Evaluate(string source)
+  {
+    return TypeCheck(source)
+      .Map(x =>
+      {
+        var context = new ExecutionContext();
+        var output = x.AST.Evaluate(context);
+        return new ExecutionResult(source, x.AST, context, output);
+      });
   }
 }

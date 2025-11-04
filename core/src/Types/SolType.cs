@@ -69,6 +69,11 @@ public class CSType(Type type) : SolType
   {
     return HashCode.Combine(csType);
   }
+
+  public override string ToString()
+  {
+    return $"{nameof(CSType)}({csType.Name})";
+  }
 }
 
 public class ClassReferenceType(Type type) : SolType
@@ -98,6 +103,8 @@ public class ClassReferenceType(Type type) : SolType
     return $"{nameof(ClassReferenceType)}({classType.Name})";
   }
 }
+
+public class NamespaceReference : SolType { }
 
 public class InvocationType : SolType
 {
