@@ -62,20 +62,34 @@ public static class Compiler
     return compilation.AndThen(
       (compile) =>
       {
-        context = context ?? new TypeCheckerContext();
-        compile.AST.TypeCheck(context);
-        return Ok<TypeCheckResult, CompilerError>(new(compile.Source, compile.AST, context));
+        try
+        {
+          context = context ?? new TypeCheckerContext();
+          compile.AST.TypeCheck(context);
+          return Ok<TypeCheckResult, CompilerError>(new(compile.Source, compile.AST, context));
+        }
+        catch
+        {
+          return Err<TypeCheckResult, CompilerError>(new PartialCompileError(compile.AST));
+        }
       }
     );
   }
 
   public static Result<ParseResult, CompilerError> Parse(string source)
   {
-    if (SolParser.TryParse(source, out var ast))
+    try
     {
-      return Ok<ParseResult, CompilerError>(new(source, ast));
+      if (SolParser.TryParse(source, out var ast))
+      {
+        return Ok<ParseResult, CompilerError>(new(source, ast));
+      }
+      return Err<ParseResult, CompilerError>(new());
     }
-    return Err<ParseResult, CompilerError>(new());
+    catch
+    {
+      return Err<ParseResult, CompilerError>(new());
+    }
   }
 
   public static Result<ExecutionResult, CompilerError> Evaluate(string source)

@@ -6,6 +6,7 @@ using Sol;
 using Sol.AST;
 using Sol.CLI;
 using Sol.DataStructures;
+using Superpower;
 using SColor = System.Drawing.Color;
 
 SColor keyword = Hex("#569cd6");
@@ -16,6 +17,12 @@ SColor stringLit = Hex("#ce9178");
 SColor numLit = Hex("#b5cea8");
 
 var options = Parser.Default.ParseArguments<CLIOptions>(args).Value;
+
+options = new CLIOptions
+{
+  Pretty = true,
+  Files = ["/home/rjr/Projects/dotnet/sol/tests/testPrograms/withError.sol"],
+};
 
 if (options.Pretty)
 {
@@ -76,16 +83,24 @@ void PrintPretty(IEnumerable<string> files)
     files,
     (fileArgs) =>
     {
-      var (_, source) = fileArgs;
-      var parsed = Compiler.TypeCheck(source);
-      if (parsed.IsSuccess)
+      void PrintAST(ASTNode ast, string source)
       {
-        var ast = parsed.Value.AST;
         var semanticStream = ast.GetSemantics().Stream(source);
         foreach (var (segment, token) in semanticStream)
         {
           Console.Write(Color(segment, token));
         }
+      }
+
+      var (_, source) = fileArgs;
+      var parsed = Compiler.TypeCheck(source);
+      if (parsed.IsSuccess)
+      {
+        PrintAST(parsed.Value.AST, source);
+      }
+      else if (parsed.Error is PartialCompileError partial)
+      {
+        PrintAST(partial.AST, source);
       }
       else
       {
