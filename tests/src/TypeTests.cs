@@ -1,6 +1,7 @@
 using System.Reflection;
 using DeepEqual.Syntax;
 using Sol.AST;
+using Sol.DataStructures;
 using Sol.Parser;
 using Sol.TypeSystem;
 using Superpower;
@@ -40,13 +41,13 @@ public class TypeTests
 {
   public static ASTNode TestParser(string source)
   {
-    return SolParser.Parse(source);
+    return SolParser.Parse(source).Unwrap();
   }
 
   [Test]
   public void CanResolveStaticType()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     var ast = TestParser("use System\nConsole");
     var actual = ast.TypeCheck(context);
     var expected = new ClassReferenceType(typeof(Console));
@@ -56,7 +57,7 @@ public class TypeTests
   [Test]
   public void CanResolveStaticMethodType()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     var ast = TestParser("use System\nConsole.WriteLine");
     var actual = ast.TypeCheck(context);
     var expected = new InvocationType(
@@ -68,7 +69,7 @@ public class TypeTests
   [Test]
   public void CanResolveField()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     var ast = TestParser("value.field");
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
     var actual = ast.TypeCheck(context);
@@ -79,7 +80,7 @@ public class TypeTests
   [Test]
   public void CanResolveProperty()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     var ast = TestParser("value.property");
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
     var actual = ast.TypeCheck(context);
@@ -90,7 +91,7 @@ public class TypeTests
   [Test]
   public void CanResolveStaticField()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     var ast = TestParser("use Sol.Tests\nTestType.staticField");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
@@ -100,7 +101,7 @@ public class TypeTests
   [Test]
   public void CanResolveMethod()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
     var ast = TestParser("value.Foo");
     var actual = ast.TypeCheck(context);
@@ -113,7 +114,7 @@ public class TypeTests
   [Test]
   public void CanResolveVoidMethod()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("value", new CSType(typeof(string)));
     var ast = TestParser("use System\nConsole.WriteLine(value)");
     var actual = ast.TypeCheck(context);
@@ -124,7 +125,7 @@ public class TypeTests
   [Test]
   public void CanResolveNonVoidMethod()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("value", new CSType(typeof(TestType)));
     var ast = TestParser("value.MethodWithReturn()");
     var actual = ast.TypeCheck(context);
@@ -135,7 +136,7 @@ public class TypeTests
   [Test]
   public void CanResolveLogicalNot()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("value", new CSType(typeof(bool)));
     var ast = TestParser("!value");
     var actual = ast.TypeCheck(context);
@@ -146,7 +147,7 @@ public class TypeTests
   [Test]
   public void CanResolveUnaryNegative()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("value", new CSType(typeof(float)));
     var ast = TestParser("-value");
     var actual = ast.TypeCheck(context);
@@ -157,7 +158,7 @@ public class TypeTests
   [Test]
   public void CanResolveAddOp()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
     var ast = TestParser("a + b");
@@ -169,7 +170,7 @@ public class TypeTests
   [Test]
   public void CanResolveSubOp()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
     var ast = TestParser("a - b");
@@ -181,7 +182,7 @@ public class TypeTests
   [Test]
   public void CanResolveMulOp()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
     var ast = TestParser("a * b");
@@ -193,7 +194,7 @@ public class TypeTests
   [Test]
   public void CanResolveDivOp()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
     var ast = TestParser("a / b");
@@ -205,7 +206,7 @@ public class TypeTests
   [Test]
   public void CanResolveModOp()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(float)));
     context.typeScope.SetType("b", new CSType(typeof(float)));
     var ast = TestParser("a % b");
@@ -217,7 +218,7 @@ public class TypeTests
   [Test]
   public void CanResolveUnaryOverloadOp()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(Vector)));
     var ast = TestParser("-a");
     var actual = ast.TypeCheck(context);
@@ -228,7 +229,7 @@ public class TypeTests
   [Test]
   public void CanResolveBinaryOverloadOp()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(Vector)));
     context.typeScope.SetType("b", new CSType(typeof(Vector)));
     var ast = TestParser("a - b");
@@ -240,7 +241,7 @@ public class TypeTests
   [Test]
   public void CanResolveUnaryParen()
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     context.typeScope.SetType("a", new CSType(typeof(Vector)));
     var ast = TestParser("(a)");
     var actual = ast.TypeCheck(context);

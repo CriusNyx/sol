@@ -24,7 +24,7 @@ public class SolProgram(ASTNode[] statements) : ASTNode
     return output;
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     SolType? result = null;
     foreach (var statement in Statements)

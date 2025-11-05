@@ -13,11 +13,15 @@ public class TestProgramTests
   public void TestProgramConsistancy(string path)
   {
     var source = File.ReadAllText(path);
-    var compiled = Compiler.TypeCheck(source).Unwrap();
-    var astString = compiled.AST.Debug();
-    var typeString = compiled.AST.FormatWithTypes();
+    var compiledResult = Compiler.TypeCheck(source);
+    var ast = compiledResult.Map(x => x.AST).UnwrapOrElse(x => x.RecoverAST());
+
+    var astString = ast.Debug();
+    var typeString = ast.FormatWithTypes();
+
     var expectedAST = File.ReadAllText(path.Replace(Path.GetExtension(path), ".ast"));
     var expectedTypes = File.ReadAllText(path.Replace(Path.GetExtension(path), ".types"));
+
     Assert.That(astString, Is.EqualTo(expectedAST));
     Assert.That(typeString, Is.EqualTo(expectedTypes));
   }

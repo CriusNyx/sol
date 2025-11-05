@@ -2,6 +2,7 @@ using Bogus;
 using CriusNyx.Util;
 using DeepEqual.Syntax;
 using Sol.AST;
+using Sol.DataStructures;
 using Sol.Parser;
 using Superpower;
 using static Sol.AST.ASTBuilder;
@@ -17,21 +18,32 @@ public class ParserTests
 
   void AssertASTCompare(ASTNode actual, ASTNode expected)
   {
-    actual
-      .WithDeepEqual(expected)
-      .IgnoreProperty(
-        (prop) => prop.DeclaringType.IsAssignableTo(typeof(ASTNode)) && prop.Name == "NodeType"
-      )
-      .WithCustomComparison(new TextSpanComparison())
-      .WithCustomComparison(new SpanComparison())
-      .Assert();
+    try
+    {
+      actual
+        .WithDeepEqual(expected)
+        .IgnoreProperty(
+          (prop) => prop.DeclaringType.IsAssignableTo(typeof(ASTNode)) && prop.Name == "NodeType"
+        )
+        .WithCustomComparison(new TextSpanComparison())
+        .WithCustomComparison(new SpanComparison())
+        .Assert();
+    }
+    catch
+    {
+      Console.WriteLine("actual:");
+      Console.WriteLine(actual.Debug());
+      Console.WriteLine("expected:");
+      Console.WriteLine(expected.Debug());
+      throw;
+    }
   }
 
   [Test]
   public void CanParseZeroLiteral()
   {
     var expected = Prog(NumLit("0"));
-    var actual = SolParser.Parse("0");
+    var actual = SolParser.Parse("0").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -39,7 +51,7 @@ public class ParserTests
   public void CanParseIntLiteral()
   {
     var expected = Prog(NumLit("1"));
-    var actual = SolParser.Parse("1");
+    var actual = SolParser.Parse("1").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -47,7 +59,7 @@ public class ParserTests
   public void CanParseNegativeIntLiteral()
   {
     var expected = Prog(Unary("-", NumLit("1")));
-    var actual = SolParser.Parse("-1");
+    var actual = SolParser.Parse("-1").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -55,7 +67,7 @@ public class ParserTests
   public void CanParseDecimalLiteral()
   {
     var expected = Prog(NumLit("0.5"));
-    var actual = SolParser.Parse("0.5");
+    var actual = SolParser.Parse("0.5").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -63,7 +75,7 @@ public class ParserTests
   public void CanParseNegativeDecimalLiteral()
   {
     var expected = Prog(Unary("-", NumLit("0.5")));
-    var actual = SolParser.Parse("-0.5");
+    var actual = SolParser.Parse("-0.5").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -71,7 +83,7 @@ public class ParserTests
   public void CanParseIdent()
   {
     var expected = Prog(LHE("value"));
-    var actual = SolParser.Parse("value");
+    var actual = SolParser.Parse("value").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -79,7 +91,7 @@ public class ParserTests
   public void CanParseDeref()
   {
     var expected = Prog(LHE("value", Deref("field")));
-    var actual = SolParser.Parse("value.field");
+    var actual = SolParser.Parse("value.field").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -107,7 +119,7 @@ public class ParserTests
   public void CanParseMultiDeref()
   {
     var expected = Prog(LHE("value", Deref("a"), Deref("b")));
-    var actual = SolParser.Parse("value.a.b");
+    var actual = SolParser.Parse("value.a.b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -125,7 +137,7 @@ public class ParserTests
   public void CanParseDeindex()
   {
     var expected = Prog(LHE("value", Deindex(NumLit("0"))));
-    var actual = SolParser.Parse("value[0]");
+    var actual = SolParser.Parse("value[0]").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -166,7 +178,7 @@ public class ParserTests
   public void CanParseInvocation()
   {
     var expected = Prog(LHE("value", Invoke()));
-    var actual = SolParser.Parse("value()");
+    var actual = SolParser.Parse("value()").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -185,7 +197,7 @@ public class ParserTests
   public void CanParseInvocationWithArg()
   {
     var expected = Prog(LHE("value", Invoke(LHE("a"))));
-    var actual = SolParser.Parse("value(a)");
+    var actual = SolParser.Parse("value(a)").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -215,7 +227,7 @@ public class ParserTests
   public void CanParseInvocationWithMultipleArg()
   {
     var expected = Prog(LHE("value", Invoke(LHE("a"), LHE("b"))));
-    var actual = SolParser.Parse("value(a, b)");
+    var actual = SolParser.Parse("value(a, b)").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -223,15 +235,15 @@ public class ParserTests
   public void CanParseInvocationWithMultipleArg_WithError()
   {
     var expected = Prog(LHE("value", Invoke(LHE("a"), null!)));
-    var actual = SolParser.Parse("value(a,)", SolParser.StatementParser);
-    //AssertASTCompare(actual, expected);
+    var actual = SolParser.Parse("value(a,)").Error.RecoverAST();
+    AssertASTCompare(actual, expected);
   }
 
   [Test]
   public void CanParseInvocationWithDeref()
   {
     var expected = Prog(LHE("value", Invoke(), Deref("field")));
-    var actual = SolParser.Parse("value().field");
+    var actual = SolParser.Parse("value().field").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -239,7 +251,7 @@ public class ParserTests
   public void CanParseInvocationWithDeref_WithError()
   {
     var expected = Prog(LHE("value", Invoke(), Deref(null!)));
-    var actual = SolParser.Parse("value().");
+    var actual = SolParser.Parse("value().").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -247,7 +259,7 @@ public class ParserTests
   public void CanParseInvocationWithDeindex()
   {
     var expected = Prog(LHE("value", Invoke(), Deindex(NumLit("0"))));
-    var actual = SolParser.Parse("value()[0]");
+    var actual = SolParser.Parse("value()[0]").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -255,7 +267,7 @@ public class ParserTests
   public void CanParseInvocationWithDeindex_WithError1()
   {
     var expected = Prog(LHE("value", Invoke(), Deindex(null!)));
-    var actual = SolParser.Parse("value()[");
+    var actual = SolParser.Parse("value()[").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -263,7 +275,7 @@ public class ParserTests
   public void CanParseInvocationWithDeindex_WithError2()
   {
     var expected = Prog(LHE("value", Invoke(), Deindex(null!)));
-    var actual = SolParser.Parse("value()[]");
+    var actual = SolParser.Parse("value()[]").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -271,7 +283,7 @@ public class ParserTests
   public void CanParseDeindexWithInvocation()
   {
     var expected = Prog(LHE("value", Deindex(NumLit("0")), Invoke()));
-    var actual = SolParser.Parse("value[0]()");
+    var actual = SolParser.Parse("value[0]()").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -279,7 +291,7 @@ public class ParserTests
   public void CanParseDeindexWithInvocation_WithError()
   {
     var expected = Prog(LHE("value", Deindex(NumLit("0")), Invoke()));
-    var actual = SolParser.Parse("value[0](");
+    var actual = SolParser.Parse("value[0](").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -287,7 +299,7 @@ public class ParserTests
   public void CanParseDeindexWithDeref()
   {
     var expected = Prog(LHE("value", Deindex(NumLit("0")), Deref("field")));
-    var actual = SolParser.Parse("value[0].field");
+    var actual = SolParser.Parse("value[0].field").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -295,7 +307,7 @@ public class ParserTests
   public void CanParseDeindexWithDeref_WithError()
   {
     var expected = Prog(LHE("value", Deindex(NumLit("0")), Deref(null!)));
-    var actual = SolParser.Parse("value[0].");
+    var actual = SolParser.Parse("value[0].").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -303,7 +315,7 @@ public class ParserTests
   public void CanParseDerefWithInvocation()
   {
     var expected = Prog(LHE("value", Deref("field"), Invoke()));
-    var actual = SolParser.Parse("value.field()");
+    var actual = SolParser.Parse("value.field()").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -311,7 +323,7 @@ public class ParserTests
   public void CanParseDerefWithInvocation_WithError()
   {
     var expected = Prog(LHE("value", Deref("field"), Invoke()));
-    var actual = SolParser.Parse("value.field(");
+    var actual = SolParser.Parse("value.field(").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -342,8 +354,10 @@ public class ParserTests
       }
     }
     var source = $"value{list.Select(x => x.source).StringJoin()}";
-    var actual = SolParser.Parse(source);
+
     var expected = Prog(LHE("value", list.Select(x => x.func).ToArray()));
+    var actual = SolParser.Parse(source).Unwrap();
+
     AssertASTCompare(actual, expected);
   }
 
@@ -351,7 +365,7 @@ public class ParserTests
   public void CanParseBooleanNegate()
   {
     var expected = Prog(Unary("!", LHE("a")));
-    var actual = SolParser.Parse("!a");
+    var actual = SolParser.Parse("!a").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -359,7 +373,7 @@ public class ParserTests
   public void CanParseBooleanNegate_WithError()
   {
     var expected = Prog(Unary("!", null!));
-    var actual = SolParser.Parse("!");
+    var actual = SolParser.Parse("!").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -367,7 +381,7 @@ public class ParserTests
   public void CanParseRealNegate()
   {
     var expected = Prog(Unary("-", LHE("a")));
-    var actual = SolParser.Parse("-a");
+    var actual = SolParser.Parse("-a").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -375,7 +389,7 @@ public class ParserTests
   public void CanParseRealNegate_WithError()
   {
     var expected = Prog(Unary("-", null!));
-    var actual = SolParser.Parse("-");
+    var actual = SolParser.Parse("-").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -383,7 +397,7 @@ public class ParserTests
   public void CanParseAdd()
   {
     var expected = Prog(Binary("+", LHE("a"), LHE("b")));
-    var actual = SolParser.Parse("a + b");
+    var actual = SolParser.Parse("a + b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -391,7 +405,7 @@ public class ParserTests
   public void CanParseAdd_WithError1()
   {
     var expected = Prog(Binary("+", LHE("a"), null!));
-    var actual = SolParser.Parse("a + ");
+    var actual = SolParser.Parse("a + ").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -399,7 +413,7 @@ public class ParserTests
   public void CanParseAdd_WithError2()
   {
     var expected = Prog(Binary("+", LHE("a"), LHE("b", Deref(null!))));
-    var actual = SolParser.Parse("a + b.");
+    var actual = SolParser.Parse("a + b.").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -407,7 +421,7 @@ public class ParserTests
   public void CanParseAdd_WithError3()
   {
     var expected = Prog(Binary("+", LHE("a", Deref(null!)), LHE("b")));
-    var actual = SolParser.Parse("a. + b");
+    var actual = SolParser.Parse("a. + b").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -415,7 +429,7 @@ public class ParserTests
   public void CanParseAdd_WithLit()
   {
     var expected = Prog(Binary("+", NumLit("1"), NumLit("2")));
-    var actual = SolParser.Parse("1 + 2");
+    var actual = SolParser.Parse("1 + 2").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -423,7 +437,7 @@ public class ParserTests
   public void CanParseSub()
   {
     var expected = Prog(Binary("-", LHE("a"), LHE("b")));
-    var actual = SolParser.Parse("a - b");
+    var actual = SolParser.Parse("a - b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -431,7 +445,7 @@ public class ParserTests
   public void CanParseSub_WithError1()
   {
     var expected = Prog(Binary("-", LHE("a"), null!));
-    var actual = SolParser.Parse("a - ");
+    var actual = SolParser.Parse("a - ").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -439,7 +453,7 @@ public class ParserTests
   public void CanParseSub_WithError2()
   {
     var expected = Prog(Binary("-", LHE("a", Deref(null!)), LHE("b")));
-    var actual = SolParser.Parse("a. - b");
+    var actual = SolParser.Parse("a. - b").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -447,7 +461,7 @@ public class ParserTests
   public void CanParseSub_WithError3()
   {
     var expected = Prog(Binary("-", LHE("a"), LHE("b", Deref(null!))));
-    var actual = SolParser.Parse("a - b.");
+    var actual = SolParser.Parse("a - b.").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -455,7 +469,7 @@ public class ParserTests
   public void CanParseDoubleSub()
   {
     var expected = Prog(Binary("-", LHE("a"), Unary("-", LHE("b"))));
-    var actual = SolParser.Parse("a - - b");
+    var actual = SolParser.Parse("a - - b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -463,7 +477,7 @@ public class ParserTests
   public void CanParseDoubleSub_WithError1()
   {
     var expected = Prog(Binary("-", LHE("a"), Unary("-", null!)));
-    var actual = SolParser.Parse("a - - ");
+    var actual = SolParser.Parse("a - - ").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -471,7 +485,7 @@ public class ParserTests
   public void CanParseDoubleSub_WithError2()
   {
     var expected = Prog(Binary("-", LHE("a"), Unary("-", LHE("b", Deref(null!)))));
-    var actual = SolParser.Parse("a - - b.");
+    var actual = SolParser.Parse("a - - b.").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -479,7 +493,7 @@ public class ParserTests
   public void CanParseMul()
   {
     var expected = Prog(Binary("*", LHE("a"), LHE("b")));
-    var actual = SolParser.Parse("a * b");
+    var actual = SolParser.Parse("a * b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -487,7 +501,7 @@ public class ParserTests
   public void CanParseMul_WithError1()
   {
     var expected = Prog(Binary("*", LHE("a"), null!));
-    var actual = SolParser.Parse("a * ");
+    var actual = SolParser.Parse("a * ").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -495,7 +509,7 @@ public class ParserTests
   public void CanParseMul_WithError2()
   {
     var expected = Prog(Binary("*", LHE("a"), LHE("b", Deref(null!))));
-    var actual = SolParser.Parse("a * b.");
+    var actual = SolParser.Parse("a * b.").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -503,7 +517,7 @@ public class ParserTests
   public void CanParseMul_WithError3()
   {
     var expected = Prog(Binary("*", LHE("a", Deref(null!)), LHE("b")));
-    var actual = SolParser.Parse("a. * b");
+    var actual = SolParser.Parse("a. * b").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -511,7 +525,7 @@ public class ParserTests
   public void CanParseDiv()
   {
     var expected = Prog(Binary("/", LHE("a"), LHE("b")));
-    var actual = SolParser.Parse("a / b");
+    var actual = SolParser.Parse("a / b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -519,7 +533,7 @@ public class ParserTests
   public void CanParseDiv_WithError1()
   {
     var expected = Prog(Binary("/", LHE("a"), null!));
-    var actual = SolParser.Parse("a / ");
+    var actual = SolParser.Parse("a / ").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -527,7 +541,7 @@ public class ParserTests
   public void CanParseDiv_WithError2()
   {
     var expected = Prog(Binary("/", LHE("a", Deref(null!)), LHE("b")));
-    var actual = SolParser.Parse("a. / b");
+    var actual = SolParser.Parse("a. / b").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -535,7 +549,7 @@ public class ParserTests
   public void CanParseDiv_WithError3()
   {
     var expected = Prog(Binary("/", LHE("a"), LHE("b", Deref(null!))));
-    var actual = SolParser.Parse("a / b.");
+    var actual = SolParser.Parse("a / b.").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -543,7 +557,7 @@ public class ParserTests
   public void CanParseMod()
   {
     var expected = Prog(Binary("%", LHE("a"), LHE("b")));
-    var actual = SolParser.Parse("a % b");
+    var actual = SolParser.Parse("a % b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -551,7 +565,7 @@ public class ParserTests
   public void CanParseMod_WithError1()
   {
     var expected = Prog(Binary("%", LHE("a"), null!));
-    var actual = SolParser.Parse("a % ");
+    var actual = SolParser.Parse("a % ").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -559,7 +573,7 @@ public class ParserTests
   public void CanParseMod_WithError2()
   {
     var expected = Prog(Binary("%", LHE("a", Deref(null!)), LHE("b")));
-    var actual = SolParser.Parse("a. % b");
+    var actual = SolParser.Parse("a. % b").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -567,7 +581,7 @@ public class ParserTests
   public void CanParseMod_WithError3()
   {
     var expected = Prog(Binary("%", LHE("a"), LHE("b", Deref(null!))));
-    var actual = SolParser.Parse("a % b.");
+    var actual = SolParser.Parse("a % b.").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 
@@ -577,7 +591,7 @@ public class ParserTests
     var expected = Prog(
       Binary("+", Binary("*", LHE("a"), LHE("b")), Binary("/", LHE("c"), LHE("d")))
     );
-    var actual = SolParser.Parse("a * b + c / d");
+    var actual = SolParser.Parse("a * b + c / d").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -587,7 +601,7 @@ public class ParserTests
     var expected = Prog(
       Binary("+", Binary("*", Unary("-", LHE("a")), LHE("b")), Binary("/", LHE("c"), LHE("d")))
     );
-    var actual = SolParser.Parse("-a * b + c / d");
+    var actual = SolParser.Parse("-a * b + c / d").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -595,7 +609,7 @@ public class ParserTests
   public void CanParseAssign()
   {
     var expected = Prog(Assign(LHE("a"), LHE("b")));
-    var actual = SolParser.Parse("a = b");
+    var actual = SolParser.Parse("a = b").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -603,7 +617,7 @@ public class ParserTests
   public void CanParseUse()
   {
     var expected = Prog(Use(Ident("System")));
-    var actual = SolParser.Parse("use System");
+    var actual = SolParser.Parse("use System").Unwrap();
     AssertASTCompare(actual, expected);
   }
 
@@ -611,7 +625,7 @@ public class ParserTests
   public void CanParseUse_WithError()
   {
     var expected = Prog(UseExplicit(null!));
-    var actual = SolParser.Parse("use ");
+    var actual = SolParser.Parse("use ").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
 }

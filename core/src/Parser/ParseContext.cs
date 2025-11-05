@@ -38,5 +38,7 @@ public class ParseContext
     return new ParseContext(args.WhereAs<ParseContext>().ToArray());
   }
 
+  public bool HasError => Errors.Count() != 0;
+
   public IEnumerable<ParseError> Errors => errors.Concat(Children.SelectMany(x => x.Errors));
 }

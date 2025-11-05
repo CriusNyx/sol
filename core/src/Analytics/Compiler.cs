@@ -1,14 +1,11 @@
 using Sol.AST;
 using Sol.DataStructures;
-using Sol.Execution;
 using Sol.Parser;
 using Sol.TypeSystem;
 using static Sol.DataStructures.Result;
 using ExecutionContext = Sol.Execution.ExecutionContext;
 
 namespace Sol;
-
-public class CompilerError { }
 
 /// <summary>
 /// Error for when the source could not be compiled but could be compiled partially.
@@ -18,11 +15,11 @@ public class PartialCompileError(ASTNode astNode) : CompilerError
   public ASTNode AST => astNode;
 }
 
-public class TypeCheckResult(string source, ASTNode astNode, TypeCheckerContext context)
+public class TypeCheckResult(string source, ASTNode astNode, TypeContext context)
 {
   public string Source => source;
   public ASTNode AST => astNode;
-  public TypeCheckerContext Context => context;
+  public TypeContext Context => context;
 }
 
 public class ParseResult(string source, ASTNode astNode)
@@ -48,7 +45,7 @@ public static class Compiler
 {
   public static Result<TypeCheckResult, CompilerError> TypeCheck(
     string source,
-    TypeCheckerContext context = null!
+    TypeContext context = null!
   )
   {
     return TypeCheck(Parse(source), context);
@@ -56,7 +53,7 @@ public static class Compiler
 
   public static Result<TypeCheckResult, CompilerError> TypeCheck(
     Result<ParseResult, CompilerError> compilation,
-    TypeCheckerContext context = null!
+    TypeContext context = null!
   )
   {
     return compilation.AndThen(
@@ -64,7 +61,7 @@ public static class Compiler
       {
         try
         {
-          context = context ?? new TypeCheckerContext();
+          context = context ?? new TypeContext();
           compile.AST.TypeCheck(context);
           return Ok<TypeCheckResult, CompilerError>(new(compile.Source, compile.AST, context));
         }
@@ -78,18 +75,7 @@ public static class Compiler
 
   public static Result<ParseResult, CompilerError> Parse(string source)
   {
-    try
-    {
-      if (SolParser.TryParse(source, out var ast))
-      {
-        return Ok<ParseResult, CompilerError>(new(source, ast));
-      }
-      return Err<ParseResult, CompilerError>(new());
-    }
-    catch
-    {
-      return Err<ParseResult, CompilerError>(new());
-    }
+    return SolParser.Parse(source).Map(ast => new ParseResult(source, ast));
   }
 
   public static Result<ExecutionResult, CompilerError> Evaluate(string source)

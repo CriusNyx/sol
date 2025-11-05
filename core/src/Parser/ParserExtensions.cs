@@ -27,13 +27,15 @@ public static class ParserExtensions
 
   public static TextParser<T[]> SeparatedBy<T, U>(
     this TextParser<T> parser,
-    TextParser<U> separator
+    TextParser<U> separator,
+    Func<TextParser<T>, TextParser<T>>? recoveryStrategy = null
   )
   {
-    return Parse
-      .Chain(
+    return parser
+      .Select(x => new List<T>() { x })
+      .ThenChain(
         separator,
-        parser.Select(x => new List<T>() { x }),
+        (recoveryStrategy?.Invoke(parser) ?? parser).Select(x => new List<T>() { x }),
         (_, l, r) => l.Touch(x => x.AddRange(r))
       )
       .Select(x => x.ToArray());

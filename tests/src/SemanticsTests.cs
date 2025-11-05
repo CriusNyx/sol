@@ -34,7 +34,7 @@ public class SemanticsTests
 
   private static ASTNode TestParse(string source, params (string, SolType)[] parameters)
   {
-    var context = new TypeCheckerContext();
+    var context = new TypeContext();
     foreach (var (variable, value) in parameters)
     {
       context.typeScope.SetType(variable, value);

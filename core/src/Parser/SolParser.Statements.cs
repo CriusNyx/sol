@@ -11,7 +11,7 @@ public static partial class SolParser
   public static TextParser<(ASTNode value, ParseContext context)> AssignParser =
     from left in LeftHandExpressionParser
     from equalSym in SolToken.Equal.Try()
-    from right in RightHandExpressionParser
+    from right in RightHandExpressionParser.RecoverNullWithContext()
     select new Assign(left.value, new(equalSym), right.value)
       .AsNotNull<ASTNode>()
       .With(ParseContext.Combine(left.context, right.context));

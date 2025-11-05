@@ -20,7 +20,7 @@ public class StringLiteralExpression(SourceSpan source, string value) : RightHan
     return Value;
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     return new CSType(typeof(string));
   }
@@ -121,7 +121,7 @@ public class NumberLiteralExpression(SourceSpan source, NumVal value) : RightHan
     return Value;
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     return new CSType(typeof(NumVal));
   }

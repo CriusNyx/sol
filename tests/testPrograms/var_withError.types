@@ -1,0 +1,7 @@
+SolProgram               null
+|-Assign                 null
+| |-LeftHandExpression   null
+| | |-Identifier         null
+| | | |-SourceSpan     a null
+| |-SourceSpan         = null
+| |-null                 null

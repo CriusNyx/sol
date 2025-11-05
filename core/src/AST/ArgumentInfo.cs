@@ -35,7 +35,7 @@ public class ArgumentInfo(Identifier? explicitParameterName, RightHandExpression
     throw new NotImplementedException();
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     return Expression.TypeCheck(context);
   }

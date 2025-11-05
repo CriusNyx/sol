@@ -70,7 +70,7 @@ public class DerefExpression(SourceSpan dot, Identifier identifier, LeftHandExpr
     throw new NotImplementedException();
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     var underlyingType = context.PeekType();
     var fieldType = underlyingType.DerefFieldType(Identifier.Source).NotNull("DereferencedType");

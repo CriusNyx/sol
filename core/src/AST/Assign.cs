@@ -16,7 +16,7 @@ public class Assign(LeftHandExpression left, SourceSpan equal, RightHandExpressi
     return [nameof(Left).With(Left), nameof(Right).With(Right)];
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     var rightType = right.TypeCheck(context).NotNull();
     if (left.GetLocalName() is string localName)

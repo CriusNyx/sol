@@ -35,10 +35,10 @@ public static class ASTNodeExtensions
     }
 
     List<string[]> elements = new List<string[]>();
-    foreach (var (child, level) in node.TraverseFlat(x => x.GetChildren()))
+    foreach (var (child, level) in node.TraverseFlat(x => x?.GetChildren() ?? []))
     {
-      var heading = Indent(level) + child.GetType().Name.ToString();
-      var rest = formatters.Select(formatter => formatter(child));
+      var heading = Indent(level) + (child?.GetType().Name.ToString() ?? "null");
+      var rest = formatters.Select(formatter => formatter(child!));
       elements.Add(heading.AsArray().Concat(rest).ToArray());
     }
     return elements.FormatGrid(" ");
@@ -47,8 +47,8 @@ public static class ASTNodeExtensions
   public static string FormatWithTypes(this ASTNode node)
   {
     return node.FormatWith(
-      (node) => node.ShortCode(),
-      (node) => node.NodeTypeSafe?.ToString() ?? "null"
+      (node) => node?.ShortCode() ?? "",
+      (node) => node?.NodeTypeSafe?.ToString() ?? "null"
     );
   }
 }

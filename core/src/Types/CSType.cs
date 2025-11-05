@@ -1,3 +1,6 @@
+using CriusNyx.Util;
+using Microsoft.VisualBasic;
+
 namespace Sol.TypeSystem;
 
 public class CSType(Type type) : SolType
@@ -28,5 +31,19 @@ public class CSType(Type type) : SolType
   public override string ToString()
   {
     return $"{nameof(CSType)}({csType.Name})";
+  }
+
+  public ISet<Type> TypeSuperset()
+  {
+    HashSet<Type> superset = new HashSet<Type>();
+
+    for (var t = csType; t != null; t = t.BaseType)
+    {
+      superset.Add(t);
+    }
+
+    csType.GetInterfaces().Select(superset.Add);
+
+    return superset;
   }
 }

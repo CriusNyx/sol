@@ -1,0 +1,46 @@
+SolProgram {
+  Statements: [
+    UseStatement {
+      NamespaceSequence: [
+        Identifier {
+          Span: SourceSpan {
+            Source: System
+          }
+        }
+      ]
+    },
+    Assign {
+      Left: LeftHandExpression {
+        Identifier: Identifier {
+          Span: SourceSpan {
+            Source: message
+          }
+        },
+        Chain: null
+      },
+      Right: StringLiteralExpression {
+        Value: "Hello World!"
+      }
+    },
+    LeftHandExpression {
+      Identifier: Identifier {
+        Span: SourceSpan {
+          Source: Console
+        }
+      },
+      Chain: DerefExpression {
+        Identifier: Identifier {
+          Span: SourceSpan {
+            Source: WriteLine
+          }
+        },
+        Chain: InvocationExpression {
+          Arguments: [
+            
+          ],
+          Chain: null
+        }
+      }
+    }
+  ]
+}

@@ -25,7 +25,7 @@ public class InvocationExpression(
     return [nameof(Arguments).With(Arguments), nameof(Chain).With(Chain)!];
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     List<SolType> args = new List<SolType>();
     foreach (var arg in Arguments)
