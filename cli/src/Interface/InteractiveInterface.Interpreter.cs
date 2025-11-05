@@ -1,5 +1,8 @@
 using CriusNyx.Util;
 using Sol.Parser;
+using ExecutionContext = Sol.Execution.ExecutionContext;
+
+namespace Sol.CLI;
 
 public partial class InteractiveInterface
 {

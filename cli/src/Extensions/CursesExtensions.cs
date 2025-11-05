@@ -1,5 +1,7 @@
 using Sharpie.Abstractions;
 
+namespace Sol.CLI;
+
 public static class CursesExtensions
 {
   public static void SplitH(

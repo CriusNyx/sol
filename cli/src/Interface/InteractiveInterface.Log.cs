@@ -1,3 +1,5 @@
+namespace Sol.CLI;
+
 public partial class InteractiveInterface
 {
   const int MaxLogSize = 100;

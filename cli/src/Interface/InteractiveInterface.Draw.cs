@@ -1,5 +1,7 @@
 using Sharpie.Abstractions;
 
+namespace Sol.CLI;
+
 public partial class InteractiveInterface
 {
   const int DebuggerSize = 20;

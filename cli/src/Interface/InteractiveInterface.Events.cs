@@ -1,5 +1,6 @@
-using CriusNyx.Util;
 using Sharpie;
+
+namespace Sol.CLI;
 
 public enum EventResult
 {

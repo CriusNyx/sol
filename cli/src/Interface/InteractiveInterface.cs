@@ -2,6 +2,8 @@ using CriusNyx.Util;
 using Sharpie;
 using Sharpie.Backend;
 
+namespace Sol.CLI;
+
 #pragma warning disable CA1416
 
 class InteractiveInterfaceState
