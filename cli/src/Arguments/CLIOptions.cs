@@ -8,6 +8,15 @@ public class CLIOptions
   public IEnumerable<string> Files { get; set; } = null!;
 
   [Option(
+    'd',
+    "debugger",
+    Required = false,
+    Default = false,
+    HelpText = "Wait for the debugger before running the rest of the program"
+  )]
+  public bool Debugger { get; set; }
+
+  [Option(
     'i',
     "interactive",
     Required = false,

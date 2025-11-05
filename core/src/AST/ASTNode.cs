@@ -12,13 +12,13 @@ public abstract partial class ASTNode : DebugPrint
   public SolType? NodeTypeSafe => cachedType;
   public abstract IEnumerable<(string, object)> EnumerateFields();
 
-  public SolType? TypeCheck(TypeCheckerContext context)
+  public SolType? TypeCheck(TypeContext context)
   {
     cachedType = _TypeCheck(context);
     return cachedType;
   }
 
-  protected abstract SolType? _TypeCheck(TypeCheckerContext context);
+  protected abstract SolType? _TypeCheck(TypeContext context);
 
   public abstract object? Evaluate(ExecutionContext context);
 

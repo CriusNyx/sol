@@ -28,7 +28,7 @@ public class ParenExpression(
     return [nameof(RightHandExpression).With(rightHandExpression)];
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     return RightHandExpression.TypeCheck(context);
   }
@@ -69,7 +69,7 @@ public class UnaryOp(SourceSpan opSource, UnaryOpType type, RightHandExpression 
     return [nameof(Type).With(Type), nameof(RightHandExpression).With(RightHandExpression)];
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     var opMethodName = CSMethodNames[Type];
 
@@ -150,7 +150,7 @@ public class BinaryOp(
     return [nameof(Type).With(Type), nameof(Left).With(Left), nameof(Right).With(Right)];
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     var opMethodName = CSMethodNames[Type];
 

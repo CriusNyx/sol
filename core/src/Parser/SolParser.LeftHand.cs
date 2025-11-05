@@ -50,8 +50,10 @@ public static partial class SolParser
     ParseContext context
   )> InvocationArgParser =>
     RightHandExpressionParser
-      .NotNull()
-      .SeparatedBy(SolToken.Comma)
+      .SeparatedBy(
+        SolToken.Comma,
+        parser => parser.RecoverUntilWithContext(SolToken.Comma, SolToken.RightParen)
+      )
       .OptionalOrDefault([])
       .Select(result =>
         result
@@ -65,9 +67,7 @@ public static partial class SolParser
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext context)> InvocationParser =
     from leftParen in SolToken.LeftParen
-    from args in InvocationArgParser.RecoverWithContext(
-      RecoverUntil(SolToken.RightParen).Select(x => new RightHandExpression[] { })
-    )
+    from args in InvocationArgParser.RecoverUntilWithContext(SolToken.RightParen)
     from rightParen in SolToken.RightParen.WithEmptyContext().RecoverEmptyWithContext()
     from chain in ChainExpressionParser!.OptionalOrDefault()
     select new InvocationExpression(new(leftParen), args.value, new(rightParen.value), chain.value)

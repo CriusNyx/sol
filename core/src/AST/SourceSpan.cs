@@ -29,7 +29,7 @@ public class SourceSpan(TextSpan source) : ASTNode
     return Source;
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     throw new NotImplementedException();
   }

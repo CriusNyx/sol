@@ -1,18 +1,29 @@
 using Sol.AST;
+using Sol.DataStructures;
 using Superpower;
+using static Sol.DataStructures.Result;
 
 namespace Sol.Parser;
 
 public static partial class SolParser
 {
-  public static SolProgram Parse(string source)
+  public static Result<SolProgram, CompilerError> Parse(string source)
   {
-    return Parse(source, ProgramParser).value;
+    return Parse(source, ProgramParser);
   }
 
-  public static T Parse<T>(string source, TextParser<T> parser)
+  public static Result<T, CompilerError> Parse<T>(
+    string source,
+    TextParser<(T, ParseContext)> parser
+  )
+    where T : ASTNode
   {
-    return parser.Parse(source);
+    var (result, context) = ParseWithContext(source, parser);
+    if (context.HasError)
+    {
+      return Err<T, CompilerError>(CompilerError.From(result, context));
+    }
+    return Ok<T, CompilerError>(result);
   }
 
   public static (SolProgram, ParseContext) ParseWithContext(string source)
@@ -26,27 +37,5 @@ public static partial class SolParser
   )
   {
     return parser.Parse(source);
-  }
-
-  public static bool TryParse(string source, out ASTNode result)
-  {
-    return TryParse(source, out result, out _);
-  }
-
-  public static bool TryParse(string source, out ASTNode result, out ParseContext context)
-  {
-    var output = TryParse(source, ProgramParser, out var parserResult);
-
-    result = output ? parserResult.value : default!;
-    context = output ? parserResult.context : default!;
-
-    return output;
-  }
-
-  public static bool TryParse<T>(string source, TextParser<T> parser, out T result)
-  {
-    var output = parser.TryParse(source);
-    result = output.HasValue ? output.Value : default!;
-    return output.HasValue;
   }
 }

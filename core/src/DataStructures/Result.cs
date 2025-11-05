@@ -4,6 +4,11 @@ namespace Sol.DataStructures;
 
 public class Result
 {
+  public static OkResult<T> Ok<T>(T value)
+  {
+    return new OkResult<T>(value);
+  }
+
   public static Result<T, E> Ok<T, E>(T value)
   {
     return new Result<T, E>(true, value, default!);
@@ -13,6 +18,16 @@ public class Result
   {
     return new Result<T, E>(false, default!, error);
   }
+}
+
+public class OkResult<T>(T value)
+{
+  public T Value => value;
+}
+
+public class ErrorResult<E>(E error)
+{
+  public E Error => error;
 }
 
 public class Result<T, E>
@@ -26,6 +41,16 @@ public class Result<T, E>
     IsSuccess = isSuccess;
     Value = value;
     Error = error;
+  }
+
+  public static implicit operator Result<T, E>(T ok)
+  {
+    return new Result<T, E>(true, ok, default!);
+  }
+
+  public static implicit operator Result<T, E>(E err)
+  {
+    return new Result<T, E>(false, default!, err);
   }
 }
 
@@ -46,9 +71,9 @@ public static class ResultExtensions
     return UnwrapOr(result!, default)!;
   }
 
-  public static T UnwrapOrElse<T, E>(this Result<T, E> result, Func<T> orElse)
+  public static T UnwrapOrElse<T, E>(this Result<T, E> result, Func<E, T> orElse)
   {
-    return result.IsSuccess ? result.Value : orElse();
+    return result.IsSuccess ? result.Value : orElse(result.Error);
   }
 
   public static Result<U, E> Map<T, U, E>(this Result<T, E> source, Func<T, U> transformation)

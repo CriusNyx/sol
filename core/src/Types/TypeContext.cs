@@ -2,7 +2,7 @@ using CriusNyx.Util;
 
 namespace Sol.TypeSystem;
 
-public class TypeCheckerContext
+public class TypeContext
 {
   public TypeScope typeScope { get; private set; } = TypeScope.CreateGlobalScope();
   public Stack<SolType> resolutionStack { get; private set; } = new Stack<SolType>();

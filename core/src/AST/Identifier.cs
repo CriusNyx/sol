@@ -20,7 +20,7 @@ public class Identifier(SourceSpan textSpan) : ASTNode
     throw new InvalidOperationException();
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     throw new NotImplementedException();
   }

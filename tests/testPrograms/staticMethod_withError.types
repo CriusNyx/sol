@@ -1,0 +1,11 @@
+SolProgram                   null
+|-UseStatement               null
+| |-KeywordSpan      use     null
+| |-Identifier               null
+| | |-SourceSpan     System  null
+|-LeftHandExpression         null
+| |-Identifier               null
+| | |-SourceSpan     Console null
+| |-DerefExpression          null
+| | |-SourceSpan     .       null
+| | |-null                   null

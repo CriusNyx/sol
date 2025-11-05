@@ -18,11 +18,13 @@ SColor numLit = Hex("#b5cea8");
 
 var options = Parser.Default.ParseArguments<CLIOptions>(args).Value;
 
-options = new CLIOptions
+if (options.Debugger)
 {
-  Pretty = true,
-  Files = ["/home/rjr/Projects/dotnet/sol/tests/testPrograms/withError.sol"],
-};
+  while (!System.Diagnostics.Debugger.IsAttached)
+  {
+    Thread.Sleep(500);
+  }
+}
 
 if (options.Pretty)
 {
@@ -162,19 +164,52 @@ void Evaluate(IEnumerable<string> files)
   );
 }
 
-void GenerateTestFiles(IEnumerable<string> files)
+Result<GenreateTestResult, Exception> GenerateTestFile(string path, string source)
 {
-  foreach (var (path, source) in FilesWithSource(files))
+  try
   {
     var result = Compiler.TypeCheck(source);
-    var ast = result.Unwrap().AST;
-    var debugAST = ast.Debug();
-    var ext = Path.GetExtension(path);
-    var astFilePath = path.Replace(ext, ".ast");
-    var typesFilePath = path.Replace(ext, ".types");
-    File.WriteAllText(astFilePath, debugAST);
-    File.WriteAllText(typesFilePath, ast.FormatWithTypes());
-    Console.WriteLine(astFilePath);
+    var ast = result.Map(x => x.AST).UnwrapOrElse((err) => err.RecoverAST());
+    var astDebug = ast.Debug();
+    var astTypes = ast.FormatWithTypes();
+    return new GenreateTestResult(path, source, astDebug, astTypes);
+  }
+  catch (Exception e)
+  {
+    return e;
+  }
+}
+
+void GenerateTestFiles(IEnumerable<string> files)
+{
+  var results = FilesWithSource(files).Select((pair) => GenerateTestFile(pair.path, pair.source));
+  if (results.All(x => x.IsSuccess))
+  {
+    if (!CLI.PromptYN("Overwrite test files?"))
+    {
+      return;
+    }
+    foreach (var result in results.Select(x => x.Unwrap()))
+    {
+      var path = result.Path;
+      var baseName = Path.Join(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
+      var astPath = baseName + ".ast";
+      var typesPath = baseName + ".types";
+      File.WriteAllText(astPath, result.ASTDebug);
+      File.WriteAllText(typesPath, result.ASTTypes);
+    }
+  }
+  else
+  {
+    results.Foreach(
+      (result) =>
+      {
+        if (result.Safe(r => r.Error) is Exception e)
+        {
+          Console.WriteLine(e);
+        }
+      }
+    );
   }
 }
 
@@ -192,4 +227,12 @@ void ForFiles(IEnumerable<string> files, Action<(string path, string source)> ac
     action((path, source));
     Console.WriteLine("");
   }
+}
+
+class GenreateTestResult(string path, string source, string astDebug, string astTypes)
+{
+  public string Path => path;
+  public string Source => source;
+  public string ASTDebug => astDebug;
+  public string ASTTypes => astTypes;
 }

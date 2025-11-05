@@ -22,7 +22,7 @@ public class UseStatement(KeywordSpan useKeyword, Identifier[] namespaceSequence
     return null;
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     context.typeScope.UseNamespace(NamespaceIdentifier);
     foreach (var ns in NamespaceSequence)

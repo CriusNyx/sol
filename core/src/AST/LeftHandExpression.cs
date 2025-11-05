@@ -24,7 +24,7 @@ public class LeftHandExpression(Identifier identifier, LeftHandExpressionChain? 
     return [nameof(Identifier).With(Identifier), nameof(Chain).With(Chain)!];
   }
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     var identifierType = context.typeScope.GetType(Identifier.Source) ?? new NullType();
     Identifier.SetType(identifierType);

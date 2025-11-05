@@ -1,0 +1,22 @@
+SolProgram                                 null
+|-UseStatement                             null
+| |-KeywordSpan             use            null
+| |-Identifier                             null
+| | |-SourceSpan            System         null
+|-Assign                                   null
+| |-LeftHandExpression                     null
+| | |-Identifier                           null
+| | | |-SourceSpan          message        null
+| |-SourceSpan              =              null
+| |-StringLiteralExpression                null
+| | |-SourceSpan            "Hello World!" null
+|-LeftHandExpression                       null
+| |-Identifier                             null
+| | |-SourceSpan            Console        null
+| |-DerefExpression                        null
+| | |-SourceSpan            .              null
+| | |-Identifier                           null
+| | | |-SourceSpan          WriteLine      null
+| | |-InvocationExpression                 null
+| | | |-SourceSpan          (              null
+| | | |-SourceSpan                         null

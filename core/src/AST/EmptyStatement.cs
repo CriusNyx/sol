@@ -25,7 +25,7 @@ public class EmptyStatement(Span span) : ASTNode
 
   public override Span GetSpan() => Span;
 
-  protected override SolType? _TypeCheck(TypeCheckerContext context)
+  protected override SolType? _TypeCheck(TypeContext context)
   {
     return new VoidType();
   }
