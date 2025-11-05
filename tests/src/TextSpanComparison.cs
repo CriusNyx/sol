@@ -1,4 +1,5 @@
 using DeepEqual;
+using Sol.DataStructures;
 using Superpower.Model;
 
 namespace Sol.Tests;

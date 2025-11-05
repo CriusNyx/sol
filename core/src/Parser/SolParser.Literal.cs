@@ -1,5 +1,4 @@
 using Sol.AST;
-using Sol.Parser.Extensions;
 using Superpower;
 using SParser = Superpower.Parsers;
 

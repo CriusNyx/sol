@@ -1,5 +1,7 @@
 using System.Reflection;
 
+namespace Sol.Execution;
+
 public interface FunctionValue
 {
   object Invoke(object[] values);

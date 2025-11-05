@@ -1,5 +1,8 @@
 using System.Reflection;
 using CriusNyx.Util;
+using Sol.DataStructures;
+using Sol.TypeSystem;
+using ExecutionContext = Sol.Execution.ExecutionContext;
 
 namespace Sol.AST;
 

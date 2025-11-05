@@ -1,3 +1,8 @@
+using Sol.Runtime;
+using Sol.TypeSystem;
+
+namespace Sol.Execution;
+
 public class ExecutionContext
 {
   List<string> usings = new List<string>();

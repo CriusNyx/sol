@@ -1,5 +1,7 @@
 using CriusNyx.Util;
 
+namespace Sol.TypeSystem;
+
 public class TypeCheckerContext
 {
   public TypeScope typeScope { get; private set; } = TypeScope.CreateGlobalScope();

@@ -1,4 +1,3 @@
-using Sol.Parser.Extensions;
 using Superpower;
 using Superpower.Model;
 using SIdentifier = Superpower.Parsers.Identifier;

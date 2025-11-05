@@ -1,3 +1,5 @@
+namespace Sol.TypeSystem;
+
 public static class SemanticExtensions
 {
   public static SemanticType ToSemanticType(this SolType solType)

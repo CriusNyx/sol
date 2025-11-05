@@ -1,5 +1,9 @@
 using CriusNyx.Util;
-using Sol.AST;
+using Sol.DataStructures;
+using Sol.TypeSystem;
+using ExecutionContext = Sol.Execution.ExecutionContext;
+
+namespace Sol.AST;
 
 public class ArgumentInfo(Identifier? explicitParameterName, RightHandExpression expression)
   : ASTNode

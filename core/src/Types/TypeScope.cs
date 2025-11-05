@@ -1,6 +1,6 @@
-using System.ComponentModel;
 using CriusNyx.Util;
-using Microsoft.VisualBasic;
+
+namespace Sol.TypeSystem;
 
 public class GlobalScope : TypeScope
 {

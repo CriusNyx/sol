@@ -2,6 +2,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using CriusNyx.Util;
 
+namespace Sol.TypeSystem;
+
 public abstract class SolType
 {
   public virtual SolType? DerefFieldType(string name)
@@ -42,6 +44,11 @@ public abstract class SolType
       return new InvocationType(members.Select(x => x as MethodInfo).ToArray()!);
     }
     return null;
+  }
+
+  public override string ToString()
+  {
+    return GetType().Name.ToString();
   }
 }
 

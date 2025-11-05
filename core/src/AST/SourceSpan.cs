@@ -1,6 +1,9 @@
 using CriusNyx.Util;
 using Sol.AST;
+using Sol.DataStructures;
+using Sol.TypeSystem;
 using Superpower.Model;
+using ExecutionContext = Sol.Execution.ExecutionContext;
 
 public class SourceSpan(TextSpan source) : ASTNode
 {

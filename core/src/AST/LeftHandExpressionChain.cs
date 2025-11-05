@@ -1,3 +1,6 @@
+using Sol.Execution;
+using ExecutionContext = Sol.Execution.ExecutionContext;
+
 namespace Sol.AST;
 
 public abstract class LeftHandExpressionChain() : ASTNode

@@ -1,3 +1,5 @@
+namespace Sol.Execution;
+
 public abstract class Reference
 {
   public abstract Type GetRefType();

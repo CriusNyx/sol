@@ -1,3 +1,5 @@
+namespace Sol.TypeSystem;
+
 public class TypeCahce
 {
   public static Task<Dictionary<string, Type>> Cache = Task.Run(() =>

@@ -2,6 +2,7 @@ using System.Reflection;
 using DeepEqual.Syntax;
 using Sol.AST;
 using Sol.Parser;
+using Sol.TypeSystem;
 using Superpower;
 
 #pragma warning disable 0649 // Suppresses warning CS0649

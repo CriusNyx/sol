@@ -1,5 +1,7 @@
 using System.Reflection;
 
+namespace Sol.Execution;
+
 public static class ExecutionHelpers
 {
   public static object? DerefMember(object owner, string fieldName)

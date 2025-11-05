@@ -1,9 +1,8 @@
-using System.Globalization;
 using CriusNyx.Util;
 using Superpower;
 using Superpower.Model;
 
-namespace Sol.Parser.Extensions;
+namespace Sol.Parser;
 
 public static class ParserExtensions
 {

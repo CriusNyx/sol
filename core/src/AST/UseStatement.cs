@@ -1,5 +1,8 @@
 using CriusNyx.Util;
 using Sol.AST;
+using Sol.DataStructures;
+using Sol.TypeSystem;
+using ExecutionContext = Sol.Execution.ExecutionContext;
 
 public class UseStatement(KeywordSpan useKeyword, Identifier[] namespaceSequence) : ASTNode
 {

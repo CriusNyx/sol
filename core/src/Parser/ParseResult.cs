@@ -1,3 +1,5 @@
+namespace Sol.Parser;
+
 public class ParseResult<T>
 {
   public T value;

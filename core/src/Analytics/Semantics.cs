@@ -1,6 +1,7 @@
-using System.Reflection.Metadata.Ecma335;
 using CriusNyx.Util;
-using Sol.AST;
+using Sol.DataStructures;
+
+namespace Sol;
 
 public enum SemanticType
 {

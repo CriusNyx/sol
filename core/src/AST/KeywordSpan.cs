@@ -1,3 +1,4 @@
+using Sol;
 using Superpower.Model;
 
 public class KeywordSpan(TextSpan source) : SourceSpan(source)

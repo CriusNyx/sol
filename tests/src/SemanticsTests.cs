@@ -3,6 +3,7 @@ using CriusNyx.Util;
 using DeepEqual.Syntax;
 using Sol.AST;
 using Sol.DataStructures;
+using Sol.TypeSystem;
 
 namespace Sol.Tests;
 

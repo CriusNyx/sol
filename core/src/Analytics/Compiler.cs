@@ -1,8 +1,12 @@
-using CriusNyx.Util;
 using Sol.AST;
 using Sol.DataStructures;
+using Sol.Execution;
 using Sol.Parser;
+using Sol.TypeSystem;
 using static Sol.DataStructures.Result;
+using ExecutionContext = Sol.Execution.ExecutionContext;
+
+namespace Sol;
 
 public class CompilerError { }
 

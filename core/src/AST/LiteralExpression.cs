@@ -1,7 +1,9 @@
-using System.Numerics;
 using CriusNyx.Util;
+using Sol;
 using Sol.AST;
-using Superpower.Model;
+using Sol.DataStructures;
+using Sol.TypeSystem;
+using ExecutionContext = Sol.Execution.ExecutionContext;
 
 public class StringLiteralExpression(SourceSpan source, string value) : RightHandExpression
 {

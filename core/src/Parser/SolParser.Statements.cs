@@ -1,6 +1,5 @@
 using CriusNyx.Util;
 using Sol.AST;
-using Sol.Parser.Extensions;
 using Superpower;
 using SParse = Superpower.Parse;
 using SSpan = Superpower.Parsers.Span;
