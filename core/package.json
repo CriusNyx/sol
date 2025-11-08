@@ -1,0 +1,9 @@
+{
+  "name": "soljs",
+  "version": "0.0.1",
+  "typings": "core.d.ts",
+  "main": "core.js",
+  "dependencies": {
+    "node-api-dotnet": "^0.9.17"
+  }
+}

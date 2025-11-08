@@ -6,26 +6,26 @@ using ExecutionContext = Sol.Execution.ExecutionContext;
 namespace Sol.AST;
 
 public class DeindexExpression(
-  SourceSpan leftBracket,
-  RightHandExpression index,
-  SourceSpan rightBracket,
+  SourceSpan? leftBracket,
+  RightHandExpression? index,
+  SourceSpan? rightBracket,
   LeftHandExpressionChain? chain
 ) : LeftHandExpressionChain
 {
-  public SourceSpan LeftBracket => leftBracket;
-  public RightHandExpression Index => index;
-  public SourceSpan RightBracket => rightBracket;
+  public SourceSpan? LeftBracket => leftBracket;
+  public RightHandExpression? Index => index;
+  public SourceSpan? RightBracket => rightBracket;
   public LeftHandExpressionChain? Chain => chain;
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
-    return [nameof(Index).With(index), nameof(Chain).With(chain)!];
+    return [nameof(Index).With(index)!, nameof(Chain).With(chain)!];
   }
 
   public override object Evaluate(object underlying, ExecutionContext context)
   {
     dynamic dyn = underlying;
-    var index = Evaluate(Index, context);
+    var index = Evaluate(Index.NotNull(), context);
     return dyn[index];
   }
 
@@ -37,21 +37,15 @@ public class DeindexExpression(
   public override Span GetSpan()
   {
     return Span.SafeJoin(
-      LeftBracket.GetSpan(),
-      index.GetSpan(),
-      RightBracket.GetSpan(),
+      LeftBracket?.GetSpan(),
+      Index?.GetSpan(),
+      RightBracket?.GetSpan(),
       Chain?.GetSpan()
     );
   }
 
   public override IEnumerable<ASTNode> GetChildren()
   {
-    yield return LeftBracket;
-    yield return Index;
-    yield return RightBracket;
-    if (Chain != null)
-    {
-      yield return Chain;
-    }
+    return new ASTNode?[] { LeftBracket, Index, RightBracket, Chain }.WhereAs<ASTNode>();
   }
 }

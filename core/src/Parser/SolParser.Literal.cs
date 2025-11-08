@@ -12,8 +12,7 @@ public partial class SolParser
       .WithSpan()
       .Select(
         (result) =>
-          new NumberLiteralExpression(new(result.span), new NumVal(result.value))
-          as RightHandExpression
+          new NumberLiteralExpression(result.span, new NumVal(result.value)) as RightHandExpression
       )
       .WithContext(new ParseContext());
 
@@ -21,7 +20,7 @@ public partial class SolParser
     SParser
       .QuotedString.CStyle.WithSpan()
       .Select(result =>
-        new StringLiteralExpression(new(result.span), result.value) as RightHandExpression
+        new StringLiteralExpression(result.span, result.value) as RightHandExpression
       )
       .WithContext(new ParseContext());
 }

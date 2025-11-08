@@ -12,7 +12,7 @@ public static class SolToken
     .OneOf(SSpan.WithAll((c) => char.IsWhiteSpace(c) && c != '\n'))
     .Many();
   public static TextParser<SolIdent> Identifier = SIdentifier
-    .CStyle.Select(x => new SolIdent(new(x)))
+    .CStyle.Select(x => new SolIdent(x))
     .ThenIgnore(NonSemantic)
     .Named("Identifier");
   public static TextParser<TextSpan> Equal = SSpan.EqualTo("=").ThenIgnore(NonSemantic).Named("=");

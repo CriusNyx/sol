@@ -4,7 +4,7 @@ SolProgram {
       NamespaceSequence: [
         Identifier {
           Span: SourceSpan {
-            Source: System
+            Source: "System"
           }
         }
       ]

@@ -7,16 +7,16 @@ using ExecutionContext = Sol.Execution.ExecutionContext;
 namespace Sol.AST;
 
 public class InvocationExpression(
-  SourceSpan leftParen,
-  RightHandExpression[] arguments,
-  SourceSpan rightParen,
+  SourceSpan? leftParen,
+  RightHandExpression?[] arguments,
+  SourceSpan? rightParen,
   LeftHandExpressionChain? chain
 ) : LeftHandExpressionChain
 {
-  public SourceSpan LeftParen => leftParen;
+  public SourceSpan? LeftParen => leftParen;
 
-  public IEnumerable<RightHandExpression> Arguments => arguments;
-  public SourceSpan RightParen => rightParen;
+  public IEnumerable<RightHandExpression?> Arguments => arguments;
+  public SourceSpan? RightParen => rightParen;
 
   public LeftHandExpressionChain? Chain => chain;
 
@@ -31,7 +31,7 @@ public class InvocationExpression(
     foreach (var arg in Arguments)
     {
       context.PushScope();
-      var result = arg.TypeCheck(context).NotNull();
+      var result = arg?.TypeCheck(context).NotNull() ?? new UnknownType();
       args.Add(result);
       context.PopScope();
     }
@@ -46,7 +46,7 @@ public class InvocationExpression(
   {
     if (underlying is FunctionValue func)
     {
-      return func.Invoke(Arguments.Select(x => x.Evaluate(context)).ToArray()!)!;
+      return func.Invoke(Arguments.Select(x => x.NotNull().Evaluate(context)).ToArray()!)!;
     }
     throw new NotImplementedException();
   }
@@ -54,24 +54,18 @@ public class InvocationExpression(
   public override Span GetSpan()
   {
     return Span.SafeJoin(
-      LeftParen.GetSpan(),
-      Span.Join(Arguments.Select(x => x.GetSpan()).ToArray()),
-      RightParen.GetSpan(),
+      LeftParen?.GetSpan(),
+      Span.SafeJoin(Arguments.Select(x => x?.GetSpan()).ToArray()),
+      RightParen?.GetSpan(),
       Chain?.GetSpan()
     );
   }
 
   public override IEnumerable<ASTNode> GetChildren()
   {
-    yield return LeftParen;
-    foreach (var arg in Arguments)
-    {
-      yield return arg;
-    }
-    yield return RightParen;
-    if (Chain != null)
-    {
-      yield return Chain;
-    }
+    return new ASTNode?[] { LeftParen }
+      .Concat(Arguments)
+      .Concat([RightParen, Chain])
+      .WhereAs<ASTNode>();
   }
 }

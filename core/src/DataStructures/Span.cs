@@ -3,21 +3,21 @@ using Superpower.Model;
 
 namespace Sol.DataStructures;
 
-public struct Span
+public class Span
 {
-  public int start;
-  public int length;
-  public int End => start + length;
+  public int Start { get; private set; }
+  public int Length { get; private set; }
+  public int End => Start + Length;
 
   public Span(int start, int length)
   {
-    this.start = start;
-    this.length = length;
+    this.Start = start;
+    this.Length = length;
   }
 
   public static Span Join(params Span[] spans)
   {
-    var min = spans.Min(x => x.start);
+    var min = spans.Min(x => x.Start);
     var max = spans.Max(x => x.End);
     return new Span(min, max - min);
   }
@@ -32,15 +32,15 @@ public struct Span
     return new Span(source.Position.Absolute, source.Length);
   }
 
-  public static Span Empty => new Span { start = 0, length = 0 };
+  public static Span Empty => new Span(0, 0);
 
   public static Span operator -(Span span, int start)
   {
-    if (start > span.start)
+    if (start > span.Start)
     {
       throw new InvalidOperationException("Start must be less then span");
     }
-    return new Span(start, span.start - start);
+    return new Span(start, span.Start - start);
   }
 }
 
@@ -48,6 +48,6 @@ public static class SpanExtensions
 {
   public static string Substring(this string src, Span span)
   {
-    return src.Substring(span.start, span.length);
+    return src.Substring(span.Start, span.Length);
   }
 }

@@ -1,4 +1,5 @@
 using CriusNyx.Util;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Sol.DataStructures;
 
@@ -52,51 +53,48 @@ public class Result<T, E>
   {
     return new Result<T, E>(false, default!, err);
   }
-}
 
-public static class ResultExtensions
-{
-  public static T Unwrap<T, E>(this Result<T, E> result)
+  public T Unwrap()
   {
-    return result.IsSuccess ? result.Value : throw new InvalidOperationException();
+    return IsSuccess ? Value : throw new InvalidOperationException();
   }
 
-  public static T UnwrapOr<T, E>(this Result<T, E> result, T defaultValue)
+  public T UnwrapOr(T defaultValue)
   {
-    return result.IsSuccess ? result.Value : defaultValue;
+    return IsSuccess ? Value : defaultValue;
   }
 
-  public static T UnwrapOrDefault<T, E>(this Result<T, E> result)
+  public T UnwrapOrDefault()
   {
-    return UnwrapOr(result!, default)!;
+    return UnwrapOr(default!);
   }
 
-  public static T UnwrapOrElse<T, E>(this Result<T, E> result, Func<E, T> orElse)
+  public T UnwrapOrElse(Func<E, T> orElse)
   {
-    return result.IsSuccess ? result.Value : orElse(result.Error);
+    return IsSuccess ? Value : orElse(Error);
   }
 
-  public static Result<U, E> Map<T, U, E>(this Result<T, E> source, Func<T, U> transformation)
+  public Result<U, E> Map<U>(Func<T, U> transformation)
   {
-    if (source.IsSuccess)
+    if (IsSuccess)
     {
-      return Result.Ok<U, E>(transformation(source.Value));
+      return Result.Ok<U, E>(transformation(Value));
     }
     else
     {
-      return Result.Err<U, E>(source.Error);
+      return Result.Err<U, E>(Error);
     }
   }
 
-  public static Result<T, F> MapErr<T, E, F>(this Result<T, E> result, Func<E, F> mapErr)
+  public Result<T, F> MapErr<F>(Func<E, F> mapErr)
   {
-    if (result.IsSuccess)
+    if (IsSuccess)
     {
-      return Result.Ok<T, F>(result.Value);
+      return Result.Ok<T, F>(Value);
     }
     else
     {
-      return Result.Err<T, F>(mapErr(result.Error));
+      return Result.Err<T, F>(mapErr(Error));
     }
   }
 
@@ -109,9 +107,9 @@ public static class ResultExtensions
   /// <param name="self"></param>
   /// <param name="then"></param>
   /// <returns></returns>
-  public static Result<U, E> And<T, U, E>(this Result<T, E> self, Result<U, E> other)
+  public Result<U, E> And<U>(Result<U, E> other)
   {
-    return self.AndThen(_ => other);
+    return AndThen(_ => other);
   }
 
   /// <summary>
@@ -123,9 +121,9 @@ public static class ResultExtensions
   /// <param name="self"></param>
   /// <param name="other"></param>
   /// <returns></returns>
-  public static Result<T, F> Or<T, E, F>(this Result<T, E> self, Result<T, F> other)
+  public Result<T, F> Or<F>(Result<T, F> other)
   {
-    return self.OrElse(_ => other);
+    return OrElse(_ => other);
   }
 
   /// <summary>
@@ -137,7 +135,7 @@ public static class ResultExtensions
   /// <param name="self"></param>
   /// <param name="then"></param>
   /// <returns></returns>
-  public static Result<U, E> AndThen<T, U, E>(this Result<T, E> self, Func<T, Result<U, E>> then)
+  public Result<U, E> AndThen<U>(Func<T, Result<U, E>> then)
   {
     /*
      * self     input   result   output
@@ -145,13 +143,13 @@ public static class ResultExtensions
      * Ok(x)    x       Err(d)   result
      * Ok(x)    x       Ok(y)    result
     */
-    if (self.IsSuccess)
+    if (IsSuccess)
     {
-      return then(self.Value);
+      return then(Value);
     }
     else
     {
-      return Result.Err<U, E>(self.Error);
+      return Result.Err<U, E>(Error);
     }
   }
 
@@ -164,18 +162,21 @@ public static class ResultExtensions
   /// <param name="self"></param>
   /// <param name="orElse"></param>
   /// <returns></returns>
-  public static Result<T, F> OrElse<T, E, F>(this Result<T, E> self, Func<E, Result<T, F>> orElse)
+  public Result<T, F> OrElse<F>(Func<E, Result<T, F>> orElse)
   {
-    if (self.IsSuccess)
+    if (IsSuccess)
     {
-      return Result.Ok<T, F>(self.Value);
+      return Result.Ok<T, F>(Value);
     }
     else
     {
-      return orElse(self.Error);
+      return orElse(Error);
     }
   }
+}
 
+public static class ResultExtensions
+{
   public static Result<(T, U), E> AndWith<T, U, E>(this Result<T, E> self, Result<U, E> other)
   {
     return self.AndThen((v1) => other.Map((v2) => v1.With(v2)));

@@ -9,38 +9,42 @@ namespace Sol.AST;
 public abstract class RightHandExpression : ASTNode { }
 
 public class ParenExpression(
-  SourceSpan leftParen,
-  RightHandExpression rightHandExpression,
-  SourceSpan rightParen
+  SourceSpan? leftParen,
+  RightHandExpression? rightHandExpression,
+  SourceSpan? rightParen
 ) : RightHandExpression
 {
-  public SourceSpan LeftParen => leftParen;
-  public RightHandExpression RightHandExpression => rightHandExpression;
-  public SourceSpan RightParen => rightParen;
+  public SourceSpan? LeftParen => leftParen;
+  public RightHandExpression? RightHandExpression => rightHandExpression;
+  public SourceSpan? RightParen => rightParen;
 
   public override object? Evaluate(ExecutionContext context)
   {
-    return RightHandExpression.Evaluate(context);
+    return RightHandExpression.NotNull().Evaluate(context);
   }
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
-    return [nameof(RightHandExpression).With(rightHandExpression)];
+    return [nameof(RightHandExpression).With(rightHandExpression)!];
   }
 
   protected override SolType? _TypeCheck(TypeContext context)
   {
-    return RightHandExpression.TypeCheck(context);
+    return RightHandExpression?.TypeCheck(context) ?? new UnknownType();
   }
 
   public override Span GetSpan()
   {
-    return Span.Join(LeftParen.GetSpan(), RightHandExpression.GetSpan(), RightParen.GetSpan());
+    return Span.SafeJoin(
+      LeftParen?.GetSpan(),
+      RightHandExpression?.GetSpan(),
+      RightParen?.GetSpan()
+    );
   }
 
   public override IEnumerable<ASTNode> GetChildren()
   {
-    return [LeftParen, RightHandExpression, RightParen];
+    return new ASTNode?[] { LeftParen, RightHandExpression, RightParen }.WhereAs<ASTNode>();
   }
 }
 

@@ -35,4 +35,9 @@ public abstract partial class ASTNode : DebugPrint
   {
     return "";
   }
+
+  public string Dbg()
+  {
+    return this.Debug();
+  }
 }

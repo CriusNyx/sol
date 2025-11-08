@@ -30,12 +30,12 @@ public static class SemanticsAnalysis
     int current = 0;
     foreach (var element in list)
     {
-      if (element.Span.start > current)
+      if (element.Span.Start > current)
       {
         var delta = element.Span - current;
         yield return source.Substring(delta).With(new SemanticToken(delta, SemanticType.None));
 
-        current = element.Span.start;
+        current = element.Span.Start;
       }
       {
         yield return source.Substring(element.Span).With(element);

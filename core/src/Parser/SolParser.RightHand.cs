@@ -17,7 +17,7 @@ public static partial class SolParser
     from leftParen in SolToken.LeftParen
     from exp in RightHandExpressionParser
     from rightParen in SolToken.RightParen
-    select new ParenExpression(new(leftParen), exp.value, new(rightParen))
+    select new ParenExpression(leftParen, exp.value, rightParen)
       .AsNotNull<RightHandExpression>()
       .With(exp.context);
 
@@ -37,7 +37,7 @@ public static partial class SolParser
   public static TextParser<(RightHandExpression value, ParseContext context)> UnaryOpParser =
     from opType in UnaryOpTypeParser
     from unit in UnitParser.RecoverNullWithContext()
-    select new UnaryOp(new(opType.span), opType.value, unit.value)
+    select new UnaryOp(opType.span, opType.value, unit.value)
       .AsNotNull<RightHandExpression>()
       .With(unit.context);
 
@@ -57,7 +57,7 @@ public static partial class SolParser
         FactorOpTypeParser.Named("FactorOperator"),
         FactorOperandParser.Named("FactorOperandRest").RecoverNullWithContext(),
         (op, left, right) =>
-          new BinaryOp(new(op.span), op.value, left.value, right.value).With(
+          new BinaryOp(op.span, op.value, left.value, right.value).With(
             ParseContext.Combine(left.context, right.context)
           )
       );
@@ -74,7 +74,7 @@ public static partial class SolParser
         TermOpTypeParser.Named("FactorOperator"),
         FactorOpParser.Named("FactorOperandRest").RecoverNullWithContext(),
         (op, left, right) =>
-          new BinaryOp(new(op.span), op.value, left.value, right.value)
+          new BinaryOp(op.span, op.value, left.value, right.value)
             .AsNotNull<RightHandExpression>()
             .With(ParseContext.Combine(left.context, right.context))
       );

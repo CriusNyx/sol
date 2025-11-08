@@ -1,8 +1,16 @@
+using CriusNyx.Util;
 using Sol;
+using Sol.DataStructures;
 using Superpower.Model;
 
-public class KeywordSpan(TextSpan source) : SourceSpan(source)
+public class KeywordSpan(Span span, string source) : SourceSpan(span, source)
 {
+  public KeywordSpan(TextSpan textSpan)
+    : this(
+      textSpan,
+      textSpan.Source.NotNull().Substring(textSpan.Position.Absolute, textSpan.Length)
+    ) { }
+
   public override IEnumerable<SemanticToken> GetSemantics()
   {
     return [new(GetSpan(), SemanticType.Keyword)];

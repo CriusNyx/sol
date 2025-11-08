@@ -4,7 +4,7 @@ SolProgram {
       NamespaceSequence: [
         Identifier {
           Span: SourceSpan {
-            Source: System
+            Source: "System"
           }
         }
       ]
@@ -13,7 +13,7 @@ SolProgram {
       Left: LeftHandExpression {
         Identifier: Identifier {
           Span: SourceSpan {
-            Source: message
+            Source: "message"
           }
         },
         Chain: null
@@ -25,13 +25,13 @@ SolProgram {
     LeftHandExpression {
       Identifier: Identifier {
         Span: SourceSpan {
-          Source: Console
+          Source: "Console"
         }
       },
       Chain: DerefExpression {
         Identifier: Identifier {
           Span: SourceSpan {
-            Source: WriteLine
+            Source: "WriteLine"
           }
         },
         Chain: InvocationExpression {

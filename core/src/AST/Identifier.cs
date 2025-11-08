@@ -5,14 +5,14 @@ using ExecutionContext = Sol.Execution.ExecutionContext;
 
 namespace Sol.AST;
 
-public class Identifier(SourceSpan textSpan) : ASTNode
+public class Identifier(SourceSpan? textSpan) : ASTNode
 {
-  public SourceSpan Span => textSpan;
-  public string Source => Span.Source.ToString();
+  public SourceSpan? Span => textSpan;
+  public string Source => Span?.Source.ToString() ?? "";
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
-    return [nameof(Span).With(Span)];
+    return [nameof(Span).With(Span)!];
   }
 
   public override object? Evaluate(ExecutionContext context)
@@ -27,12 +27,12 @@ public class Identifier(SourceSpan textSpan) : ASTNode
 
   public override Span GetSpan()
   {
-    return Span.GetSpan();
+    return Span?.GetSpan() ?? DataStructures.Span.Empty;
   }
 
   public override IEnumerable<ASTNode> GetChildren()
   {
-    return [Span];
+    return new ASTNode?[] { Span }.WhereAs<ASTNode>();
   }
 
   public void SetType(SolType solType)
@@ -42,6 +42,6 @@ public class Identifier(SourceSpan textSpan) : ASTNode
 
   public override IEnumerable<SemanticToken> GetSemantics()
   {
-    return [new(GetSpan(), NodeType.ToSemanticType())];
+    return [new(GetSpan(), NodeTypeSafe?.ToSemanticType() ?? SemanticType.ObjectReference)];
   }
 }

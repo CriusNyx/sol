@@ -6,28 +6,30 @@ using ExecutionContext = Sol.Execution.ExecutionContext;
 
 namespace Sol.AST;
 
-public class LeftHandExpression(Identifier identifier, LeftHandExpressionChain? chain)
+public class LeftHandExpression(Identifier? identifier, LeftHandExpressionChain? chain)
   : RightHandExpression
 {
-  public Identifier Identifier => identifier;
+  public Identifier? Identifier => identifier;
   public LeftHandExpressionChain? Chain => chain;
 
   public ObjectReference EvaluateReference(ExecutionContext context)
   {
-    var self = new ObjectReference(context, Identifier.Source);
+    var self = new ObjectReference(context, Identifier.NotNull().Source);
     if (Chain != null) { }
     return self;
   }
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
-    return [nameof(Identifier).With(Identifier), nameof(Chain).With(Chain)!];
+    return [nameof(Identifier).With(Identifier)!, nameof(Chain).With(Chain)!];
   }
 
   protected override SolType? _TypeCheck(TypeContext context)
   {
-    var identifierType = context.typeScope.GetType(Identifier.Source) ?? new NullType();
-    Identifier.SetType(identifierType);
+    var identifierType =
+      Identifier?.Transform(ident => context.typeScope.GetType(Identifier.Source))
+      ?? new UnknownType();
+    Identifier?.SetType(identifierType);
     context.PushType(identifierType);
     var output = Chain == null ? identifierType : Chain.TypeCheck(context);
     context.PopType();
@@ -38,14 +40,14 @@ public class LeftHandExpression(Identifier identifier, LeftHandExpressionChain? 
   {
     if (Chain == null)
     {
-      return Identifier.Source;
+      return Identifier?.Source;
     }
     return null;
   }
 
   public override object Evaluate(ExecutionContext context)
   {
-    var underlying = context.GetValue(Identifier.Source);
+    var underlying = context.GetValue(Identifier.NotNull().Source);
     if (chain != null)
     {
       underlying = chain.Evaluate(underlying, context);
@@ -59,15 +61,11 @@ public class LeftHandExpression(Identifier identifier, LeftHandExpressionChain? 
 
   public override Span GetSpan()
   {
-    return Span.SafeJoin(Identifier.GetSpan(), Chain?.GetSpan());
+    return Span.SafeJoin(Identifier?.GetSpan(), Chain?.GetSpan());
   }
 
   public override IEnumerable<ASTNode> GetChildren()
   {
-    yield return Identifier;
-    if (Chain != null)
-    {
-      yield return Chain;
-    }
+    return new ASTNode?[] { Identifier, Chain }.WhereAs<ASTNode>();
   }
 }

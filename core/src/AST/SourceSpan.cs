@@ -5,9 +5,10 @@ using Sol.TypeSystem;
 using Superpower.Model;
 using ExecutionContext = Sol.Execution.ExecutionContext;
 
-public class SourceSpan(TextSpan source) : ASTNode
+public class SourceSpan(Span span, string source) : ASTNode
 {
-  public TextSpan Source => source;
+  public Span Span => span;
+  public string Source => source;
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
@@ -26,7 +27,7 @@ public class SourceSpan(TextSpan source) : ASTNode
 
   public override Span GetSpan()
   {
-    return Source;
+    return span;
   }
 
   protected override SolType? _TypeCheck(TypeContext context)
@@ -37,5 +38,13 @@ public class SourceSpan(TextSpan source) : ASTNode
   public override string ShortCode()
   {
     return Source.ToString();
+  }
+
+  public static implicit operator SourceSpan(TextSpan textSpan)
+  {
+    return new SourceSpan(
+      textSpan,
+      textSpan.Source.NotNull().Substring(textSpan.Position.Absolute, textSpan.Length)
+    );
   }
 }

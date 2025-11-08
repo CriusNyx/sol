@@ -7,7 +7,7 @@ namespace Sol.AST;
 
 public class SolProgram(ASTNode[] statements) : ASTNode
 {
-  public ASTNode[] Statements => statements;
+  public ASTNode?[] Statements => statements;
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
@@ -19,7 +19,7 @@ public class SolProgram(ASTNode[] statements) : ASTNode
     object? output = null;
     foreach (var Statement in Statements)
     {
-      output = Statement.Evaluate(context);
+      output = Statement.NotNull().Evaluate(context);
     }
     return output;
   }
@@ -29,7 +29,7 @@ public class SolProgram(ASTNode[] statements) : ASTNode
     SolType? result = null;
     foreach (var statement in Statements)
     {
-      result = statement.TypeCheck(context);
+      result = statement?.TypeCheck(context) ?? new UnknownType();
     }
     return result;
   }

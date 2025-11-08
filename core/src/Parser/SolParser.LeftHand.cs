@@ -24,7 +24,7 @@ public static partial class SolParser
     from dot in SolToken.Dot
     from ident in SolToken.Identifier.WithEmptyContext().RecoverNullWithContext()
     from chain in ChainExpressionParser.OptionalOrDefault().RecoverNullWithContext()
-    select new DerefExpression(new(dot), ident.value, chain.value)
+    select new DerefExpression(dot, ident.value, chain.value)
       .AsNotNull<LeftHandExpressionChain>()
       .With(ParseContext.Combine(ident.context, chain.context));
 
@@ -36,12 +36,7 @@ public static partial class SolParser
     from index in RightHandExpressionParser.NotNull().RecoverNullWithContext()
     from rightBracket in SolToken.RightBracket.WithEmptyContext().RecoverEmptyWithContext()
     from chain in ChainExpressionParser.OptionalOrDefault()
-    select new DeindexExpression(
-      new(leftBracket),
-      index.value,
-      new(rightBracket.value),
-      chain.value
-    )
+    select new DeindexExpression(leftBracket, index.value, rightBracket.value, chain.value)
       .AsNotNull<LeftHandExpressionChain>()
       .With(ParseContext.Combine(index.context, rightBracket.context, chain.context));
 
@@ -70,7 +65,7 @@ public static partial class SolParser
     from args in InvocationArgParser.RecoverUntilWithContext(SolToken.RightParen)
     from rightParen in SolToken.RightParen.WithEmptyContext().RecoverEmptyWithContext()
     from chain in ChainExpressionParser!.OptionalOrDefault()
-    select new InvocationExpression(new(leftParen), args.value, new(rightParen.value), chain.value)
+    select new InvocationExpression(leftParen, args.value, rightParen.value, chain.value)
       .AsNotNull<LeftHandExpressionChain>()
       .With(ParseContext.Combine(args.context, rightParen.context, chain.context));
 

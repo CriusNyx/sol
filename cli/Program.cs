@@ -185,7 +185,13 @@ void GenerateTestFiles(IEnumerable<string> files)
   var results = FilesWithSource(files).Select((pair) => GenerateTestFile(pair.path, pair.source));
   if (results.All(x => x.IsSuccess))
   {
-    if (!CLI.PromptYN("Overwrite test files?"))
+    var tasks = results.Select(x => x.Unwrap());
+    Console.WriteLine("The following files will be changed".Pastel(ConsoleColor.Green));
+    foreach (var task in tasks)
+    {
+      Console.WriteLine(task.Path);
+    }
+    if (!CLI.PromptYN("Overwrite test files?".Pastel(ConsoleColor.Red)))
     {
       return;
     }

@@ -8,4 +8,3 @@ SolProgram                   null
 | | |-SourceSpan     Console null
 | |-DerefExpression          null
 | | |-SourceSpan     .       null
-| | |-null                   null

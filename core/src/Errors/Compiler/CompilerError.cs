@@ -1,6 +1,8 @@
 using Sol.AST;
 using Sol.Parser;
 
+namespace Sol;
+
 public class CompilerError
 {
   public virtual ASTNode RecoverAST()

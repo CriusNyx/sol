@@ -8,16 +8,19 @@ using ExecutionContext = Sol.Execution.ExecutionContext;
 
 namespace Sol.AST;
 
-public class DerefExpression(SourceSpan dot, Identifier identifier, LeftHandExpressionChain? chain)
-  : LeftHandExpressionChain
+public class DerefExpression(
+  SourceSpan? dot,
+  Identifier? identifier,
+  LeftHandExpressionChain? chain
+) : LeftHandExpressionChain
 {
-  public SourceSpan Dot => dot;
-  public Identifier Identifier => identifier;
+  public SourceSpan? Dot => dot;
+  public Identifier? Identifier => identifier;
   public LeftHandExpressionChain? Chain => chain;
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
-    return [nameof(Identifier).With(Identifier), nameof(Chain).With(Chain)!];
+    return [nameof(Identifier).With(Identifier)!, nameof(Chain).With(Chain)!];
   }
 
   public override ObjectReference EvaluateReference(
@@ -26,7 +29,7 @@ public class DerefExpression(SourceSpan dot, Identifier identifier, LeftHandExpr
   )
   {
     var value = underlying.Get();
-    var self = new ObjectReference(value!, Identifier.Source);
+    var self = new ObjectReference(value!, Identifier.NotNull().Source);
     if (Chain != null)
     {
       return Chain.EvaluateReference(self, context);
@@ -47,18 +50,18 @@ public class DerefExpression(SourceSpan dot, Identifier identifier, LeftHandExpr
 
     if (underlying is IDeref derefable)
     {
-      return Next(derefable.Deref(Identifier.Source));
+      return Next(derefable.Deref(Identifier.NotNull().Source));
     }
-    else if (underlying.GetType().GetField(Identifier.Source) is FieldInfo field)
+    else if (underlying.GetType().GetField(Identifier.NotNull().Source) is FieldInfo field)
     {
       return Next(field.GetValue(underlying)!);
     }
-    else if (underlying.GetType().GetProperty(Identifier.Source) is PropertyInfo property)
+    else if (underlying.GetType().GetProperty(Identifier.NotNull().Source) is PropertyInfo property)
     {
       return Next(property.GetValue(underlying)!);
     }
     else if (
-      underlying.GetType().GetMember(Identifier.Source) is MemberInfo[] members
+      underlying.GetType().GetMember(Identifier.NotNull().Source) is MemberInfo[] members
       && members.Length > 0
       && members.All(x => x is MethodInfo)
     )
@@ -73,8 +76,11 @@ public class DerefExpression(SourceSpan dot, Identifier identifier, LeftHandExpr
   protected override SolType? _TypeCheck(TypeContext context)
   {
     var underlyingType = context.PeekType();
-    var fieldType = underlyingType.DerefFieldType(Identifier.Source).NotNull("DereferencedType");
-    Identifier.SetType(fieldType);
+    var fieldType =
+      Identifier?.Transform(ident =>
+        underlyingType.DerefFieldType(ident.Source).NotNull("DereferencedType")
+      ) ?? new UnknownType();
+    Identifier?.SetType(fieldType);
     context.PushType(fieldType);
     var output = Chain == null ? fieldType : Chain.TypeCheck(context);
     context.PopType();
@@ -83,16 +89,11 @@ public class DerefExpression(SourceSpan dot, Identifier identifier, LeftHandExpr
 
   public override Span GetSpan()
   {
-    return Span.SafeJoin(Identifier.GetSpan(), Chain?.GetSpan());
+    return Span.SafeJoin(Identifier?.GetSpan(), Chain?.GetSpan());
   }
 
   public override IEnumerable<ASTNode> GetChildren()
   {
-    yield return Dot;
-    yield return Identifier;
-    if (Chain != null)
-    {
-      yield return Chain;
-    }
+    return new ASTNode?[] { Dot, Identifier, Chain }.WhereAs<ASTNode>();
   }
 }

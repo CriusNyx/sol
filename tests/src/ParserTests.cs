@@ -25,6 +25,8 @@ public class ParserTests
         .IgnoreProperty(
           (prop) => prop.DeclaringType.IsAssignableTo(typeof(ASTNode)) && prop.Name == "NodeType"
         )
+        .IgnoreProperty((prop) => prop.DeclaringType == typeof(SourceSpan) && prop.Name == "Span")
+        .IgnoreProperty((prop) => prop.DeclaringType == typeof(SourceSpan) && prop.Name == "Source")
         .WithCustomComparison(new TextSpanComparison())
         .WithCustomComparison(new SpanComparison())
         .Assert();
@@ -144,7 +146,7 @@ public class ParserTests
   [Test]
   public void CanParseDeindex_WithError1()
   {
-    var expected = Prog(LHE("value", Deindex(null!)));
+    var expected = Prog(LHE("value", Deindex(null!, rightBracket: "")));
     var (actual, context) = SolParser.ParseWithContext("value[");
 
     AssertASTCompare(actual, expected);
@@ -185,7 +187,7 @@ public class ParserTests
   [Test]
   public void CanParseInvocation_WithError()
   {
-    var expected = Prog(LHE("value", Invoke([])));
+    var expected = Prog(LHE("value", Invoke("(", "", [])));
     var (actual, context) = SolParser.ParseWithContext("value(");
 
     AssertASTCompare(actual, expected);
@@ -204,7 +206,7 @@ public class ParserTests
   [Test]
   public void CanParseInvocationWithArg_WithError1()
   {
-    var expected = Prog(LHE("value", Invoke(LHE("a", Deref(null!)))));
+    var expected = Prog(LHE("value", Invoke("(", "", LHE("a", Deref(null!)))));
     var (actual, context) = SolParser.ParseWithContext("value(a.");
 
     AssertASTCompare(actual, expected);
@@ -234,7 +236,7 @@ public class ParserTests
   [Test]
   public void CanParseInvocationWithMultipleArg_WithError()
   {
-    var expected = Prog(LHE("value", Invoke(LHE("a"), null!)));
+    var expected = Prog(LHE("value", Invoke("(", "", LHE("a"), null!)));
     var actual = SolParser.Parse("value(a,)").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
@@ -266,7 +268,7 @@ public class ParserTests
   [Test]
   public void CanParseInvocationWithDeindex_WithError1()
   {
-    var expected = Prog(LHE("value", Invoke(), Deindex(null!)));
+    var expected = Prog(LHE("value", Invoke(), Deindex(null!, rightBracket: "]")));
     var actual = SolParser.Parse("value()[").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
@@ -290,7 +292,7 @@ public class ParserTests
   [Test]
   public void CanParseDeindexWithInvocation_WithError()
   {
-    var expected = Prog(LHE("value", Deindex(NumLit("0")), Invoke()));
+    var expected = Prog(LHE("value", Deindex(NumLit("0")), Invoke("(", "")));
     var actual = SolParser.Parse("value[0](").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
@@ -322,7 +324,7 @@ public class ParserTests
   [Test]
   public void CanParseDerefWithInvocation_WithError()
   {
-    var expected = Prog(LHE("value", Deref("field"), Invoke()));
+    var expected = Prog(LHE("value", Deref("field"), Invoke("(", "")));
     var actual = SolParser.Parse("value.field(").Error.RecoverAST();
     AssertASTCompare(actual, expected);
   }
