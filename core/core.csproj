@@ -5,6 +5,11 @@
     <Nullable>enable</Nullable>
     <NodeApiAssemblyJSModuleType>commonjs</NodeApiAssemblyJSModuleType>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageId>CriusNyx.DevCon</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>CriusNyx</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>../README.md</PackageReadmeFile>
     <Outdir>bin</Outdir>
   </PropertyGroup>
   <ItemGroup>
@@ -18,5 +23,8 @@
     <Content Include="package.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
