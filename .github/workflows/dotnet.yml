@@ -50,7 +50,7 @@ jobs:
       id: tag
       run: |
         # Get the latest release version according to the latest version tag from the repository
-        LATEST_VERSION=$(curl https://api.nuget.org/v3-flatcontainer/criusnyx.devcon/index.json | jq ".versions[-1]" -r || "0.0.1") 
+        LATEST_VERSION=$(curl https://api.nuget.org/v3-flatcontainer/criusnyx.devcon/index.json | jq ".versions[-1]" -r || echo "0.0.1") 
         echo "LATEST_VERSION=$LATEST_VERSION"
         echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
     - name: Compare Strings
