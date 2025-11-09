@@ -9,7 +9,7 @@
     <Version>0.0.1</Version>
     <Authors>CriusNyx</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>../README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Outdir>bin</Outdir>
   </PropertyGroup>
   <ItemGroup>
