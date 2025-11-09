@@ -25,4 +25,6 @@ frameworks as a plugin.
 
 ## Name Ideas
 
+Sol is looking for a rebrand.
+
 Racoon
