@@ -1,11 +1,11 @@
 using CriusNyx.Util;
 
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
 public class TypeContext
 {
   public TypeScope typeScope { get; private set; } = TypeScope.CreateGlobalScope();
-  public Stack<SolType> resolutionStack { get; private set; } = new Stack<SolType>();
+  public Stack<DevConType> resolutionStack { get; private set; } = new Stack<DevConType>();
 
   public void PushScope()
   {
@@ -17,9 +17,9 @@ public class TypeContext
     typeScope = typeScope.PopScope().NotNull("scope");
   }
 
-  public void PushType(SolType solType) => resolutionStack.Push(solType);
+  public void PushType(DevConType devConType) => resolutionStack.Push(devConType);
 
-  public SolType PeekType() => resolutionStack.Peek();
+  public DevConType PeekType() => resolutionStack.Peek();
 
-  public SolType PopType() => resolutionStack.Pop();
+  public DevConType PopType() => resolutionStack.Pop();
 }

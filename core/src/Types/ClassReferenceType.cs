@@ -1,10 +1,10 @@
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
-public class ClassReferenceType(Type type) : SolType
+public class ClassReferenceType(Type type) : DevConType
 {
   public Type classType => type;
 
-  public override SolType? DerefFieldType(string name)
+  public override DevConType? DerefFieldType(string name)
   {
     var idk = type.GetMethods();
     var members = type.GetMember(name).Where(x => x.IsStatic()).ToArray();

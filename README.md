@@ -1,9 +1,9 @@
-# Sol
+# DevCon
 
-Sol is a small programming language that is intended to be a console for C#
+DevCon is a small programming language that is intended to be a console for C#
 applications.
 
-Sol intends to be a plugin that can be easily implemented into existing
+DevCon intends to be a plugin that can be easily implemented into existing
 frameworks as a plugin.
 
 # Goals
@@ -17,7 +17,7 @@ frameworks as a plugin.
 - [x] Implement VSCode LSP Plugin
 - [ ] Implement Godot Editor plugin
 - [ ] Implement completion popup
-- [ ] Rename Language (sol already exists and is a crypto thing)
+- [x] Rename Language (renamed to DevCon)
 
 ## Beyond MVP
 
@@ -25,6 +25,4 @@ frameworks as a plugin.
 
 ## Name Ideas
 
-Sol is looking for a rebrand.
-
-Racoon
+DevCon is looking for a rebrand.

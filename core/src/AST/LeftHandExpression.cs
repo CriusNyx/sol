@@ -1,10 +1,10 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.Execution;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.Execution;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class LeftHandExpression(Identifier? identifier, LeftHandExpressionChain? chain)
   : RightHandExpression
@@ -24,7 +24,7 @@ public class LeftHandExpression(Identifier? identifier, LeftHandExpressionChain?
     return [nameof(Identifier).With(Identifier)!, nameof(Chain).With(Chain)!];
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     var identifierType =
       Identifier?.Transform(ident => context.typeScope.GetType(Identifier.Source))

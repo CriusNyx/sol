@@ -1,6 +1,6 @@
 using CriusNyx.Util;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public static class ASTNodeExtensions
 {

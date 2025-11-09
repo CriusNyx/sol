@@ -1,6 +1,6 @@
 using Sharpie.Abstractions;
 
-namespace Sol.CLI;
+namespace DevCon.CLI;
 
 public static class CursesExtensions
 {

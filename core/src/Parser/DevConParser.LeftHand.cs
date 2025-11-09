@@ -1,11 +1,11 @@
 using CriusNyx.Util;
-using Sol.AST;
+using DevCon.AST;
 using Superpower;
 using SParse = Superpower.Parse;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
-public static partial class SolParser
+public static partial class DevConParser
 {
   /// <summary>
   /// Chain -> Deref | Invocation | Deindex
@@ -21,8 +21,8 @@ public static partial class SolParser
   /// Deref -> dot identifier Chain?
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext parseContext)> DerefParser =
-    from dot in SolToken.Dot
-    from ident in SolToken.Identifier.WithEmptyContext().RecoverNullWithContext()
+    from dot in DevConToken.Dot
+    from ident in DevConToken.Identifier.WithEmptyContext().RecoverNullWithContext()
     from chain in ChainExpressionParser.OptionalOrDefault().RecoverNullWithContext()
     select new DerefExpression(dot, ident.value, chain.value)
       .AsNotNull<LeftHandExpressionChain>()
@@ -32,9 +32,9 @@ public static partial class SolParser
   /// Deindex -> leftBracket RightHandExpression rightBracket Chain?
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext context)> Deindex =
-    from leftBracket in SolToken.LeftBracket
+    from leftBracket in DevConToken.LeftBracket
     from index in RightHandExpressionParser.NotNull().RecoverNullWithContext()
-    from rightBracket in SolToken.RightBracket.WithEmptyContext().RecoverEmptyWithContext()
+    from rightBracket in DevConToken.RightBracket.WithEmptyContext().RecoverEmptyWithContext()
     from chain in ChainExpressionParser.OptionalOrDefault()
     select new DeindexExpression(leftBracket, index.value, rightBracket.value, chain.value)
       .AsNotNull<LeftHandExpressionChain>()
@@ -46,8 +46,8 @@ public static partial class SolParser
   )> InvocationArgParser =>
     RightHandExpressionParser
       .SeparatedBy(
-        SolToken.Comma,
-        parser => parser.RecoverUntilWithContext(SolToken.Comma, SolToken.RightParen)
+        DevConToken.Comma,
+        parser => parser.RecoverUntilWithContext(DevConToken.Comma, DevConToken.RightParen)
       )
       .OptionalOrDefault([])
       .Select(result =>
@@ -61,9 +61,9 @@ public static partial class SolParser
   /// Invocation -> leftParen ((Expression comma)* Expression)? rightParen Chain?
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext context)> InvocationParser =
-    from leftParen in SolToken.LeftParen
-    from args in InvocationArgParser.RecoverUntilWithContext(SolToken.RightParen)
-    from rightParen in SolToken.RightParen.WithEmptyContext().RecoverEmptyWithContext()
+    from leftParen in DevConToken.LeftParen
+    from args in InvocationArgParser.RecoverUntilWithContext(DevConToken.RightParen)
+    from rightParen in DevConToken.RightParen.WithEmptyContext().RecoverEmptyWithContext()
     from chain in ChainExpressionParser!.OptionalOrDefault()
     select new InvocationExpression(leftParen, args.value, rightParen.value, chain.value)
       .AsNotNull<LeftHandExpressionChain>()
@@ -76,7 +76,7 @@ public static partial class SolParser
     LeftHandExpression value,
     ParseContext context
   )> LeftHandExpressionParser = SParse.Ref(() =>
-    from ident in SolToken.Identifier
+    from ident in DevConToken.Identifier
     from chain in ChainExpressionParser!.OptionalOrDefault()
     select new LeftHandExpression(ident, chain.value)
       .AsNotNull<LeftHandExpression>()

@@ -1,14 +1,14 @@
-using Sol.AST;
+using DevCon.AST;
 using Superpower;
 using SParser = Superpower.Parsers;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
-public partial class SolParser
+public partial class DevConParser
 {
   public static TextParser<(RightHandExpression value, ParseContext context)> NumberLiteralParser =
     SParser
-      .Numerics.DecimalDecimal.ThenIgnore(SolToken.NonSemantic)
+      .Numerics.DecimalDecimal.ThenIgnore(DevConToken.NonSemantic)
       .WithSpan()
       .Select(
         (result) =>

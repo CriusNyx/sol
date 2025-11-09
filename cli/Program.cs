@@ -1,11 +1,11 @@
 ﻿using System.Drawing;
 using CommandLine;
 using CriusNyx.Util;
+using DevCon;
+using DevCon.AST;
+using DevCon.CLI;
+using DevCon.DataStructures;
 using Pastel;
-using Sol;
-using Sol.AST;
-using Sol.CLI;
-using Sol.DataStructures;
 using Superpower;
 using SColor = System.Drawing.Color;
 

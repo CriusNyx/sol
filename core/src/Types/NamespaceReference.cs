@@ -1,3 +1,3 @@
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
-public class NamespaceReference : SolType { }
+public class NamespaceReference : DevConType { }

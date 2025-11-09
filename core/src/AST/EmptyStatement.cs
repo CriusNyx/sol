@@ -1,8 +1,8 @@
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class EmptyStatement(Span span) : ASTNode
 {
@@ -25,7 +25,7 @@ public class EmptyStatement(Span span) : ASTNode
 
   public override Span GetSpan() => Span;
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     return new VoidType();
   }

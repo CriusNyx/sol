@@ -1,14 +1,14 @@
 using CriusNyx.Util;
-using Sol.AST;
-using Sol.DataStructures;
+using DevCon.AST;
+using DevCon.DataStructures;
 using Superpower;
-using static Sol.DataStructures.Result;
+using static DevCon.DataStructures.Result;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
-public static partial class SolParser
+public static partial class DevConParser
 {
-  public static Result<SolProgram, CompilerError> Parse(string source)
+  public static Result<DevConProgram, CompilerError> Parse(string source)
   {
     return Parse(source, ProgramParser);
   }
@@ -27,7 +27,7 @@ public static partial class SolParser
     return Ok<T, CompilerError>(result);
   }
 
-  public static (SolProgram, ParseContext) ParseWithContext(string source)
+  public static (DevConProgram, ParseContext) ParseWithContext(string source)
   {
     return ParseWithContext(source, ProgramParser);
   }

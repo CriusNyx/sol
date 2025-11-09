@@ -1,22 +1,22 @@
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
 public static class SemanticExtensions
 {
-  public static SemanticType ToSemanticType(this SolType solType)
+  public static SemanticType ToSemanticType(this DevConType devConType)
   {
-    if (solType is ClassReferenceType)
+    if (devConType is ClassReferenceType)
     {
       return SemanticType.ClassName;
     }
-    else if (solType is NamespaceReference)
+    else if (devConType is NamespaceReference)
     {
       return SemanticType.ClassName;
     }
-    else if (solType is CSType)
+    else if (devConType is CSType)
     {
       return SemanticType.ObjectReference;
     }
-    else if (solType is InvocationType)
+    else if (devConType is InvocationType)
     {
       return SemanticType.MethodReference;
     }

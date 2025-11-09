@@ -4,9 +4,9 @@ using Superpower.Model;
 using Superpower.Parsers;
 using SParse = Superpower.Parse;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
-public static partial class SolParser
+public static partial class DevConParser
 {
   public static TextParser<(T, ParseContext)> WithEmptyContext<T>(this TextParser<T> source)
   {

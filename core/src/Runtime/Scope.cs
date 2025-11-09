@@ -1,4 +1,4 @@
-namespace Sol.Runtime;
+namespace DevCon.Runtime;
 
 public class Scope
 {

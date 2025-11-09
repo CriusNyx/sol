@@ -1,8 +1,8 @@
 using System.Reflection;
 using CriusNyx.Util;
-using Sol.Execution;
+using DevCon.Execution;
 
-namespace Sol.Runtime;
+namespace DevCon.Runtime;
 
 public class ClassReference(Type type) : IDeref
 {

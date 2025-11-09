@@ -1,7 +1,7 @@
 using CriusNyx.Util;
 using Superpower.Model;
 
-namespace Sol.DataStructures;
+namespace DevCon.DataStructures;
 
 public class Span
 {

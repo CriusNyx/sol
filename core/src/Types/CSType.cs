@@ -1,19 +1,19 @@
 using CriusNyx.Util;
 using Microsoft.VisualBasic;
 
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
-public class CSType(Type type) : SolType
+public class CSType(Type type) : DevConType
 {
   public Type csType => type;
 
-  public override SolType? DerefFieldType(string name)
+  public override DevConType? DerefFieldType(string name)
   {
     var members = csType.GetMember(name).Where(x => !x.IsStatic()).ToArray();
     return From(members);
   }
 
-  public override SolType MakeStatic()
+  public override DevConType MakeStatic()
   {
     return new ClassReferenceType(csType);
   }

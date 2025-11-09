@@ -1,25 +1,25 @@
 using CriusNyx.Util;
-using Sol.AST;
+using DevCon.AST;
 using Superpower;
 using SParse = Superpower.Parse;
 using SSpan = Superpower.Parsers.Span;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
-public static partial class SolParser
+public static partial class DevConParser
 {
   public static TextParser<(ASTNode value, ParseContext context)> AssignParser =
     from left in LeftHandExpressionParser
-    from equalSym in SolToken.Equal.Try()
+    from equalSym in DevConToken.Equal.Try()
     from right in RightHandExpressionParser.RecoverNullWithContext()
     select new Assign(left.value, equalSym, right.value)
       .AsNotNull<ASTNode>()
       .With(ParseContext.Combine(left.context, right.context));
 
   public static TextParser<(ASTNode value, ParseContext context)> UseParser =
-    from useKeyword in SolToken.Use
-    from nsIdentifiers in SolToken
-      .Identifier.SeparatedBy(SolToken.Dot)
+    from useKeyword in DevConToken.Use
+    from nsIdentifiers in DevConToken
+      .Identifier.SeparatedBy(DevConToken.Dot)
       .Where(x => x.Length > 0, "Cannot use an empty namespace.")
       .WithEmptyContext()
       .RecoverNullWithContext()
@@ -45,9 +45,9 @@ public static partial class SolParser
     where T : ASTNode
   {
     return from exp in source
-      from lineTerminator in SolToken
+      from lineTerminator in DevConToken
         .LineTerminator.WithEmptyContext()
-        .RecoverUntilWithContext(SolToken.LineTerminator)
+        .RecoverUntilWithContext(DevConToken.LineTerminator)
       select exp
         .value.As<ASTNode>()
         .With(ParseContext.Combine(exp.context, lineTerminator.context));

@@ -1,10 +1,10 @@
 using System.Reflection;
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public abstract class RightHandExpression : ASTNode { }
 
@@ -28,7 +28,7 @@ public class ParenExpression(
     return [nameof(RightHandExpression).With(rightHandExpression)!];
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     return RightHandExpression?.TypeCheck(context) ?? new UnknownType();
   }
@@ -73,15 +73,15 @@ public class UnaryOp(SourceSpan opSource, UnaryOpType type, RightHandExpression 
     return [nameof(Type).With(Type), nameof(RightHandExpression).With(RightHandExpression)];
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     var opMethodName = CSMethodNames[Type];
 
     var operandType = RightHandExpression.TypeCheck(context).NotNull();
     var opMethod = operandType.MakeStatic().DerefFieldType(opMethodName);
-    if (opMethod is SolType solType)
+    if (opMethod is DevConType devConType)
     {
-      return solType.DerefReturnType([operandType]);
+      return devConType.DerefReturnType([operandType]);
     }
     return operandType;
   }
@@ -154,16 +154,16 @@ public class BinaryOp(
     return [nameof(Type).With(Type), nameof(Left).With(Left), nameof(Right).With(Right)];
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     var opMethodName = CSMethodNames[Type];
 
     var leftType = Left.TypeCheck(context).NotNull();
     var rightType = Right.TypeCheck(context).NotNull();
     var opMethod = leftType.MakeStatic().DerefFieldType(opMethodName);
-    if (opMethod is SolType solType)
+    if (opMethod is DevConType devConType)
     {
-      return solType.DerefReturnType([leftType, rightType]);
+      return devConType.DerefReturnType([leftType, rightType]);
     }
     return leftType;
   }

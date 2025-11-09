@@ -1,12 +1,12 @@
 using System.Reflection;
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.Execution;
-using Sol.Runtime;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.Execution;
+using DevCon.Runtime;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class DerefExpression(
   SourceSpan? dot,
@@ -73,7 +73,7 @@ public class DerefExpression(
     throw new NotImplementedException();
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     var underlyingType = context.PeekType();
     var fieldType =

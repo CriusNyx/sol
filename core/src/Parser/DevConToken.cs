@@ -1,18 +1,18 @@
 using Superpower;
 using Superpower.Model;
+using DevConIdent = DevCon.AST.Identifier;
 using SIdentifier = Superpower.Parsers.Identifier;
-using SolIdent = Sol.AST.Identifier;
 using SSpan = Superpower.Parsers.Span;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
-public static class SolToken
+public static class DevConToken
 {
   public static TextParser<TextSpan[]> NonSemantic = Parse
     .OneOf(SSpan.WithAll((c) => char.IsWhiteSpace(c) && c != '\n'))
     .Many();
-  public static TextParser<SolIdent> Identifier = SIdentifier
-    .CStyle.Select(x => new SolIdent(x))
+  public static TextParser<DevConIdent> Identifier = SIdentifier
+    .CStyle.Select(x => new DevConIdent(x))
     .ThenIgnore(NonSemantic)
     .Named("Identifier");
   public static TextParser<TextSpan> Equal = SSpan.EqualTo("=").ThenIgnore(NonSemantic).Named("=");

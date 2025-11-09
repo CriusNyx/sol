@@ -1,4 +1,4 @@
-SolProgram                     InvocationType             
+DevConProgram                  InvocationType             
 |-UseStatement                 VoidType                   
 | |-KeywordSpan      use       null                       
 | |-Identifier                 NamespaceReference         

@@ -1,9 +1,9 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.Parser;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.Parser;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.CLI;
+namespace DevCon.CLI;
 
 public partial class InteractiveInterface
 {
@@ -15,7 +15,7 @@ public partial class InteractiveInterface
     state.currentCommandLine = "";
     try
     {
-      var parsed = SolParser.Parse(line).Unwrap();
+      var parsed = DevConParser.Parse(line).Unwrap();
       LogMain(line);
       if (parsed.Evaluate(context) is object result)
       {

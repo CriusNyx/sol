@@ -1,10 +1,10 @@
 using CriusNyx.Util;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class Assign(LeftHandExpression? left, SourceSpan? equal, RightHandExpression? right)
   : ASTNode
@@ -18,7 +18,7 @@ public class Assign(LeftHandExpression? left, SourceSpan? equal, RightHandExpres
     return [nameof(Left).With(Left)!, nameof(Right).With(Right)!];
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     var rightType = right?.TypeCheck(context) ?? new UnknownType();
     if (left?.GetLocalName() is string localName)

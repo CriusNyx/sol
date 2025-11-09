@@ -1,8 +1,8 @@
 using CriusNyx.Util;
-using Sol.AST;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.AST;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 public class UseStatement(KeywordSpan? useKeyword, Identifier?[] namespaceSequence) : ASTNode
 {
@@ -22,7 +22,7 @@ public class UseStatement(KeywordSpan? useKeyword, Identifier?[] namespaceSequen
     return null;
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     context.typeScope.UseNamespace(NamespaceIdentifier);
     foreach (var ns in NamespaceSequence)

@@ -1,4 +1,4 @@
-namespace Sol.CLI;
+namespace DevCon.CLI;
 
 public partial class InteractiveInterface
 {

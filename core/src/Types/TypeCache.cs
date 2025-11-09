@@ -1,4 +1,4 @@
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
 public class TypeCahce
 {

@@ -1,3 +1,3 @@
-using Sol.TypeSystem;
+using DevCon.TypeSystem;
 
-public class UnknownType : SolType { }
+public class UnknownType : DevConType { }

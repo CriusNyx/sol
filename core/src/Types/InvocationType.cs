@@ -1,9 +1,9 @@
 using System.Reflection;
 using CriusNyx.Util;
 
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
-public class InvocationType : SolType
+public class InvocationType : DevConType
 {
   public IEnumerable<MethodInfo> Overloads { get; private set; }
 
@@ -12,7 +12,7 @@ public class InvocationType : SolType
     Overloads = overloads.ToArray();
   }
 
-  public override SolType? DerefReturnType(SolType[] knownArgumentTypes)
+  public override DevConType? DerefReturnType(DevConType[] knownArgumentTypes)
   {
     var csTypes = knownArgumentTypes.Select(x => x.As<CSType>().NotNull().csType).ToArray();
 

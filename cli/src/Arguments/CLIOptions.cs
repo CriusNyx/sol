@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace Sol.CLI;
+namespace DevCon.CLI;
 
 public class CLIOptions
 {

@@ -1,9 +1,9 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class DeindexExpression(
   SourceSpan? leftBracket,
@@ -29,7 +29,7 @@ public class DeindexExpression(
     return dyn[index];
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     throw new NotImplementedException();
   }

@@ -1,9 +1,9 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class Identifier(SourceSpan? textSpan) : ASTNode
 {
@@ -20,7 +20,7 @@ public class Identifier(SourceSpan? textSpan) : ASTNode
     throw new InvalidOperationException();
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     throw new NotImplementedException();
   }
@@ -35,9 +35,9 @@ public class Identifier(SourceSpan? textSpan) : ASTNode
     return new ASTNode?[] { Span }.WhereAs<ASTNode>();
   }
 
-  public void SetType(SolType solType)
+  public void SetType(DevConType devConType)
   {
-    this.cachedType = solType;
+    this.cachedType = devConType;
   }
 
   public override IEnumerable<SemanticToken> GetSemantics()

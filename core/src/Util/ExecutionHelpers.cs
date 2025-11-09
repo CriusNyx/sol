@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Sol.Execution;
+namespace DevCon.Execution;
 
 public static class ExecutionHelpers
 {

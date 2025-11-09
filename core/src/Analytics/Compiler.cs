@@ -1,11 +1,11 @@
-using Sol.AST;
-using Sol.DataStructures;
-using Sol.Parser;
-using Sol.TypeSystem;
-using static Sol.DataStructures.Result;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.AST;
+using DevCon.DataStructures;
+using DevCon.Parser;
+using DevCon.TypeSystem;
+using static DevCon.DataStructures.Result;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol;
+namespace DevCon;
 
 /// <summary>
 /// Error for when the source could not be compiled but could be compiled partially.
@@ -75,7 +75,7 @@ public static class Compiler
 
   public static Result<ParseResult, CompilerError> Parse(string source)
   {
-    return SolParser.Parse(source).Map(ast => new ParseResult(source, ast));
+    return DevConParser.Parse(source).Map(ast => new ParseResult(source, ast));
   }
 
   public static Result<ExecutionResult, CompilerError> Evaluate(string source)

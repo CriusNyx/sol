@@ -1,14 +1,14 @@
 using System.Reflection;
 using DeepEqual.Syntax;
-using Sol.AST;
-using Sol.DataStructures;
-using Sol.Parser;
-using Sol.TypeSystem;
+using DevCon.AST;
+using DevCon.DataStructures;
+using DevCon.Parser;
+using DevCon.TypeSystem;
 using Superpower;
 
 #pragma warning disable 0649 // Suppresses warning CS0649
 
-namespace Sol.Tests;
+namespace DevCon.Tests;
 
 class TestType
 {
@@ -41,7 +41,7 @@ public class TypeTests
 {
   public static ASTNode TestParser(string source)
   {
-    return SolParser.Parse(source).Unwrap();
+    return DevConParser.Parse(source).Unwrap();
   }
 
   [Test]
@@ -92,7 +92,7 @@ public class TypeTests
   public void CanResolveStaticField()
   {
     var context = new TypeContext();
-    var ast = TestParser("use Sol.Tests\nTestType.staticField");
+    var ast = TestParser("use DevCon.Tests\nTestType.staticField");
     var actual = ast.TypeCheck(context);
     var expected = new CSType(typeof(float));
     actual.ShouldDeepEqual(expected);

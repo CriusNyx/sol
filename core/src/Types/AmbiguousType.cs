@@ -1,3 +1,3 @@
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
-public class AmbiguousType : SolType { }
+public class AmbiguousType : DevConType { }

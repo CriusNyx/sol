@@ -1,4 +1,4 @@
-namespace Sol.Execution;
+namespace DevCon.Execution;
 
 public interface DerefableValue
 {

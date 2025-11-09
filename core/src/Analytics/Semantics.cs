@@ -1,7 +1,7 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
+using DevCon.DataStructures;
 
-namespace Sol;
+namespace DevCon;
 
 public enum SemanticType
 {

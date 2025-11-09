@@ -1,11 +1,11 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
-public class SolProgram(ASTNode[] statements) : ASTNode
+public class DevConProgram(ASTNode[] statements) : ASTNode
 {
   public ASTNode?[] Statements => statements;
 
@@ -24,9 +24,9 @@ public class SolProgram(ASTNode[] statements) : ASTNode
     return output;
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
-    SolType? result = null;
+    DevConType? result = null;
     foreach (var statement in Statements)
     {
       result = statement?.TypeCheck(context) ?? new UnknownType();

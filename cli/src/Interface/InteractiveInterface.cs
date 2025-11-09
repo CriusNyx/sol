@@ -2,7 +2,7 @@ using CriusNyx.Util;
 using Sharpie;
 using Sharpie.Backend;
 
-namespace Sol.CLI;
+namespace DevCon.CLI;
 
 #pragma warning disable CA1416
 

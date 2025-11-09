@@ -1,8 +1,8 @@
 using DeepEqual;
-using Sol.DataStructures;
+using DevCon.DataStructures;
 using Superpower.Model;
 
-namespace Sol.Tests;
+namespace DevCon.Tests;
 
 public class TextSpanComparison : IComparison
 {

@@ -1,8 +1,8 @@
-using Sol.DataStructures;
-using Sol.Parser;
+using DevCon.DataStructures;
+using DevCon.Parser;
 using Superpower;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public static class ASTBuilder
 {
@@ -72,7 +72,7 @@ public static class ASTBuilder
   {
     return new UnaryOp(
       new(Span.Empty, op),
-      SolParser.UnaryOpTypeParser.Select(x => x.value).Parse(op),
+      DevConParser.UnaryOpTypeParser.Select(x => x.value).Parse(op),
       operand
     );
   }
@@ -82,7 +82,7 @@ public static class ASTBuilder
     return new BinaryOp(
       new(Span.Empty, op),
       Parse
-        .OneOf(SolParser.TermOpTypeParser, SolParser.FactorOpTypeParser)
+        .OneOf(DevConParser.TermOpTypeParser, DevConParser.FactorOpTypeParser)
         .Select(x => x.value)
         .Parse(op),
       left,
@@ -115,8 +115,8 @@ public static class ASTBuilder
     return new StringLiteralExpression(new(Span.Empty, value), value);
   }
 
-  public static SolProgram Prog(params ASTNode[] nodes)
+  public static DevConProgram Prog(params ASTNode[] nodes)
   {
-    return new SolProgram(nodes);
+    return new DevConProgram(nodes);
   }
 }

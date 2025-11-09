@@ -1,13 +1,13 @@
 using CriusNyx.Util;
-using Sol.AST;
-using Sol.DataStructures;
+using DevCon.AST;
+using DevCon.DataStructures;
 
-namespace Sol.Tests;
+namespace DevCon.Tests;
 
 public class TestProgramTests
 {
   [DatapointSource]
-  public string[] Paths => Directory.GetFiles("testPrograms", "*.sol");
+  public string[] Paths => Directory.GetFiles("testPrograms", "*.dcn");
 
   [Theory]
   public void TestProgramConsistancy(string path)

@@ -1,8 +1,8 @@
 using CriusNyx.Util;
-using Sol.AST;
+using DevCon.AST;
 using Superpower.Model;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
 public class ParseError(Result<ASTNode> result)
 {

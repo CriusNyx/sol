@@ -1,9 +1,9 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class ArgumentInfo(Identifier? explicitParameterName, RightHandExpression expression)
   : ASTNode
@@ -35,7 +35,7 @@ public class ArgumentInfo(Identifier? explicitParameterName, RightHandExpression
     throw new NotImplementedException();
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     return Expression.TypeCheck(context);
   }

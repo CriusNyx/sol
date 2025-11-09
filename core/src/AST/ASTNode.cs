@@ -1,24 +1,24 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public abstract partial class ASTNode : DebugPrint
 {
-  protected SolType? cachedType;
-  public SolType NodeType => cachedType.NotNull();
-  public SolType? NodeTypeSafe => cachedType;
+  protected DevConType? cachedType;
+  public DevConType NodeType => cachedType.NotNull();
+  public DevConType? NodeTypeSafe => cachedType;
   public abstract IEnumerable<(string, object)> EnumerateFields();
 
-  public SolType? TypeCheck(TypeContext context)
+  public DevConType? TypeCheck(TypeContext context)
   {
     cachedType = _TypeCheck(context);
     return cachedType;
   }
 
-  protected abstract SolType? _TypeCheck(TypeContext context);
+  protected abstract DevConType? _TypeCheck(TypeContext context);
 
   public abstract object? Evaluate(ExecutionContext context);
 

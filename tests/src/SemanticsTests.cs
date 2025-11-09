@@ -1,11 +1,11 @@
 using System.Data;
 using CriusNyx.Util;
 using DeepEqual.Syntax;
-using Sol.AST;
-using Sol.DataStructures;
-using Sol.TypeSystem;
+using DevCon.AST;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
 
-namespace Sol.Tests;
+namespace DevCon.Tests;
 
 public static class TestClass
 {
@@ -32,7 +32,7 @@ public class SemanticsTests
     return types.Select(x => Token(x)).ToArray();
   }
 
-  private static ASTNode TestParse(string source, params (string, SolType)[] parameters)
+  private static ASTNode TestParse(string source, params (string, DevConType)[] parameters)
   {
     var context = new TypeContext();
     foreach (var (variable, value) in parameters)
@@ -113,7 +113,7 @@ public class SemanticsTests
   [Test]
   public void LHE_StaticMethodInvocation_IsCorrect()
   {
-    string source = "use Sol.Tests\nTestClass.StringMethod()";
+    string source = "use DevCon.Tests\nTestClass.StringMethod()";
     var lhe = TestParse(source).FindNode((node) => node is LeftHandExpression).NotNull();
 
     var expected = TokenList(SemanticType.ClassName, SemanticType.MethodReference);
@@ -125,7 +125,7 @@ public class SemanticsTests
   [Test]
   public void LHE_StaticMethodInvocation_WithArgs_IsCorrect()
   {
-    string source = "use Sol.Tests\nTestClass.StringMethod(value)";
+    string source = "use DevCon.Tests\nTestClass.StringMethod(value)";
     var lhe = TestParse(source, ("value", new CSType(typeof(string))))
       .FindNode((node) => node is LeftHandExpression)
       .NotNull();

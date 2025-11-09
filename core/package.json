@@ -1,5 +1,5 @@
 {
-  "name": "soljs",
+  "name": "devcon-js",
   "version": "0.0.1",
   "typings": "core.d.ts",
   "main": "core.js",

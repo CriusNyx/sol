@@ -1,9 +1,9 @@
 using CriusNyx.Util;
-using Sol.AST;
-using Sol.DataStructures;
-using Sol.TypeSystem;
+using DevCon.AST;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
 using Superpower.Model;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 public class SourceSpan(Span span, string source) : ASTNode
 {
@@ -30,7 +30,7 @@ public class SourceSpan(Span span, string source) : ASTNode
     return span;
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     throw new NotImplementedException();
   }

@@ -1,9 +1,9 @@
 using CriusNyx.Util;
-using Sol;
-using Sol.AST;
-using Sol.DataStructures;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon;
+using DevCon.AST;
+using DevCon.DataStructures;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 public class StringLiteralExpression(SourceSpan source, string value) : RightHandExpression
 {
@@ -20,7 +20,7 @@ public class StringLiteralExpression(SourceSpan source, string value) : RightHan
     return Value;
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     return new CSType(typeof(string));
   }
@@ -121,7 +121,7 @@ public class NumberLiteralExpression(SourceSpan source, NumVal value) : RightHan
     return Value;
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
     return new CSType(typeof(NumVal));
   }

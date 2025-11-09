@@ -1,7 +1,7 @@
-using Sol.Runtime;
-using Sol.TypeSystem;
+using DevCon.Runtime;
+using DevCon.TypeSystem;
 
-namespace Sol.Execution;
+namespace DevCon.Execution;
 
 public class ExecutionContext
 {

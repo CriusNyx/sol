@@ -1,10 +1,10 @@
 using CriusNyx.Util;
-using Sol.DataStructures;
-using Sol.Execution;
-using Sol.TypeSystem;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.DataStructures;
+using DevCon.Execution;
+using DevCon.TypeSystem;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public class InvocationExpression(
   SourceSpan? leftParen,
@@ -25,9 +25,9 @@ public class InvocationExpression(
     return [nameof(Arguments).With(Arguments), nameof(Chain).With(Chain)!];
   }
 
-  protected override SolType? _TypeCheck(TypeContext context)
+  protected override DevConType? _TypeCheck(TypeContext context)
   {
-    List<SolType> args = new List<SolType>();
+    List<DevConType> args = new List<DevConType>();
     foreach (var arg in Arguments)
     {
       context.PushScope();

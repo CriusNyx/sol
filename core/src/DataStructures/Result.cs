@@ -1,7 +1,7 @@
 using CriusNyx.Util;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Sol.DataStructures;
+namespace DevCon.DataStructures;
 
 public class Result
 {

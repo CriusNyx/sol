@@ -1,4 +1,4 @@
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
 public class ParseResult<T>
 {

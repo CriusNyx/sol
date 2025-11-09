@@ -1,4 +1,4 @@
-SolProgram                                CSType(String)
+DevConProgram                             CSType(String)
 |-Assign                                  CSType(String)
 | |-LeftHandExpression                    CSType(String)
 | | |-Identifier                          CSType(String)

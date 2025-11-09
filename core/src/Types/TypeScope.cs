@@ -1,16 +1,16 @@
 using CriusNyx.Util;
 
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
 public class GlobalScope : TypeScope
 {
-  static Task<Dictionary<string, SolType>> SolTypeCache = Task.Run(async () =>
+  static Task<Dictionary<string, DevConType>> DevConTypeCache = Task.Run(async () =>
   {
     var result = await TypeCahce.Cache;
     return result
       .Select(
         (pair) =>
-          ((string, SolType))
+          ((string, DevConType))
             (
               pair.Key,
               pair.Value == null ? new AmbiguousType() : new ClassReferenceType(pair.Value)
@@ -21,22 +21,22 @@ public class GlobalScope : TypeScope
 
   public GlobalScope() { }
 
-  public override void SetType(string name, SolType type)
+  public override void SetType(string name, DevConType type)
   {
     throw new InvalidOperationException("Cannot set global types");
   }
 
-  public override SolType? GetType(string name, IEnumerable<string>? usings = null)
+  public override DevConType? GetType(string name, IEnumerable<string>? usings = null)
   {
     {
-      if (SolTypeCache.Result.Safe(name) is SolType type)
+      if (DevConTypeCache.Result.Safe(name) is DevConType type)
       {
         return type;
       }
     }
     foreach (var ns in usings ?? [])
     {
-      if (SolTypeCache.Result.Safe($"{ns}.{name}") is SolType type)
+      if (DevConTypeCache.Result.Safe($"{ns}.{name}") is DevConType type)
       {
         return type;
       }
@@ -48,7 +48,7 @@ public class GlobalScope : TypeScope
 public class TypeScope : DebugPrint
 {
   TypeScope? parent;
-  Dictionary<string, SolType> values = new Dictionary<string, SolType>();
+  Dictionary<string, DevConType> values = new Dictionary<string, DevConType>();
   List<string> usings = new List<string>();
 
   public TypeScope(TypeScope? parent = null)
@@ -61,12 +61,12 @@ public class TypeScope : DebugPrint
     usings.Add(ns);
   }
 
-  public virtual void SetType(string name, SolType type)
+  public virtual void SetType(string name, DevConType type)
   {
     values[name] = type;
   }
 
-  public virtual SolType? GetType(string name, IEnumerable<string>? usings = null)
+  public virtual DevConType? GetType(string name, IEnumerable<string>? usings = null)
   {
     return values.Safe(name) ?? parent?.GetType(name, this.usings.Concat(usings ?? []));
   }

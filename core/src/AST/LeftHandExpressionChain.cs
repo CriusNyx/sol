@@ -1,7 +1,7 @@
-using Sol.Execution;
-using ExecutionContext = Sol.Execution.ExecutionContext;
+using DevCon.Execution;
+using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-namespace Sol.AST;
+namespace DevCon.AST;
 
 public abstract class LeftHandExpressionChain() : ASTNode
 {

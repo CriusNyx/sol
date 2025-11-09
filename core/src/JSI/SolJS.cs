@@ -1,7 +1,7 @@
 using CriusNyx.Util;
 using Newtonsoft.Json;
 
-namespace Sol.JS;
+namespace DevCon.JS;
 
 enum JSSemanticType
 {
@@ -47,7 +47,7 @@ public static class JSI
     return CSSemanticToJSSemantic.Safe(type);
   }
 
-  public static string[] SolSemanticTypes()
+  public static string[] DevConSemanticTypes()
   {
     return Enum.GetValues<JSSemanticType>().Select(x => x.ToString()).ToArray();
   }

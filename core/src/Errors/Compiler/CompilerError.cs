@@ -1,7 +1,7 @@
-using Sol.AST;
-using Sol.Parser;
+using DevCon.AST;
+using DevCon.Parser;
 
-namespace Sol;
+namespace DevCon;
 
 public class CompilerError
 {

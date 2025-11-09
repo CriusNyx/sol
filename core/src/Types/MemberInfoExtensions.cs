@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
 static class MemberInfoExtensions
 {

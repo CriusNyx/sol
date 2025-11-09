@@ -2,7 +2,7 @@ using CriusNyx.Util;
 using Superpower;
 using Superpower.Model;
 
-namespace Sol.Parser;
+namespace DevCon.Parser;
 
 public static class ParserExtensions
 {
@@ -22,7 +22,7 @@ public static class ParserExtensions
 
   public static TextParser<T> FullText<T>(this TextParser<T> parser)
   {
-    return SolToken.NonSemantic.IgnoreThen(parser).AtEnd();
+    return DevConToken.NonSemantic.IgnoreThen(parser).AtEnd();
   }
 
   public static TextParser<T[]> SeparatedBy<T, U>(

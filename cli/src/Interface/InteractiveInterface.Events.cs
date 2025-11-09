@@ -1,6 +1,6 @@
 using Sharpie;
 
-namespace Sol.CLI;
+namespace DevCon.CLI;
 
 public enum EventResult
 {

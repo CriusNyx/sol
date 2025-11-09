@@ -1,31 +1,31 @@
 using System.Reflection;
 using CriusNyx.Util;
 
-namespace Sol.TypeSystem;
+namespace DevCon.TypeSystem;
 
-public abstract class SolType
+public abstract class DevConType
 {
-  public virtual SolType? DerefFieldType(string name)
+  public virtual DevConType? DerefFieldType(string name)
   {
     throw new NotImplementedException();
   }
 
-  public virtual SolType? DerefIndexType()
+  public virtual DevConType? DerefIndexType()
   {
     throw new NotImplementedException();
   }
 
-  public virtual SolType? DerefReturnType(SolType[] knownArgumentTypes)
+  public virtual DevConType? DerefReturnType(DevConType[] knownArgumentTypes)
   {
     throw new NotImplementedException();
   }
 
-  public virtual SolType MakeStatic()
+  public virtual DevConType MakeStatic()
   {
     throw new NotImplementedException();
   }
 
-  public static SolType? From(MemberInfo[] members)
+  public static DevConType? From(MemberInfo[] members)
   {
     if (members.Length == 1 && members.First() is MemberInfo first)
     {
