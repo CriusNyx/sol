@@ -1,6 +1,6 @@
 {
-  "name": "sol-lsp",
-  "displayName": "Sol Language",
+  "name": "devcon-lsp",
+  "displayName": "Devcon Language",
   "description": "",
   "version": "0.0.1",
   "main": "client/out/client",
@@ -12,7 +12,7 @@
     "vscode": "^1.105.0"
   },
   "activationEvents": [
-    "onLanguage:sol"
+    "onLanguage:devcon"
   ],
   "categories": [
     "Programming Languages"
@@ -20,23 +20,25 @@
   "contributes": {
     "languages": [
       {
-        "id": "sol",
+        "id": "devcon",
         "aliases": [
-          "sol",
-          "sol"
+          "devcon"
         ],
         "extensions": [
-          ".sol"
+          ".dcn",
+          ".devcon"
         ]
       }
     ]
   },
   "scripts": {
+    "vscode:prepublish": "yarn compile",
     "postinstall": "(cd client; yarn install); (cd server; yarn install)",
     "deps": "ts-node ./src/scripts/deps.ts",
     "compile": "(cd client; tsc -b); (cd server; tsc -b)",
     "watch": "(cd client; tsc -b -w) & (cd server; tsc -b -w)",
-    "package": "yarn deps --release; yarn compile; vsce package"
+    "package": "yarn deps --release; yarn compile; vsce package",
+    "install-package": "ts-node ./src/scripts/install.ts"
   },
   "devDependencies": {
     "@commander-js/extra-typings": "^14.0.0",

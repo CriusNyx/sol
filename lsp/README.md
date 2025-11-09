@@ -1,7 +1,7 @@
-# SOL Language Server
+# Devcon Language Server
 
-This package provides a language feature for the SOL language for visual studio
-code.
+This package provides a language feature for the DevCon language for visual
+studio code.
 
 # Quickstart
 

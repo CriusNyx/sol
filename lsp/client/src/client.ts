@@ -21,15 +21,15 @@ export function activate(context: ExtensionContext) {
   };
 
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{ scheme: "file", language: "sol" }],
+    documentSelector: [{ scheme: "file", language: "devcon" }],
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
     },
   };
 
   client = new LanguageClient(
-    "SolLSP",
-    "Sol Language Server",
+    "DevConLSP",
+    "DevCon Language Server",
     serverOptions,
     clientOptions,
   );

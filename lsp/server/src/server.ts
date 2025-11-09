@@ -15,11 +15,11 @@ import {
   uinteger,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Sol } from "node-api-dotnet";
-import "soljs";
+import { DevCon } from "node-api-dotnet";
+import "devcon-js";
 
 const legend = {
-  tokenTypes: Sol.JS.JSI.SolSemanticTypes(),
+  tokenTypes: DevCon.JS.JSI.DevConSemanticTypes(),
   tokenModifiers: [],
 } satisfies SemanticTokensLegend;
 
@@ -52,11 +52,11 @@ connection.languages.semanticTokens.on((params) => {
   var doc = documents.get(params.textDocument.uri);
   const docText = doc?.getText() ?? "";
 
-  const tokenJSON = Sol.JS.JSI.AnalyzeTokens_JSON(docText);
+  const tokenJSON = DevCon.JS.JSI.AnalyzeTokens_JSON(docText);
 
   console.log(tokenJSON);
 
-  const tokens = JSON.parse(tokenJSON) as Sol.JS.JSSemanticToken[];
+  const tokens = JSON.parse(tokenJSON) as DevCon.JS.JSSemanticToken[];
 
   const builder = new SemanticTokensBuilder();
 
@@ -76,7 +76,7 @@ connection.languages.semanticTokens.on((params) => {
 connection.onHover((params) => {
   var doc = documents.get(params.textDocument.uri);
   var docText = doc?.getText() ?? "";
-  var result = Sol.JS.JSI.GetElementUnderCursor(
+  var result = DevCon.JS.JSI.GetElementUnderCursor(
     docText,
     doc?.offsetAt(params.position) ?? -1,
   );

@@ -18,7 +18,7 @@ function buildDotNet(opts: ProgramOpts) {
 }
 
 function install(opts: ProgramOpts) {
-  command("rm -rf ./server/node_modules/soljs");
+  command("rm -rf ./server/node_modules/devcon-js");
   command("(cd server; yarn install --check-files)");
 }
 

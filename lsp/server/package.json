@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "soljs": "file:../../core/bin"
+    "devcon-js": "file:../../core/bin"
   }
 }
