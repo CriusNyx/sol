@@ -47,4 +47,9 @@ public class SourceSpan(Span span, string source) : ASTNode
       textSpan.Source.NotNull().Substring(textSpan.Position.Absolute, textSpan.Length)
     );
   }
+
+  public override ASTNode? GetNodeUnderCursor(int position)
+  {
+    return null;
+  }
 }

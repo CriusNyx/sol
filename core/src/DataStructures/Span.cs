@@ -42,6 +42,18 @@ public class Span
     }
     return new Span(start, span.Start - start);
   }
+
+  public bool Contains(int position, bool inclusive)
+  {
+    if (inclusive)
+    {
+      return position >= Start && position <= End;
+    }
+    else
+    {
+      return position >= Start && position < End;
+    }
+  }
 }
 
 public static class SpanExtensions

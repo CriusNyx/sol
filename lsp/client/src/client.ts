@@ -7,21 +7,13 @@ import {
   TransportKind,
 } from "vscode-languageclient/node";
 import _ from "lodash";
-import "soljs";
-import dotnet, { Sol } from "node-api-dotnet";
-
-const Parser = Sol.Parser.SolParser;
 
 let client: LanguageClient | undefined = undefined;
 
 export function activate(context: ExtensionContext) {
-  console.log("Starting");
-
   const serverModule = context.asAbsolutePath(
-    path.join("out", "server", "server"),
+    path.join("server", "out", "server.js"),
   );
-
-  const dotnetPath = context.asAbsolutePath(path.join(""));
 
   const serverOptions: ServerOptions = {
     run: { module: serverModule, transport: TransportKind.ipc },

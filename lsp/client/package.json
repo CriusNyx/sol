@@ -1,0 +1,20 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "out/index.js",
+  "scripts": {
+    "compile": "tsc -b"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vscode": "^1.1.37"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.17.20",
+    "lodash": "^4.17.21",
+    "vscode-languageclient": "^9.0.1"
+  }
+}

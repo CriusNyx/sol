@@ -1,7 +1,9 @@
 import {
   createConnection,
   HandlerResult,
+  Hover,
   InitializeParams,
+  MarkedString,
   ProposedFeatures,
   SemanticTokens,
   SemanticTokensBuilder,
@@ -14,11 +16,10 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Sol } from "node-api-dotnet";
-
 import "soljs";
 
 const legend = {
-  tokenTypes: Sol.JS.SolSemanticTypes(),
+  tokenTypes: Sol.JS.JSI.SolSemanticTypes(),
   tokenModifiers: [],
 } satisfies SemanticTokensLegend;
 
@@ -38,6 +39,7 @@ connection.onInitialize((params: InitializeParams) => {
         full: true,
         legend,
       },
+      hoverProvider: true,
     },
   };
 });
@@ -49,11 +51,12 @@ connection.onInitialized((params) => {
 connection.languages.semanticTokens.on((params) => {
   var doc = documents.get(params.textDocument.uri);
   const docText = doc?.getText() ?? "";
-  const tokenJSON = Sol.JS.AnalyzeTokens_JSON(docText);
+
+  const tokenJSON = Sol.JS.JSI.AnalyzeTokens_JSON(docText);
 
   console.log(tokenJSON);
 
-  const tokens = JSON.parse(tokenJSON) as Sol.JSSemanticToken[];
+  const tokens = JSON.parse(tokenJSON) as Sol.JS.JSSemanticToken[];
 
   const builder = new SemanticTokensBuilder();
 
@@ -68,6 +71,19 @@ connection.languages.semanticTokens.on((params) => {
     );
   }
   return builder.build();
+});
+
+connection.onHover((params) => {
+  var doc = documents.get(params.textDocument.uri);
+  var docText = doc?.getText() ?? "";
+  var result = Sol.JS.JSI.GetElementUnderCursor(
+    docText,
+    doc?.offsetAt(params.position) ?? -1,
+  );
+  if (result) {
+    return { contents: { kind: "markdown", value: result } } satisfies Hover;
+  }
+  return undefined;
 });
 
 documents.onDidChangeContent((e) => {

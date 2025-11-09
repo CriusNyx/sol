@@ -3,7 +3,11 @@
   "displayName": "Sol Language",
   "description": "",
   "version": "0.0.1",
-  "main": "./out/client/client",
+  "main": "client/out/client",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/CriusNyx/sol"
+  },
   "engines": {
     "vscode": "^1.105.0"
   },
@@ -28,23 +32,24 @@
     ]
   },
   "scripts": {
-    "deps": "(cd ../core; dotnet build); rm -rf node_modules/soljs; yarn install --check-files",
-    "compile": "tsc -b",
-    "watch": "tsc -b -w"
+    "postinstall": "(cd client; yarn install); (cd server; yarn install)",
+    "deps": "ts-node ./src/scripts/deps.ts",
+    "compile": "(cd client; tsc -b); (cd server; tsc -b)",
+    "watch": "(cd client; tsc -b -w) & (cd server; tsc -b -w)",
+    "package": "yarn deps --release; yarn compile; vsce package"
   },
   "devDependencies": {
+    "@commander-js/extra-typings": "^14.0.0",
+    "@types/node": "^24.10.0",
     "@types/vscode": "^1.105.0",
+    "commander": "^14.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
     "vscode": "^1.1.37"
   },
   "dependencies": {
-    "@types/lodash": "^4.17.20",
-    "@types/node": "^24.10.0",
-    "lodash": "^4.17.21",
     "node-api-dotnet": "^0.9.17",
-    "typescript": "^5.9.3",
-    "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
-    "vscode-languageserver-textdocument": "^1.0.12",
-    "soljs": "file:../core/bin"
+    "vscode-languageserver-textdocument": "^1.0.12"
   }
 }

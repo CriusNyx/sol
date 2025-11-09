@@ -1,0 +1,14 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc -b"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "soljs": "file:../../core/bin"
+  }
+}

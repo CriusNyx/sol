@@ -40,4 +40,20 @@ public abstract partial class ASTNode : DebugPrint
   {
     return this.Debug();
   }
+
+  public virtual ASTNode? GetNodeUnderCursor(int position)
+  {
+    if (GetSpan().Contains(position, true))
+    {
+      foreach (var child in GetChildren())
+      {
+        if (child.GetNodeUnderCursor(position) is ASTNode node)
+        {
+          return node;
+        }
+      }
+      return this;
+    }
+    return null!;
+  }
 }

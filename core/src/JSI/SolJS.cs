@@ -1,9 +1,7 @@
-using System.ComponentModel;
-using System.Security.Cryptography.X509Certificates;
 using CriusNyx.Util;
 using Newtonsoft.Json;
 
-namespace Sol;
+namespace Sol.JS;
 
 enum JSSemanticType
 {
@@ -29,7 +27,7 @@ public class JSSemanticToken(int start, int length, int semanticType)
   public int SemanticType => semanticType;
 }
 
-public static class JS
+public static class JSI
 {
   private static Dictionary<SemanticType, JSSemanticType?> CSSemanticToJSSemantic = new Dictionary<
     SemanticType,
@@ -73,5 +71,12 @@ public static class JS
     {
       return e.StackTrace ?? "";
     }
+  }
+
+  public static string? GetElementUnderCursor(string source, int position)
+  {
+    var ast = Compiler.TypeCheck(source).Map(x => x.AST).UnwrapOrElse(x => x.RecoverAST());
+    var node = ast.GetNodeUnderCursor(position);
+    return node?.GetType().ToString();
   }
 }
