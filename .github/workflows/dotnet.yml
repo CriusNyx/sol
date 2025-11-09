@@ -1,0 +1,112 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - uses: actions/upload-artifact@v4
+      with: 
+        name: core
+        path: ./core/bin
+  version:
+    name: Update Version Info
+    runs-on: ubuntu-latest
+    outputs:
+      NEXT_VERSION: ${{ steps.incrementVersion.outputs.NEXT_VERSION }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dcarbone/install-jq-action@v3
+    - name: Get project version from .csproj
+      shell: bash
+      run: |
+        # Get a project version from the *.csproj file
+        cat ./core/core.csproj
+        VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ./core/core.csproj)
+        echo "Test"
+        echo "Project version in $VERSION"
+        # Save the result into the variable VERSION
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+    - name: Get latest version from Nuget
+      id: tag
+      run: |
+        # Get the latest release version according to the latest version tag from the repository
+        LATEST_VERSION=$(curl https://api.nuget.org/v3-flatcontainer/criusnyx.devcon/index.json | jq ".versions[-1]" -r)
+        echo "LATEST_VERSION=$LATEST_VERSION"
+        echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+    - name: Compare Strings
+      id: compare_versions
+      run: |
+        # Find the max version by comparing VERSION and LATEST_TAG and save the result into the variable GREATER_VERSION
+        GREATER_VERSION=$(printf "%s\n%s" "$VERSION" "${LATEST_VERSION#v}" | sort -V | tail -n 1)
+        if [[ "$VERSION" == "$GREATER_VERSION" && "$VERSION" != "${LATEST_TAG#v}" ]]; then
+          # If the version in the project configuration file is higher than the tag version, then the check is passed.
+          echo "The new release version is ${LATEST_TAG#v}"
+          echo "is_valid=true" >> $GITHUB_OUTPUT
+        else
+          # Otherwise it is signaled about the error
+          echo "The project version is not incremented"
+          echo "is_valid=false" >> $GITHUB_OUTPUT
+        fi
+        echo "GREATER_VERSION=$GREATER_VERSION" >> $GITHUB_ENV
+    - name: Increment version
+      id: incrementVersion
+      run: |
+        NEXT_VERSION=$(echo $GREATER_VERSION | awk -F. -v OFS=. '{$NF += 1 ; print}')
+        echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+        echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
+        echo "NEXT_VERSION=$NEXT_VERSION"
+  createNugetPackage:
+    name: Create nuget package
+    runs-on: ubuntu-latest
+    needs: 
+    - build
+    - version
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - env:
+        NEXT_VERSION: ${{ needs.version.outputs.NEXT_VERSION }}
+      run: dotnet pack --configuration Release -p Version=$NEXT_VERSION
+    - uses: actions/upload-artifact@v4
+      with:
+        name: nuget
+        path: ./core/bin
+  publishNugetPackage:
+    name: Publish nuget package
+    runs-on: ubuntu-latest
+    needs:
+    - createNugetPackage
+    steps: 
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - uses: actions/download-artifact@v4
+      with:
+        name: nuget
+        path: ./core/bin
+    - run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
