@@ -13,32 +13,37 @@ public static partial class DevConParser
   public static TextParser<(
     LeftHandExpressionChain value,
     ParseContext context
-  )> ChainExpressionParser = SParse.Ref(() =>
-    SParse.OneOf(DerefParser.NotNull(), InvocationParser.NotNull(), Deindex.NotNull())
-  );
+  )> ChainExpressionParser = SParse
+    .Ref(() =>
+      SParse.OneOf(DerefParser.NotNull(), InvocationParser.NotNull(), DeindexParser.NotNull())
+    )
+    .Named("ChainExpression");
 
   /// <summary>
   /// Deref -> dot identifier Chain?
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext parseContext)> DerefParser =
-    from dot in DevConToken.Dot
-    from ident in DevConToken.Identifier.WithEmptyContext().RecoverNullWithContext()
-    from chain in ChainExpressionParser.OptionalOrDefault().RecoverNullWithContext()
-    select new DerefExpression(dot, ident.value, chain.value)
-      .AsNotNull<LeftHandExpressionChain>()
-      .With(ParseContext.Combine(ident.context, chain.context));
+    (
+      from dot in DevConToken.Dot
+      from ident in DevConToken.Identifier.WithEmptyContext().RecoverNullWithContext()
+      from chain in ChainExpressionParser.OptionalOrDefault().RecoverNullWithContext()
+      select new DerefExpression(dot, ident.value, chain.value)
+        .AsNotNull<LeftHandExpressionChain>()
+        .With(ParseContext.Combine(ident.context, chain.context))
+    ).Named("Deref");
 
   /// <summary>
   /// Deindex -> leftBracket RightHandExpression rightBracket Chain?
   /// </summary>
-  public static TextParser<(LeftHandExpressionChain value, ParseContext context)> Deindex =
+  public static TextParser<(LeftHandExpressionChain value, ParseContext context)> DeindexParser = (
     from leftBracket in DevConToken.LeftBracket
     from index in RightHandExpressionParser.NotNull().RecoverNullWithContext()
     from rightBracket in DevConToken.RightBracket.WithEmptyContext().RecoverEmptyWithContext()
     from chain in ChainExpressionParser.OptionalOrDefault()
     select new DeindexExpression(leftBracket, index.value, rightBracket.value, chain.value)
       .AsNotNull<LeftHandExpressionChain>()
-      .With(ParseContext.Combine(index.context, rightBracket.context, chain.context));
+      .With(ParseContext.Combine(index.context, rightBracket.context, chain.context))
+  ).Named("Deindex");
 
   public static TextParser<(
     RightHandExpression[] value,
@@ -55,19 +60,22 @@ public static partial class DevConParser
           .Select(item => item.value)
           .ToArray()
           .With(ParseContext.Combine(result.Select(item => item.context)))
-      );
+      )
+      .Named("InvocationArg");
 
   /// <summary>
   /// Invocation -> leftParen ((Expression comma)* Expression)? rightParen Chain?
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext context)> InvocationParser =
-    from leftParen in DevConToken.LeftParen
-    from args in InvocationArgParser.RecoverUntilWithContext(DevConToken.RightParen)
-    from rightParen in DevConToken.RightParen.WithEmptyContext().RecoverEmptyWithContext()
-    from chain in ChainExpressionParser!.OptionalOrDefault()
-    select new InvocationExpression(leftParen, args.value, rightParen.value, chain.value)
-      .AsNotNull<LeftHandExpressionChain>()
-      .With(ParseContext.Combine(args.context, rightParen.context, chain.context));
+    (
+      from leftParen in DevConToken.LeftParen
+      from args in InvocationArgParser.RecoverUntilWithContext(DevConToken.RightParen)
+      from rightParen in DevConToken.RightParen.WithEmptyContext().RecoverEmptyWithContext()
+      from chain in ChainExpressionParser!.OptionalOrDefault()
+      select new InvocationExpression(leftParen, args.value, rightParen.value, chain.value)
+        .AsNotNull<LeftHandExpressionChain>()
+        .With(ParseContext.Combine(args.context, rightParen.context, chain.context))
+    ).Named("Invocation");
 
   /// <summary>
   /// LeftHandExpression -> ident Chain?
@@ -76,10 +84,12 @@ public static partial class DevConParser
     LeftHandExpression value,
     ParseContext context
   )> LeftHandExpressionParser = SParse.Ref(() =>
-    from ident in DevConToken.Identifier
-    from chain in ChainExpressionParser!.OptionalOrDefault()
-    select new LeftHandExpression(ident, chain.value)
-      .AsNotNull<LeftHandExpression>()
-      .With(chain.context)
+    (
+      from ident in DevConToken.Identifier
+      from chain in ChainExpressionParser!.OptionalOrDefault()
+      select new LeftHandExpression(ident, chain.value)
+        .AsNotNull<LeftHandExpression>()
+        .With(chain.context)
+    ).Named("LeftHandExpression")
   );
 }

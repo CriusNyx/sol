@@ -3,23 +3,28 @@ using Superpower.Model;
 
 namespace DevCon.DataStructures;
 
-public class Span
+public class Span : DebugPrint
 {
   public int Start { get; private set; }
   public int Length { get; private set; }
+  public int Line { get; private set; }
+  public int Column { get; private set; }
   public int End => Start + Length;
 
-  public Span(int start, int length)
+  public Span(int start, int length, int line, int column)
   {
-    this.Start = start;
-    this.Length = length;
+    Start = start;
+    Length = length;
+    Line = line;
+    Column = column;
   }
 
   public static Span Join(params Span[] spans)
   {
+    var minSpan = spans.MinBy(x => x.Start);
     var min = spans.Min(x => x.Start);
     var max = spans.Max(x => x.End);
-    return new Span(min, max - min);
+    return new Span(min, max - min, minSpan?.Line ?? 0, minSpan?.Column ?? 0);
   }
 
   public static Span SafeJoin(params Span?[] spans)
@@ -29,10 +34,15 @@ public class Span
 
   public static implicit operator Span(TextSpan source)
   {
-    return new Span(source.Position.Absolute, source.Length);
+    return new Span(
+      source.Position.Absolute,
+      source.Length,
+      source.Position.Line,
+      source.Position.Column
+    );
   }
 
-  public static Span Empty => new Span(0, 0);
+  public static Span Empty => new Span(0, 0, 0, 0);
 
   public static Span operator -(Span span, int start)
   {
@@ -40,7 +50,7 @@ public class Span
     {
       throw new InvalidOperationException("Start must be less then span");
     }
-    return new Span(start, span.Start - start);
+    return new Span(start, span.Start - start, -1, -1);
   }
 
   public bool Contains(int position, bool inclusive)
@@ -53,6 +63,17 @@ public class Span
     {
       return position >= Start && position < End;
     }
+  }
+
+  public IEnumerable<(string, object)> EnumerateFields()
+  {
+    return
+    [
+      nameof(Start).With(Start),
+      nameof(End).With(End),
+      nameof(Line).With(Line),
+      nameof(Column).With(Column),
+    ];
   }
 }
 

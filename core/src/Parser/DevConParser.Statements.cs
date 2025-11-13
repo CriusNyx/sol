@@ -8,15 +8,16 @@ namespace DevCon.Parser;
 
 public static partial class DevConParser
 {
-  public static TextParser<(ASTNode value, ParseContext context)> AssignParser =
+  public static TextParser<(ASTNode value, ParseContext context)> AssignParser = (
     from left in LeftHandExpressionParser
     from equalSym in DevConToken.Equal.Try()
-    from right in RightHandExpressionParser.RecoverNullWithContext()
+    from right in RightHandExpressionParser.NotNull().RecoverNullWithContext()
     select new Assign(left.value, equalSym, right.value)
       .AsNotNull<ASTNode>()
-      .With(ParseContext.Combine(left.context, right.context));
+      .With(ParseContext.Combine(left.context, right.context))
+  ).Named("AssignStatement");
 
-  public static TextParser<(ASTNode value, ParseContext context)> UseParser =
+  public static TextParser<(ASTNode value, ParseContext context)> UseParser = (
     from useKeyword in DevConToken.Use
     from nsIdentifiers in DevConToken
       .Identifier.SeparatedBy(DevConToken.Dot)
@@ -25,19 +26,23 @@ public static partial class DevConParser
       .RecoverNullWithContext()
     select new UseStatement(new(useKeyword), nsIdentifiers.value?.ToArray()!)
       .AsNotNull<ASTNode>()
-      .With(nsIdentifiers.context);
+      .With(nsIdentifiers.context)
+  ).Named("UseStatement");
 
   // TODO: This does not look correct.
   public static TextParser<(ASTNode value, ParseContext context)> EmptyParser = SSpan
     .EqualTo("\n")
-    .Select(x => new EmptyStatement(x).AsNotNull<ASTNode>().With(new ParseContext()));
+    .Select(x => new EmptyStatement(x).AsNotNull<ASTNode>().With(new ParseContext()))
+    .Named("EmptyStatement");
 
-  public static TextParser<(ASTNode value, ParseContext context)> StatementParser = SParse.OneOf(
-    UseParser.AsStatementParser(),
-    AssignParser.AsStatementParser(),
-    RightHandExpressionParser.AsStatementParser(),
-    EmptyParser.AsStatementParser()
-  );
+  public static TextParser<(ASTNode value, ParseContext context)> StatementParser = SParse
+    .OneOf(
+      UseParser.AsStatementParser(),
+      AssignParser.AsStatementParser(),
+      RightHandExpressionParser.NotNull().AsStatementParser(),
+      EmptyParser.AsStatementParser()
+    )
+    .Named("Statement");
 
   public static TextParser<(ASTNode value, ParseContext context)> AsStatementParser<T>(
     this TextParser<(T value, ParseContext context)> source

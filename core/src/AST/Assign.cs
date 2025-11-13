@@ -1,7 +1,6 @@
 using CriusNyx.Util;
 using DevCon.DataStructures;
 using DevCon.TypeSystem;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 namespace DevCon.AST;

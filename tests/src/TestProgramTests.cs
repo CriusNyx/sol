@@ -1,6 +1,5 @@
 using CriusNyx.Util;
 using DevCon.AST;
-using DevCon.DataStructures;
 
 namespace DevCon.Tests;
 

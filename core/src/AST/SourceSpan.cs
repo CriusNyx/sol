@@ -8,6 +8,8 @@ using ExecutionContext = DevCon.Execution.ExecutionContext;
 public class SourceSpan(Span span, string source) : ASTNode
 {
   public Span Span => span;
+  int line;
+  int character;
   public string Source => source;
 
   public override IEnumerable<(string, object)> EnumerateFields()
