@@ -6,6 +6,12 @@ namespace DevCon.Parser;
 
 public partial class DevConParser
 {
+  /// <summary>
+  /// Parser for a dev con program.
+  /// <grammar>
+  /// DevConProgram -> Statement*
+  /// </grammar>
+  /// </summary>
   public static TextParser<(DevConProgram value, ParseContext context)> ProgramParser =>
     (
       StatementParser
@@ -16,6 +22,6 @@ public partial class DevConParser
             ParseContext.Combine(statements.Select(x => x.context))
           )
         )
-        .RecoverNullWithContext()
+        .RecoverValueWithContext(new DevConProgram([]))
     ).Named("Program");
 }

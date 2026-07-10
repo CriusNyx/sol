@@ -1,10 +1,10 @@
-﻿using System.Drawing;
-using CommandLine;
+﻿using System.Diagnostics;
+using System.Drawing;
+using CriusNyx.Results;
 using CriusNyx.Util;
 using DevCon;
 using DevCon.AST;
 using DevCon.CLI;
-using DevCon.DataStructures;
 using Pastel;
 using Superpower;
 using SColor = System.Drawing.Color;
@@ -16,27 +16,31 @@ SColor method = Hex("#dcdcaa");
 SColor stringLit = Hex("#ce9178");
 SColor numLit = Hex("#b5cea8");
 
-var options = Parser.Default.ParseArguments<CLIOptions>(args).Value;
+var idk = Console.IsInputRedirected;
+
+var options = CLIOptions.Parse(args);
 
 if (options.Debugger)
 {
-  while (!System.Diagnostics.Debugger.IsAttached)
+  while (!Debugger.IsAttached)
   {
     Thread.Sleep(500);
   }
 }
 
+var semantics = Compiler.TypeCheck("use").Err().Unwrap().ast.GetSemantics().ToArray();
+
 if (options.Pretty)
 {
-  PrintPretty(options.Files);
+  PrintPretty(LoadSourceCode());
 }
 else if (options.AST)
 {
-  PrintAST(options.Files);
+  PrintAST(LoadSourceCode());
 }
 else if (options.Types)
 {
-  PrintTypes(options.Files);
+  PrintTypes(LoadSourceCode());
 }
 else if (options.Interactive)
 {
@@ -48,7 +52,19 @@ else if (options.GenerateTestfiles)
 }
 else
 {
-  Evaluate(options.Files);
+  Evaluate(LoadSourceCode());
+}
+
+IEnumerable<SourceCode> LoadSourceCode()
+{
+  if (Console.IsInputRedirected)
+  {
+    yield return new SourceCode(SourceCodeType.Console, "", Console.In.ReadToEnd());
+  }
+  foreach (var file in options.Files)
+  {
+    yield return new SourceCode(SourceCodeType.File, file, File.ReadAllText(file));
+  }
 }
 
 SColor Hex(string hex)
@@ -79,65 +95,53 @@ string Color(string source, SemanticToken token)
   }
 }
 
-void PrintPretty(IEnumerable<string> files)
+void PrintPretty(IEnumerable<SourceCode> sources)
 {
-  ForFiles(
-    files,
-    (fileArgs) =>
+  void PrintAST(ASTNode ast, string source)
+  {
+    var semanticStream = ast.GetSemantics().Stream(source);
+    foreach (var (segment, token) in semanticStream)
     {
-      void PrintAST(ASTNode ast, string source)
-      {
-        var semanticStream = ast.GetSemantics().Stream(source);
-        foreach (var (segment, token) in semanticStream)
-        {
-          Console.Write(Color(segment, token));
-        }
-      }
-
-      var (_, source) = fileArgs;
-      var parsed = Compiler.TypeCheck(source);
-      if (parsed.IsSuccess)
-      {
-        PrintAST(parsed.Value.AST, source);
-      }
-      else if (parsed.Error is PartialCompileError partial)
-      {
-        PrintAST(partial.AST, source);
-      }
-      else
-      {
-        Console.WriteLine("Error");
-      }
-      // Add new line at end of program.
-      Console.WriteLine("");
+      Console.Write(Color(segment, token));
     }
-  );
+  }
+
+  foreach (var source in sources)
+  {
+    var parsed = Compiler.TypeCheck(source.Source);
+    if (parsed.IsOk())
+    {
+      PrintAST(parsed.Unwrap().AST, source.Source);
+    }
+    else if (parsed.Err().Unwrap() is CompilerError partial)
+    {
+      PrintAST(partial.ast, source.Source);
+    }
+    else
+    {
+      Console.WriteLine("Error");
+    }
+    // Add new line at end of program.
+    Console.WriteLine("");
+  }
 }
 
-void PrintAST(IEnumerable<string> files)
+void PrintAST(IEnumerable<SourceCode> sources)
 {
-  ForFiles(
-    files,
-    (fileArgs) =>
-    {
-      var (_, source) = fileArgs;
-      var compiled = Compiler.Parse(source);
-      Console.WriteLine(compiled.Value.AST.Debug());
-    }
-  );
+  foreach (var source in sources)
+  {
+    var compiled = Compiler.Parse(source.Source);
+    Console.WriteLine(compiled.Unwrap().AST.Debug());
+  }
 }
 
-void PrintTypes(IEnumerable<string> files)
+void PrintTypes(IEnumerable<SourceCode> sources)
 {
-  ForFiles(
-    files,
-    (fileArgs) =>
-    {
-      var (_, source) = fileArgs;
-      var compiled = Compiler.TypeCheck(source);
-      Console.WriteLine(compiled.Unwrap().AST.FormatWithTypes());
-    }
-  );
+  foreach (var source in sources)
+  {
+    var compiled = Compiler.TypeCheck(source.Source);
+    Console.WriteLine(compiled.Unwrap().AST.FormatWithTypes());
+  }
 }
 
 void StartInteractive()
@@ -145,23 +149,20 @@ void StartInteractive()
   new InteractiveInterface().Run();
 }
 
-void Evaluate(IEnumerable<string> files)
+void Evaluate(IEnumerable<SourceCode> sources)
 {
-  ForFiles(
-    files,
-    (file) =>
+  foreach (var source in sources)
+  {
+    var result = Compiler.Evaluate(source.Source);
+    if (result.IsOk())
     {
-      var result = Compiler.Evaluate(file.source);
-      if (result.IsSuccess)
-      {
-        Console.WriteLine(result.Value.Result?.Debug());
-      }
-      else
-      {
-        Console.WriteLine(result.Error);
-      }
+      Console.WriteLine(result.Unwrap().Result?.Debug());
     }
-  );
+    else
+    {
+      Console.WriteLine(result.Err().Unwrap());
+    }
+  }
 }
 
 Result<GenreateTestResult, Exception> GenerateTestFile(string path, string source)
@@ -169,7 +170,7 @@ Result<GenreateTestResult, Exception> GenerateTestFile(string path, string sourc
   try
   {
     var result = Compiler.TypeCheck(source);
-    var ast = result.Map(x => x.AST).UnwrapOrElse((err) => err.RecoverAST());
+    var ast = result.Map(x => x.AST).UnwrapOrElse((err) => err.ast);
     var astDebug = ast.Debug();
     var astTypes = ast.FormatWithTypes();
     return new GenreateTestResult(path, source, astDebug, astTypes);
@@ -183,7 +184,7 @@ Result<GenreateTestResult, Exception> GenerateTestFile(string path, string sourc
 void GenerateTestFiles(IEnumerable<string> files)
 {
   var results = FilesWithSource(files).Select((pair) => GenerateTestFile(pair.path, pair.source));
-  if (results.All(x => x.IsSuccess))
+  if (results.All(x => x.IsOk()))
   {
     var tasks = results.Select(x => x.Unwrap());
     Console.WriteLine("The following files will be changed".Pastel(ConsoleColor.Green));
@@ -210,7 +211,7 @@ void GenerateTestFiles(IEnumerable<string> files)
     results.Foreach(
       (result) =>
       {
-        if (result.Safe(r => r.Error) is Exception e)
+        if (result.Safe(r => r.Err().Unwrap()) is Exception e)
         {
           Console.WriteLine(e);
         }
@@ -224,15 +225,17 @@ IEnumerable<(string path, string source)> FilesWithSource(IEnumerable<string> fi
   return files.Select(file => file.With(File.ReadAllText(file)));
 }
 
-void ForFiles(IEnumerable<string> files, Action<(string path, string source)> action)
+enum SourceCodeType
 {
-  foreach (var (path, source) in FilesWithSource(files))
-  {
-    Console.WriteLine(path);
-    Console.WriteLine("");
-    action((path, source));
-    Console.WriteLine("");
-  }
+  File,
+  Console,
+}
+
+class SourceCode(SourceCodeType type, string path, string source)
+{
+  public SourceCodeType Type => type;
+  public string Path => path;
+  public string Source => source;
 }
 
 class GenreateTestResult(string path, string source, string astDebug, string astTypes)

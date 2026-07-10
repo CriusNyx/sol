@@ -82,6 +82,14 @@ public class ParserTests
   }
 
   [Test]
+  public void CanParseStringLit()
+  {
+    var expected = Prog(StringLit("Hello World!"));
+    var actual = DevConParser.Parse("\"Hello World!\"").Unwrap();
+    AssertASTCompare(actual, expected);
+  }
+
+  [Test]
   public void CanParseIdent()
   {
     var expected = Prog(LHE("value"));
@@ -237,7 +245,7 @@ public class ParserTests
   public void CanParseInvocationWithMultipleArg_WithError()
   {
     var expected = Prog(LHE("value", Invoke("(", "", LHE("a"), null!)));
-    var actual = DevConParser.Parse("value(a,)").Error.RecoverAST();
+    var actual = DevConParser.Parse("value(a,)").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -253,7 +261,7 @@ public class ParserTests
   public void CanParseInvocationWithDeref_WithError()
   {
     var expected = Prog(LHE("value", Invoke(), Deref(null!)));
-    var actual = DevConParser.Parse("value().").Error.RecoverAST();
+    var actual = DevConParser.Parse("value().").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -269,7 +277,7 @@ public class ParserTests
   public void CanParseInvocationWithDeindex_WithError1()
   {
     var expected = Prog(LHE("value", Invoke(), Deindex(null!, rightBracket: "]")));
-    var actual = DevConParser.Parse("value()[").Error.RecoverAST();
+    var actual = DevConParser.Parse("value()[").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -277,7 +285,7 @@ public class ParserTests
   public void CanParseInvocationWithDeindex_WithError2()
   {
     var expected = Prog(LHE("value", Invoke(), Deindex(null!)));
-    var actual = DevConParser.Parse("value()[]").Error.RecoverAST();
+    var actual = DevConParser.Parse("value()[]").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -293,7 +301,7 @@ public class ParserTests
   public void CanParseDeindexWithInvocation_WithError()
   {
     var expected = Prog(LHE("value", Deindex(NumLit("0")), Invoke("(", "")));
-    var actual = DevConParser.Parse("value[0](").Error.RecoverAST();
+    var actual = DevConParser.Parse("value[0](").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -309,7 +317,7 @@ public class ParserTests
   public void CanParseDeindexWithDeref_WithError()
   {
     var expected = Prog(LHE("value", Deindex(NumLit("0")), Deref(null!)));
-    var actual = DevConParser.Parse("value[0].").Error.RecoverAST();
+    var actual = DevConParser.Parse("value[0].").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -325,7 +333,7 @@ public class ParserTests
   public void CanParseDerefWithInvocation_WithError()
   {
     var expected = Prog(LHE("value", Deref("field"), Invoke("(", "")));
-    var actual = DevConParser.Parse("value.field(").Error.RecoverAST();
+    var actual = DevConParser.Parse("value.field(").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -375,7 +383,7 @@ public class ParserTests
   public void CanParseBooleanNegate_WithError()
   {
     var expected = Prog(Unary("!", null!));
-    var actual = DevConParser.Parse("!").Error.RecoverAST();
+    var actual = DevConParser.Parse("!").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -391,7 +399,7 @@ public class ParserTests
   public void CanParseRealNegate_WithError()
   {
     var expected = Prog(Unary("-", null!));
-    var actual = DevConParser.Parse("-").Error.RecoverAST();
+    var actual = DevConParser.Parse("-").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -407,7 +415,7 @@ public class ParserTests
   public void CanParseAdd_WithError1()
   {
     var expected = Prog(Binary("+", LHE("a"), null!));
-    var actual = DevConParser.Parse("a + ").Error.RecoverAST();
+    var actual = DevConParser.Parse("a + ").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -415,7 +423,7 @@ public class ParserTests
   public void CanParseAdd_WithError2()
   {
     var expected = Prog(Binary("+", LHE("a"), LHE("b", Deref(null!))));
-    var actual = DevConParser.Parse("a + b.").Error.RecoverAST();
+    var actual = DevConParser.Parse("a + b.").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -423,7 +431,7 @@ public class ParserTests
   public void CanParseAdd_WithError3()
   {
     var expected = Prog(Binary("+", LHE("a", Deref(null!)), LHE("b")));
-    var actual = DevConParser.Parse("a. + b").Error.RecoverAST();
+    var actual = DevConParser.Parse("a. + b").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -447,7 +455,7 @@ public class ParserTests
   public void CanParseSub_WithError1()
   {
     var expected = Prog(Binary("-", LHE("a"), null!));
-    var actual = DevConParser.Parse("a - ").Error.RecoverAST();
+    var actual = DevConParser.Parse("a - ").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -455,7 +463,7 @@ public class ParserTests
   public void CanParseSub_WithError2()
   {
     var expected = Prog(Binary("-", LHE("a", Deref(null!)), LHE("b")));
-    var actual = DevConParser.Parse("a. - b").Error.RecoverAST();
+    var actual = DevConParser.Parse("a. - b").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -463,7 +471,7 @@ public class ParserTests
   public void CanParseSub_WithError3()
   {
     var expected = Prog(Binary("-", LHE("a"), LHE("b", Deref(null!))));
-    var actual = DevConParser.Parse("a - b.").Error.RecoverAST();
+    var actual = DevConParser.Parse("a - b.").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -479,7 +487,7 @@ public class ParserTests
   public void CanParseDoubleSub_WithError1()
   {
     var expected = Prog(Binary("-", LHE("a"), Unary("-", null!)));
-    var actual = DevConParser.Parse("a - - ").Error.RecoverAST();
+    var actual = DevConParser.Parse("a - - ").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -487,7 +495,7 @@ public class ParserTests
   public void CanParseDoubleSub_WithError2()
   {
     var expected = Prog(Binary("-", LHE("a"), Unary("-", LHE("b", Deref(null!)))));
-    var actual = DevConParser.Parse("a - - b.").Error.RecoverAST();
+    var actual = DevConParser.Parse("a - - b.").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -503,7 +511,7 @@ public class ParserTests
   public void CanParseMul_WithError1()
   {
     var expected = Prog(Binary("*", LHE("a"), null!));
-    var actual = DevConParser.Parse("a * ").Error.RecoverAST();
+    var actual = DevConParser.Parse("a * ").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -511,7 +519,7 @@ public class ParserTests
   public void CanParseMul_WithError2()
   {
     var expected = Prog(Binary("*", LHE("a"), LHE("b", Deref(null!))));
-    var actual = DevConParser.Parse("a * b.").Error.RecoverAST();
+    var actual = DevConParser.Parse("a * b.").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -519,7 +527,7 @@ public class ParserTests
   public void CanParseMul_WithError3()
   {
     var expected = Prog(Binary("*", LHE("a", Deref(null!)), LHE("b")));
-    var actual = DevConParser.Parse("a. * b").Error.RecoverAST();
+    var actual = DevConParser.Parse("a. * b").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -535,7 +543,7 @@ public class ParserTests
   public void CanParseDiv_WithError1()
   {
     var expected = Prog(Binary("/", LHE("a"), null!));
-    var actual = DevConParser.Parse("a / ").Error.RecoverAST();
+    var actual = DevConParser.Parse("a / ").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -543,7 +551,7 @@ public class ParserTests
   public void CanParseDiv_WithError2()
   {
     var expected = Prog(Binary("/", LHE("a", Deref(null!)), LHE("b")));
-    var actual = DevConParser.Parse("a. / b").Error.RecoverAST();
+    var actual = DevConParser.Parse("a. / b").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -551,7 +559,7 @@ public class ParserTests
   public void CanParseDiv_WithError3()
   {
     var expected = Prog(Binary("/", LHE("a"), LHE("b", Deref(null!))));
-    var actual = DevConParser.Parse("a / b.").Error.RecoverAST();
+    var actual = DevConParser.Parse("a / b.").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -567,7 +575,7 @@ public class ParserTests
   public void CanParseMod_WithError1()
   {
     var expected = Prog(Binary("%", LHE("a"), null!));
-    var actual = DevConParser.Parse("a % ").Error.RecoverAST();
+    var actual = DevConParser.Parse("a % ").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -575,7 +583,7 @@ public class ParserTests
   public void CanParseMod_WithError2()
   {
     var expected = Prog(Binary("%", LHE("a", Deref(null!)), LHE("b")));
-    var actual = DevConParser.Parse("a. % b").Error.RecoverAST();
+    var actual = DevConParser.Parse("a. % b").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -583,7 +591,7 @@ public class ParserTests
   public void CanParseMod_WithError3()
   {
     var expected = Prog(Binary("%", LHE("a"), LHE("b", Deref(null!))));
-    var actual = DevConParser.Parse("a % b.").Error.RecoverAST();
+    var actual = DevConParser.Parse("a % b.").Err().Unwrap().ast;
     AssertASTCompare(actual, expected);
   }
 
@@ -627,7 +635,27 @@ public class ParserTests
   public void CanParseUse_WithError()
   {
     var expected = Prog(UseExplicit(null!));
-    var actual = DevConParser.Parse("use ").Error.RecoverAST();
+    var actual = DevConParser.Parse("use ").Err().Unwrap().ast;
+    AssertASTCompare(actual, expected);
+  }
+
+  [Test]
+  public void CanParseEmpty()
+  {
+    var expected = Prog(Empty());
+    var actual = DevConParser.Parse("\n").Unwrap();
+    AssertASTCompare(actual, expected);
+  }
+
+  [Test]
+  public void CanParseProgramWithEmpty()
+  {
+    var expected = Prog(
+      Use(Ident("System")),
+      Empty(),
+      LHE("Console", Deref("WriteLine"), Invoke(StringLit("Hello World!")))
+    );
+    var actual = DevConParser.Parse("use System\n\nConsole.WriteLine(\"Hello World!\")").Unwrap();
     AssertASTCompare(actual, expected);
   }
 }

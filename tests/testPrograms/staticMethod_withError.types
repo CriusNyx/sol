@@ -1,10 +1,10 @@
-DevConProgram                null
-|-UseStatement               null
-| |-KeywordSpan      use     null
-| |-Identifier               null
-| | |-SourceSpan     System  null
-|-LeftHandExpression         null
-| |-Identifier               null
-| | |-SourceSpan     Console null
-| |-DerefExpression          null
-| | |-SourceSpan     .       null
+DevConProgram                UnknownType(ClassReferenceType(Console))
+|-UseStatement               VoidType                                
+| |-KeywordSpan      use     null                                    
+| |-Identifier               NamespaceReference                      
+| | |-SourceSpan     System  null                                    
+|-LeftHandExpression         UnknownType(ClassReferenceType(Console))
+| |-Identifier               ClassReferenceType(Console)             
+| | |-SourceSpan     Console null                                    
+| |-DerefExpression          UnknownType(ClassReferenceType(Console))
+| | |-SourceSpan     .       null                                    

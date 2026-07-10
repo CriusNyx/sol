@@ -13,7 +13,7 @@ public class TestProgramTests
   {
     var source = File.ReadAllText(path);
     var compiledResult = Compiler.TypeCheck(source);
-    var ast = compiledResult.Map(x => x.AST).UnwrapOrElse(x => x.RecoverAST());
+    var ast = compiledResult.Map(x => x.AST).UnwrapOrElse(x => x.ast);
 
     var astString = ast.Debug();
     var typeString = ast.FormatWithTypes();

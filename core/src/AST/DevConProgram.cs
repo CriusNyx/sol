@@ -5,8 +5,15 @@ using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 namespace DevCon.AST;
 
+/// <summary>
+/// ASTNode for a DevCon program.
+/// </summary>
+/// <param name="statements"></param>
 public class DevConProgram(ASTNode[] statements) : ASTNode
 {
+  /// <summary>
+  /// The statements that comprise this program.
+  /// </summary>
   public ASTNode?[] Statements => statements;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -29,12 +36,12 @@ public class DevConProgram(ASTNode[] statements) : ASTNode
     DevConType? result = null;
     foreach (var statement in Statements)
     {
-      result = statement?.TypeCheck(context) ?? new UnknownType();
+      result = statement?.TypeCheck(context) ?? new UnknownType(null);
     }
     return result;
   }
 
-  public override Span GetSpan()
+  protected override Span _GetSpan()
   {
     return Span.Join(statements.Select(x => x.GetSpan()).ToArray());
   }

@@ -6,20 +6,21 @@ using SParser = Superpower.Parsers;
 
 namespace DevCon.Parser;
 
-public partial class DevConParser
+public static partial class DevConParser
 {
+  /// <summary>
+  /// Parser for CString character.
+  /// </summary>
   private static readonly TextParser<char> CStringContentChar = SParser
     .Span.EqualTo("\\\"")
     .Value('"')
     .Try()
     .Or(SParser.Character.ExceptIn('"', '\\', '\r', '\n'));
 
-  // public static TextParser<string> CString { get; } =
-  //   SParser
-  //     .Character.EqualTo('"')
-  //     .IgnoreThen(CStringContentChar.Many())
-  //     .Then((char[] s) => SParser.Character.EqualTo('"').Value(new string(s)));
-
+  /// <summary>
+  /// Parser for a String.
+  /// Modified version of Superpower parser that supports recovery.
+  /// </summary>
   public static TextParser<(string value, ParseContext context)> CString { get; } =
     from start in SParser.Character.EqualTo('"')
     from body in CStringContentChar
@@ -33,6 +34,12 @@ public partial class DevConParser
       .RecoverUntilWithContext(DevConToken.NewLine)
     select body.value.With(ParseContext.Combine(body.context, end.context));
 
+  /// <summary>
+  /// Parser for a number literal.
+  /// <grammar>
+  /// NumberLiteral
+  /// </grammar>
+  /// </summary>
   public static TextParser<(RightHandExpression value, ParseContext context)> NumberLiteralParser =
     SParser
       .Numerics.DecimalDecimal.ThenIgnore(DevConToken.NonSemantic)
@@ -44,6 +51,12 @@ public partial class DevConParser
       .WithContext(new ParseContext())
       .Named("NumberLiteral");
 
+  /// <summary>
+  /// Parser for string literal.
+  /// <grammar>
+  /// StringLiteral
+  /// </grammar>
+  /// </summary>
   public static TextParser<(RightHandExpression value, ParseContext context)> StringLiteralParser =
     CString
       .WithSpan()

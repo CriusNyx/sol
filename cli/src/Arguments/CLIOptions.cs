@@ -4,6 +4,8 @@ namespace DevCon.CLI;
 
 public class CLIOptions
 {
+  public static CLIOptions ProgramArgs { get; private set; } = null!;
+
   [Value(0, HelpText = "The files to execute.")]
   public IEnumerable<string> Files { get; set; } = null!;
 
@@ -47,4 +49,10 @@ public class CLIOptions
     HelpText = "Generate test files"
   )]
   public bool GenerateTestfiles { get; set; }
+
+  public static CLIOptions Parse(string[] args)
+  {
+    ProgramArgs = CommandLine.Parser.Default.ParseArguments<CLIOptions>(args).Value;
+    return ProgramArgs;
+  }
 }

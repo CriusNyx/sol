@@ -2,8 +2,18 @@ using System.Reflection;
 
 namespace DevCon.Execution;
 
+/// <summary>
+/// Helper methods for program execution.
+/// </summary>
 public static class ExecutionHelpers
 {
+  /// <summary>
+  /// Derefence a member from an object.
+  /// </summary>
+  /// <param name="owner"></param>
+  /// <param name="fieldName"></param>
+  /// <returns></returns>
+  /// <exception cref="InvalidOperationException"></exception>
   public static object? DerefMember(object owner, string fieldName)
   {
     if (owner.GetType().GetField(fieldName) is FieldInfo field)
@@ -25,6 +35,13 @@ public static class ExecutionHelpers
     throw new InvalidOperationException();
   }
 
+  /// <summary>
+  /// Set object member.
+  /// </summary>
+  /// <param name="owner"></param>
+  /// <param name="fieldName"></param>
+  /// <param name="value"></param>
+  /// <exception cref="InvalidOperationException"></exception>
   public static void SetMember(object owner, string fieldName, object? value)
   {
     if (owner.GetType().GetField(fieldName) is FieldInfo field)

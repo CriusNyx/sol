@@ -5,10 +5,14 @@ using SParse = Superpower.Parse;
 
 namespace DevCon.Parser;
 
+// Contains grammar elements for LeftHandExpressions.
+
 public static partial class DevConParser
 {
   /// <summary>
+  /// <grammar>
   /// Chain -> Deref | Invocation | Deindex
+  /// </grammar>
   /// </summary>
   public static TextParser<(
     LeftHandExpressionChain value,
@@ -20,7 +24,9 @@ public static partial class DevConParser
     .Named("ChainExpression");
 
   /// <summary>
+  /// <grammar>
   /// Deref -> dot identifier Chain?
+  /// </grammar>
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext parseContext)> DerefParser =
     (
@@ -33,7 +39,9 @@ public static partial class DevConParser
     ).Named("Deref");
 
   /// <summary>
+  /// <grammar>
   /// Deindex -> leftBracket RightHandExpression rightBracket Chain?
+  /// </grammar>
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext context)> DeindexParser = (
     from leftBracket in DevConToken.LeftBracket
@@ -45,6 +53,9 @@ public static partial class DevConParser
       .With(ParseContext.Combine(index.context, rightBracket.context, chain.context))
   ).Named("Deindex");
 
+  /// <summary>
+  ///
+  /// </summary>
   public static TextParser<(
     RightHandExpression[] value,
     ParseContext context
@@ -64,7 +75,9 @@ public static partial class DevConParser
       .Named("InvocationArg");
 
   /// <summary>
+  /// <grammar>
   /// Invocation -> leftParen ((Expression comma)* Expression)? rightParen Chain?
+  /// </grammar>
   /// </summary>
   public static TextParser<(LeftHandExpressionChain value, ParseContext context)> InvocationParser =
     (
@@ -78,7 +91,9 @@ public static partial class DevConParser
     ).Named("Invocation");
 
   /// <summary>
+  /// <grammar>
   /// LeftHandExpression -> ident Chain?
+  /// </grammar>
   /// </summary>
   public static TextParser<(
     LeftHandExpression value,

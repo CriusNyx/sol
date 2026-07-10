@@ -1,19 +1,37 @@
+using CriusNyx.Results;
+using CriusNyx.Results.Extensions;
 using CriusNyx.Util;
 using DevCon.AST;
 using DevCon.DataStructures;
 using DevCon.TypeSystem;
 using ExecutionContext = DevCon.Execution.ExecutionContext;
 
-public class UseStatement(KeywordSpan? useKeyword, Identifier?[] namespaceSequence) : ASTNode
+/// <summary>
+/// ASTNode for use statements.
+/// </summary>
+/// <param name="useKeyword"></param>
+/// <param name="namespaceSequence"></param>
+public class UseStatement(KeywordSpan? useKeyword, Identifier?[]? namespaceSequence) : ASTNode
 {
-  public KeywordSpan? UseKeyword => useKeyword;
-  public Identifier?[] NamespaceSequence => namespaceSequence;
+  /// <summary>
+  /// The KeywordSpan for the use keyword.
+  /// </summary>
+  public Option<KeywordSpan> UseKeyword => useKeyword.AsOption();
+
+  /// <summary>
+  /// The identifiers that comprise the namespace that this use statement includes.
+  /// </summary>
+  public Identifier?[]? NamespaceSequence => namespaceSequence;
+
+  /// <summary>
+  /// The identifier (including dots) of the namespace.
+  /// </summary>
   public string NamespaceIdentifier =>
-    NamespaceSequence?.Select(x => x?.Source ?? "").StringJoin(".") ?? "";
+    namespaceSequence?.Select(x => x?.Source ?? "").StringJoin(".") ?? "";
 
   public override IEnumerable<(string, object)> EnumerateFields()
   {
-    return [(nameof(NamespaceSequence).With(NamespaceSequence))];
+    return [(nameof(NamespaceSequence).With(NamespaceSequence!))];
   }
 
   public override object? Evaluate(ExecutionContext context)
@@ -25,25 +43,25 @@ public class UseStatement(KeywordSpan? useKeyword, Identifier?[] namespaceSequen
   protected override DevConType? _TypeCheck(TypeContext context)
   {
     context.typeScope.UseNamespace(NamespaceIdentifier);
-    foreach (var ns in NamespaceSequence)
+    foreach (var ns in NamespaceSequence ?? [])
     {
       ns?.SetType(new NamespaceReference());
     }
     return new VoidType();
   }
 
-  public override Span GetSpan()
+  protected override Span _GetSpan()
   {
     return Span.SafeJoin(
       useKeyword?.GetSpan(),
-      Span.SafeJoin(namespaceSequence.Select(x => x?.GetSpan()).ToArray())
+      Span.SafeJoin(NamespaceSequence?.Select(x => x?.GetSpan()).ToArray() ?? [])
     );
   }
 
   public override IEnumerable<ASTNode> GetChildren()
   {
     return new ASTNode?[] { useKeyword }
-      .Concat(namespaceSequence)
+      .Concat(namespaceSequence ?? [])
       .WhereAs<ASTNode>();
   }
 }

@@ -1,5 +1,6 @@
 using CriusNyx.Util;
-using Microsoft.VisualBasic;
+using DevCon.Docs;
+using XDoc;
 
 namespace DevCon.TypeSystem;
 
@@ -45,5 +46,10 @@ public class CSType(Type type) : DevConType
     csType.GetInterfaces().Select(superset.Add);
 
     return superset;
+  }
+
+  public override IEnumerable<DocumentationElement> GetDocs()
+  {
+    return DocManager.GetClassDoc(csType).Map(x => x.AsArray()).UnwrapOr([]);
   }
 }

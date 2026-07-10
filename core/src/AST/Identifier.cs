@@ -5,9 +5,21 @@ using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 namespace DevCon.AST;
 
+/// <summary>
+/// ASTNode for identifiers.
+/// </summary>
+/// <param name="textSpan"></param>
 public class Identifier(SourceSpan? textSpan) : ASTNode
 {
+  /// <summary>
+  /// The SourceSpan for the identifier text.
+  /// </summary>
   public SourceSpan? Span => textSpan;
+
+  /// <summary>
+  /// The source code for the identifier.
+  /// This is the same as the identifier as a string.
+  /// </summary>
   public string Source => Span?.Source.ToString() ?? "";
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -25,7 +37,7 @@ public class Identifier(SourceSpan? textSpan) : ASTNode
     throw new NotImplementedException();
   }
 
-  public override Span GetSpan()
+  protected override Span _GetSpan()
   {
     return Span?.GetSpan() ?? DataStructures.Span.Empty;
   }
@@ -35,13 +47,17 @@ public class Identifier(SourceSpan? textSpan) : ASTNode
     return new ASTNode?[] { Span }.WhereAs<ASTNode>();
   }
 
+  /// <summary>
+  /// Set the type of the identifier.
+  /// </summary>
+  /// <param name="devConType"></param>
   public void SetType(DevConType devConType)
   {
-    this.cachedType = devConType;
+    cachedType.Insert(devConType);
   }
 
   public override IEnumerable<SemanticToken> GetSemantics()
   {
-    return [new(GetSpan(), NodeTypeSafe?.ToSemanticType() ?? SemanticType.ObjectReference)];
+    return [new(_GetSpan(), NodeTypeSafe?.ToSemanticType() ?? SemanticType.ObjectReference)];
   }
 }

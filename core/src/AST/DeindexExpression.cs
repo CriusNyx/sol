@@ -5,6 +5,13 @@ using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 namespace DevCon.AST;
 
+/// <summary>
+/// ASTNode for a deindex expression.
+/// </summary>
+/// <param name="leftBracket"></param>
+/// <param name="index"></param>
+/// <param name="rightBracket"></param>
+/// <param name="chain"></param>
 public class DeindexExpression(
   SourceSpan? leftBracket,
   RightHandExpression? index,
@@ -12,9 +19,24 @@ public class DeindexExpression(
   LeftHandExpressionChain? chain
 ) : LeftHandExpressionChain
 {
+  /// <summary>
+  /// The SourceSpan for the left bracket.
+  /// </summary>
   public SourceSpan? LeftBracket => leftBracket;
+
+  /// <summary>
+  /// The expression used to compute the index.
+  /// </summary>
   public RightHandExpression? Index => index;
+
+  /// <summary>
+  /// The SourceSpan for the right bracked.
+  /// </summary>
   public SourceSpan? RightBracket => rightBracket;
+
+  /// <summary>
+  /// The Chain expression for the next part of the LeftHandExpression.
+  /// </summary>
   public LeftHandExpressionChain? Chain => chain;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -34,7 +56,7 @@ public class DeindexExpression(
     throw new NotImplementedException();
   }
 
-  public override Span GetSpan()
+  protected override Span _GetSpan()
   {
     return Span.SafeJoin(
       LeftBracket?.GetSpan(),

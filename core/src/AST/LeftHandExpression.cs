@@ -6,12 +6,29 @@ using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 namespace DevCon.AST;
 
+/// <summary>
+/// ASTNode for a LeftHandExpression.
+/// </summary>
+/// <param name="identifier"></param>
+/// <param name="chain"></param>
 public class LeftHandExpression(Identifier? identifier, LeftHandExpressionChain? chain)
   : RightHandExpression
 {
+  /// <summary>
+  /// The Identifier that starts the LeftHandExpression.
+  /// </summary>
   public Identifier? Identifier => identifier;
+
+  /// <summary>
+  /// The expression chain for the LeftHandExpression.
+  /// </summary>
   public LeftHandExpressionChain? Chain => chain;
 
+  /// <summary>
+  /// Evaluate the expression as a reference so that it can be derefenced or assigned.
+  /// </summary>
+  /// <param name="context"></param>
+  /// <returns></returns>
   public ObjectReference EvaluateReference(ExecutionContext context)
   {
     var self = new ObjectReference(context, Identifier.NotNull().Source);
@@ -28,7 +45,7 @@ public class LeftHandExpression(Identifier? identifier, LeftHandExpressionChain?
   {
     var identifierType =
       Identifier?.Transform(ident => context.typeScope.GetType(Identifier.Source))
-      ?? new UnknownType();
+      ?? new UnknownType(null);
     Identifier?.SetType(identifierType);
     context.PushType(identifierType);
     var output = Chain == null ? identifierType : Chain.TypeCheck(context);
@@ -36,6 +53,10 @@ public class LeftHandExpression(Identifier? identifier, LeftHandExpressionChain?
     return output;
   }
 
+  /// <summary>
+  /// Get the name of the left hand expression for type checking.
+  /// </summary>
+  /// <returns></returns>
   public string? GetLocalName()
   {
     if (Chain == null)
@@ -59,7 +80,7 @@ public class LeftHandExpression(Identifier? identifier, LeftHandExpressionChain?
     return underlying;
   }
 
-  public override Span GetSpan()
+  protected override Span _GetSpan()
   {
     return Span.SafeJoin(Identifier?.GetSpan(), Chain?.GetSpan());
   }

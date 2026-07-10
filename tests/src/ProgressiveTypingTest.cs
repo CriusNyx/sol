@@ -1,3 +1,5 @@
+using CriusNyx.Util;
+
 namespace DevCon.Tests;
 
 public class ProgressiveTypingTest
@@ -17,6 +19,39 @@ public class ProgressiveTypingTest
       Assert.DoesNotThrow(() =>
       {
         var compiledResult = Compiler.Parse(source);
+      });
+    }
+  }
+
+  [Theory]
+  public void ProgramTypeChecksWhileBeingTyped(string path)
+  {
+    var fileText = File.ReadAllText(path);
+
+    foreach (var i in Enumerable.Range(0, fileText.Length))
+    {
+      var source = fileText.Substring(0, i);
+
+      Assert.DoesNotThrow(() =>
+      {
+        var ast = Compiler.TypeCheck(source).Map((r) => r.AST).UnwrapOrElse((e) => e.ast);
+      });
+    }
+  }
+
+  [Theory]
+  public void SemanticsWorkOnPartialPrograms(string path)
+  {
+    var fileText = File.ReadAllText(path);
+
+    foreach (var i in Enumerable.Range(0, fileText.Length))
+    {
+      var source = fileText.Substring(0, i);
+
+      Assert.DoesNotThrow(() =>
+      {
+        var ast = Compiler.TypeCheck(source).Map((r) => r.AST).UnwrapOrElse((e) => e.ast);
+        ast.GetSemantics().Debug();
       });
     }
   }

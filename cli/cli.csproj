@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\core\core.csproj" />
+    <ProjectReference Include="..\XDoc.NET\src\XDoc\XDoc.csproj" />
+    <ProjectReference Include="..\XDoc.NET\src\Render\XDoc.PlainText\XDoc.PlainText.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\*.*">

@@ -8,14 +8,31 @@ using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 namespace DevCon.AST;
 
+/// <summary>
+/// ASTNode for Deref expression.
+/// </summary>
+/// <param name="dot"></param>
+/// <param name="identifier"></param>
+/// <param name="chain"></param>
 public class DerefExpression(
   SourceSpan? dot,
   Identifier? identifier,
   LeftHandExpressionChain? chain
 ) : LeftHandExpressionChain
 {
+  /// <summary>
+  /// The SourceSpan for the Dot.
+  /// </summary>
   public SourceSpan? Dot => dot;
+
+  /// <summary>
+  /// The Identifier to dereference.
+  /// </summary>
   public Identifier? Identifier => identifier;
+
+  /// <summary>
+  /// The Chain expression for the next part of the LeftHandExpression.
+  /// </summary>
   public LeftHandExpressionChain? Chain => chain;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -77,9 +94,8 @@ public class DerefExpression(
   {
     var underlyingType = context.PeekType();
     var fieldType =
-      Identifier?.Transform(ident =>
-        underlyingType.DerefFieldType(ident.Source).NotNull("DereferencedType")
-      ) ?? new UnknownType();
+      Identifier?.Transform(ident => underlyingType.DerefFieldType(ident.Source))
+      ?? new UnknownType(underlyingType);
     Identifier?.SetType(fieldType);
     context.PushType(fieldType);
     var output = Chain == null ? fieldType : Chain.TypeCheck(context);
@@ -87,7 +103,7 @@ public class DerefExpression(
     return output;
   }
 
-  public override Span GetSpan()
+  protected override Span _GetSpan()
   {
     return Span.SafeJoin(Identifier?.GetSpan(), Chain?.GetSpan());
   }

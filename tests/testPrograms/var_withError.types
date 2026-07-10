@@ -1,6 +1,6 @@
-DevConProgram            null
-|-Assign                 null
-| |-LeftHandExpression   null
-| | |-Identifier         null
-| | | |-SourceSpan     a null
-| |-SourceSpan         = null
+DevConProgram            UnknownType()
+|-Assign                 UnknownType()
+| |-LeftHandExpression   UnknownType()
+| | |-Identifier         UnknownType()
+| | | |-SourceSpan     a null         
+| |-SourceSpan         = null         

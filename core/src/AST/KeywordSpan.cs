@@ -3,6 +3,11 @@ using DevCon;
 using DevCon.DataStructures;
 using Superpower.Model;
 
+/// <summary>
+/// ASTNode for a text span for a keyword.
+/// </summary>
+/// <param name="span"></param>
+/// <param name="source"></param>
 public class KeywordSpan(Span span, string source) : SourceSpan(span, source)
 {
   public KeywordSpan(TextSpan textSpan)
@@ -13,6 +18,6 @@ public class KeywordSpan(Span span, string source) : SourceSpan(span, source)
 
   public override IEnumerable<SemanticToken> GetSemantics()
   {
-    return [new(GetSpan(), SemanticType.Keyword)];
+    return [new(_GetSpan(), SemanticType.Keyword)];
   }
 }

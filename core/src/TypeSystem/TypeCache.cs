@@ -1,7 +1,14 @@
 namespace DevCon.TypeSystem;
 
+/// <summary>
+/// Cache with type information.
+/// This is probably deprecated.
+/// </summary>
 public class TypeCahce
 {
+  /// <summary>
+  /// Create new type cache.
+  /// </summary>
   public static Task<Dictionary<string, Type>> Cache = Task.Run(() =>
   {
     var TypeCahce = new Dictionary<string, Type>();

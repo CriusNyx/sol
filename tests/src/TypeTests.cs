@@ -1,7 +1,6 @@
 using System.Reflection;
 using DeepEqual.Syntax;
 using DevCon.AST;
-using DevCon.DataStructures;
 using DevCon.Parser;
 using DevCon.TypeSystem;
 using Superpower;
@@ -10,7 +9,7 @@ using Superpower;
 
 namespace DevCon.Tests;
 
-class TestType
+public class TestType
 {
   public float field;
   public static float staticField;
@@ -24,7 +23,7 @@ class TestType
   }
 }
 
-class Vector
+public class Vector
 {
   public static Vector operator -(Vector a)
   {

@@ -2,8 +2,17 @@ using CriusNyx.Util;
 
 namespace DevCon.AST;
 
+/// <summary>
+/// Extensions for AST nodes.
+/// </summary>
 public static class ASTNodeExtensions
 {
+  /// <summary>
+  /// Find a node with the specified predicate in the abstract syntax tree.
+  /// </summary>
+  /// <param name="astNode"></param>
+  /// <param name="predicate"></param>
+  /// <returns></returns>
   public static ASTNode? FindNode(this ASTNode astNode, Func<ASTNode, bool> predicate)
   {
     if (predicate(astNode))
@@ -20,6 +29,12 @@ public static class ASTNodeExtensions
     return null;
   }
 
+  /// <summary>
+  /// Format the node in a tree the additional information appended in a grid.
+  /// </summary>
+  /// <param name="node"></param>
+  /// <param name="formatters"></param>
+  /// <returns></returns>
   public static string FormatWith(this ASTNode node, params Func<ASTNode, string>[] formatters)
   {
     string Indent(int level)
@@ -44,6 +59,11 @@ public static class ASTNodeExtensions
     return elements.FormatGrid(" ");
   }
 
+  /// <summary>
+  /// Format the node in a tree with it's type information appended.
+  /// </summary>
+  /// <param name="node"></param>
+  /// <returns></returns>
   public static string FormatWithTypes(this ASTNode node)
   {
     return node.FormatWith(

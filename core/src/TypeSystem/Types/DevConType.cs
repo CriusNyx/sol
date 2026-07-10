@@ -1,5 +1,6 @@
 using System.Reflection;
 using CriusNyx.Util;
+using XDoc;
 
 namespace DevCon.TypeSystem;
 
@@ -48,5 +49,25 @@ public abstract class DevConType
   public override string ToString()
   {
     return GetType().Name.ToString();
+  }
+
+  public abstract IEnumerable<DocumentationElement> GetDocs();
+
+  public IEnumerable<string> GetDocStrings()
+  {
+    return GetDocs()
+      .Select(x =>
+      {
+        if (x is TypeDocumentation td)
+        {
+          return td.ToPlainText();
+        }
+        else if (x is MethodDocumentation md)
+        {
+          return md.ToPlainText();
+        }
+        return null!;
+      })
+      .WhereAs<string>();
   }
 }

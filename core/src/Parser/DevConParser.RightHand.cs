@@ -8,6 +8,12 @@ namespace DevCon.Parser;
 
 public static partial class DevConParser
 {
+  /// <summary>
+  /// Parser for Right Hand Expression.
+  ///   <grammar>
+  ///     RightHandExpression -> TermOp
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(
     RightHandExpression value,
     ParseContext context
@@ -15,6 +21,12 @@ public static partial class DevConParser
     .Ref(() => TermOpParser.NotNull())
     .Named("RightHandExpression");
 
+  /// <summary>
+  /// Parser for a paren expression
+  ///   <grammar>
+  ///     ParentExpression -> leftParen RightHandExpression rightParen
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(RightHandExpression value, ParseContext context)> ParenParser = (
     from leftParen in DevConToken.LeftParen
     from exp in RightHandExpressionParser.RecoverNullWithContext()
@@ -24,6 +36,12 @@ public static partial class DevConParser
       .With(ParseContext.Combine(exp.context, rightParen.context))
   ).Named("Paren");
 
+  /// <summary>
+  /// Parser for unit expression.
+  ///   <grammar>
+  ///     UnitParser -> LeftHandExpression | ParenExpression | | StringLiteral | NumberLiteral
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(RightHandExpression value, ParseContext context)> UnitParser = SParse
     .OneOf(
       LeftHandExpressionParser.Select(x => (x.value as RightHandExpression, x.context)),
@@ -33,6 +51,12 @@ public static partial class DevConParser
     )
     .Named("Unit");
 
+  /// <summary>
+  /// Parser for a unary operator type.
+  ///   <grammar>
+  ///     UnaryOpType = exclimation | minus
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(TextSpan span, UnaryOpType value)> UnaryOpTypeParser = SParse
     .OneOf(
       DevConToken.Exclimation.Select((span) => span.With(UnaryOpType.BooleanNegate)),
@@ -40,6 +64,12 @@ public static partial class DevConParser
     )
     .Named("UnaryOpType");
 
+  /// <summary>
+  /// Parser for a unary operator.
+  ///   <grammar>
+  ///     UnaryOpExpression -> UnaryOpType UnitExpression
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(RightHandExpression value, ParseContext context)> UnaryOpParser = (
     from opType in UnaryOpTypeParser
     from unit in UnitParser.RecoverNullWithContext()
@@ -48,6 +78,12 @@ public static partial class DevConParser
       .With(unit.context)
   ).Named("UnaryOp");
 
+  /// <summary>
+  /// FactorOpType
+  ///   <grammar>
+  ///     FactorOpType -> asterisk | fslash | percent
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(TextSpan span, BinaryOpType value)> FactorOpTypeParser = SParse
     .OneOf(
       DevConToken.Asterisk.Select(span => span.With(BinaryOpType.Multiply)),
@@ -56,9 +92,21 @@ public static partial class DevConParser
     )
     .Named("FactorOpType");
 
+  /// <summary>
+  /// Factor operand parser
+  ///   <grammar>
+  ///     FactorOperand -> UnaryOpExpression | UnitExpression
+  ///   </grammar>
+  /// </summary>
   private static TextParser<(RightHandExpression value, ParseContext context)> FactorOperandParser =
     UnaryOpParser.Or(UnitParser);
 
+  /// <summary>
+  /// FactorOp Parser
+  ///   <grammar>
+  ///     FactorOpExpression -> FactorOperand [FactorOpType FactorOperand]*
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(RightHandExpression value, ParseContext context)> FactorOpParser =
     FactorOperandParser
       .Named("FactorOperandFirst")
@@ -72,6 +120,12 @@ public static partial class DevConParser
       )
       .Named("FactorOp");
 
+  /// <summary>
+  /// TermOpType parser
+  ///   <grammar>
+  ///     TermOpType -> plus | minus
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(TextSpan span, BinaryOpType value)> TermOpTypeParser = SParse
     .OneOf(
       DevConToken.Plus.Select(span => span.With(BinaryOpType.Add)),
@@ -79,6 +133,12 @@ public static partial class DevConParser
     )
     .Named("TermOpType");
 
+  /// <summary>
+  /// TermOp Parser
+  ///   <grammar>
+  ///     TermOpExpression -> FactorOpExpression [TermOpType FactorOpExpression]*
+  ///   </grammar>
+  /// </summary>
   public static TextParser<(RightHandExpression value, ParseContext context)> TermOpParser =
     FactorOpParser
       .Named("FactorOperandFirst")

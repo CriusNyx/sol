@@ -6,6 +6,13 @@ using ExecutionContext = DevCon.Execution.ExecutionContext;
 
 namespace DevCon.AST;
 
+/// <summary>
+/// The ASTNode for an invocation expression.
+/// </summary>
+/// <param name="leftParen"></param>
+/// <param name="arguments"></param>
+/// <param name="rightParen"></param>
+/// <param name="chain"></param>
 public class InvocationExpression(
   SourceSpan? leftParen,
   RightHandExpression?[] arguments,
@@ -13,11 +20,24 @@ public class InvocationExpression(
   LeftHandExpressionChain? chain
 ) : LeftHandExpressionChain
 {
+  /// <summary>
+  /// The SourceSpan for the left paren.
+  /// </summary>
   public SourceSpan? LeftParen => leftParen;
 
+  /// <summary>
+  /// The set of argument expressions used to invoke the method.
+  /// </summary>
   public IEnumerable<RightHandExpression?> Arguments => arguments;
+
+  /// <summary>
+  /// The SourceSpan for the right paren.
+  /// </summary>
   public SourceSpan? RightParen => rightParen;
 
+  /// <summary>
+  /// The Chain expression for the next part of the LeftHandExpression.
+  /// </summary>
   public LeftHandExpressionChain? Chain => chain;
 
   public override IEnumerable<(string, object)> EnumerateFields()
@@ -28,14 +48,15 @@ public class InvocationExpression(
   protected override DevConType? _TypeCheck(TypeContext context)
   {
     List<DevConType> args = new List<DevConType>();
+    var underlyingType = context.PeekType();
     foreach (var arg in Arguments)
     {
       context.PushScope();
-      var result = arg?.TypeCheck(context).NotNull() ?? new UnknownType();
+      var result = arg?.TypeCheck(context).NotNull() ?? new UnknownType(underlyingType);
       args.Add(result);
       context.PopScope();
     }
-    var underlyingType = context.PeekType();
+
     context.PushType(underlyingType);
     var output = underlyingType.DerefReturnType(args.ToArray());
     context.PopType();
@@ -51,7 +72,7 @@ public class InvocationExpression(
     throw new NotImplementedException();
   }
 
-  public override Span GetSpan()
+  protected override Span _GetSpan()
   {
     return Span.SafeJoin(
       LeftParen?.GetSpan(),

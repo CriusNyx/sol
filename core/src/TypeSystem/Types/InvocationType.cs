@@ -1,5 +1,7 @@
 using System.Reflection;
 using CriusNyx.Util;
+using DevCon.Docs;
+using XDoc;
 
 namespace DevCon.TypeSystem;
 
@@ -14,11 +16,17 @@ public class InvocationType : DevConType
 
   public override DevConType? DerefReturnType(DevConType[] knownArgumentTypes)
   {
-    var csTypes = knownArgumentTypes.Select(x => x.As<CSType>().NotNull().csType).ToArray();
+    var csTypes = knownArgumentTypes.Select(x => x.As<CSType>()?.csType).ToArray();
+
+    // Cannot resolve method if cs types are null.
+    if (csTypes.Any(x => x == null))
+    {
+      return null;
+    }
 
     var selectedMethod = MethodHelpers.BindMethod(
       Overloads.WhereAs<MethodInfo>().ToArray(),
-      csTypes
+      csTypes!
     );
 
     var returnType = selectedMethod
@@ -35,5 +43,10 @@ public class InvocationType : DevConType
     {
       return new CSType(returnType);
     }
+  }
+
+  public override IEnumerable<DocumentationElement> GetDocs()
+  {
+    return DocManager.GetMethodDocs(Overloads);
   }
 }

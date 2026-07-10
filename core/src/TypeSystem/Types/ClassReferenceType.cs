@@ -1,3 +1,7 @@
+using CriusNyx.Util;
+using DevCon.Docs;
+using XDoc;
+
 namespace DevCon.TypeSystem;
 
 public class ClassReferenceType(Type type) : DevConType
@@ -25,5 +29,10 @@ public class ClassReferenceType(Type type) : DevConType
   public override string ToString()
   {
     return $"{nameof(ClassReferenceType)}({classType.Name})";
+  }
+
+  public override IEnumerable<DocumentationElement> GetDocs()
+  {
+    return DocManager.GetClassDoc(classType).Map(x => x.AsArray()).UnwrapOr([]);
   }
 }

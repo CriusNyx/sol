@@ -11,9 +11,11 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Outdir>bin</Outdir>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CriusNyxUtil" Version="0.0.17" />
+    <PackageReference Include="CriusNyx.Result" Version="0.0.9" />
+    <PackageReference Include="CriusNyxUtil" Version="0.0.20" />
     <PackageReference Include="Microsoft.JavaScript.NodeApi" Version="0.9.17" />
     <PackageReference Include="Microsoft.JavaScript.NodeApi.Generator" Version="0.9.17" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -27,4 +29,12 @@
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XDoc.NET\src\Render\XDoc.PlainText\XDoc.PlainText.csproj" />
+    <ProjectReference Include="..\XDoc.NET\src\XDoc\XDoc.csproj" />
+  </ItemGroup>
+  <!-- <ItemGroup>
+    <ProjectReference Include="..\XDoc.NET\src\XDoc\XDoc.csproj" />
+    <ProjectReference Include="..\XDoc.NET\src\Render\XDoc.PlainText\XDoc.PlainText.csproj" />
+  </ItemGroup> -->
 </Project>
